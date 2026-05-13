@@ -149,6 +149,8 @@ public class GameFragment extends Fragment {
                     adapter.clearSelection();
                     adapter.setPathPositions(null);
                     adapter.notifyDataSetChanged();
+                    firstSelected = null;
+                    secondSelected = null;
                     checkGameState();
                 }, 500);
 
@@ -158,6 +160,8 @@ public class GameFragment extends Fragment {
                 handler.postDelayed(() -> {
                     adapter.clearSelection();
                     adapter.notifyDataSetChanged();
+                    firstSelected = null;
+                    secondSelected = null;
                 }, 600);
             }
         } else {
@@ -388,6 +392,32 @@ public class GameFragment extends Fragment {
     public void onResume() {
         super.onResume();
         soundManager = new SoundManager(requireContext());
+        if (!isGameActive && timeRemaining <= 0) {
+            resetGame();
+        } else if (timer == null) {
+            startTimer();
+        }
+    }
+
+    private void resetGame() {
+        difficulty = PreferenceUtil.getDifficulty(requireContext());
+        board = GameGenerator.generateBoard(
+                GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty);
+        remainingPairs = GameEngine.PAIRS_COUNT;
+        score = 0;
+        timeRemaining = TOTAL_TIME_SECONDS;
+        isGameActive = false;
+        firstSelected = null;
+        secondSelected = null;
+        if (adapter != null) {
+            adapter.setPathPositions(null);
+            adapter.notifyDataSetChanged();
+        }
+        if (binding != null) {
+            updateRemainingCount();
+            updateTimerUI();
+        }
+        startTimer();
     }
 
     @Override
