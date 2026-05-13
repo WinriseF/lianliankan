@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>版本检查</title>
+<style>body{font-family:sans-serif;padding:20px;color:#333}
+.ver-box{background:#FFF3E0;padding:20px;border-radius:8px;margin:20px 0}
+.ok{color:#4CAF50;font-weight:bold}
+.btn{background:#FF6F00;color:#fff;border:none;padding:12px 32px;font-size:16px;border-radius:4px;margin-top:16px}
+</style></head>
+<body>
+<h2>版本检查</h2>
+<div class="ver-box">
+<p>当前版本：v1.0</p>
+<p>最新版本：<span class="ok">v1.0 (已是最新)</span></p>
+</div>
+<p>检查时间：<span id="t"></span></p>
+<script>document.getElementById("t").textContent=new Date().toLocaleString("zh-CN")</script>
+<button class="btn" onclick="window.close()">确定</button>
+</body></html>

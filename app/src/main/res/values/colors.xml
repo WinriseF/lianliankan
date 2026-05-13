@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#FF6F00</color>
+    <color name="primary_variant">#E65100</color>
+    <color name="secondary">#FFD54F</color>
+    <color name="background">#FFF8E1</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="success_green">#4CAF50</color>
+    <color name="fail_red">#F44336</color>
+    <color name="game_bg">#FAFAFA</color>
+    <color name="animal1">#FFEB3B</color>
+    <color name="animal2">#FF9800</color>
+    <color name="animal3">#E91E63</color>
+    <color name="animal4">#9C27B0</color>
+    <color name="animal5">#2196F3</color>
+</resources>

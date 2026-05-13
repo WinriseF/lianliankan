@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">连连看</string>
+    <string name="title_game">🎮 游戏</string>
+    <string name="title_help">📖 游戏说明</string>
+    <string name="title_settings">⚙️ 参数设置</string>
+    <string name="title_ranking">🏆 排行榜</string>
+    <string name="easy">简单</string>
+    <string name="medium">中等</string>
+    <string name="hard">困难</string>
+    <string name="game_success">恭喜通关！</string>
+    <string name="game_fail">游戏失败！</string>
+    <string name="time_up">时间到！</string>
+    <string name="restart">重新开始</string>
+    <string name="shuffle">打乱重排</string>
+    <string name="no_pairs_available">无可消除配对！</string>
+    <string name="game_time">游戏用时</string>
+    <string name="score_text">得分</string>
+    <string name="difficulty_text">难度</string>
+    <string name="ranking">排名</string>
+    <string name="player_name">玩家</string>
+    <string name="remain_pairs">剩余配对</string>
+    <string name="game_rule">
+        <![CDATA[
+        <h3>🎮 连连看游戏规则</h3><br>
+        <b>基本玩法：</b><br>
+        • 点击两个相同图案的动物进行消除<br>
+        • 连接路径最多允许<b>2个拐点</b>（即最多3段直线）<br>
+        • 路径不能穿过其他未消除的动物方块<br>
+        • 路径可以沿着棋盘外边框绕行<br><br>
+        <b>难度说明：</b><br>
+        • <font color="#4CAF50">简单：</font>10种动物，容易区分<br>
+        • <font color="#FFC107">中等：</font>15种动物，中等难度<br>
+        • <font color="#F44336">困难：</font>25种动物，极具挑战<br><br>
+        <b>胜利条件：</b><br>
+        在限定时间内消除所有动物配对<br><br>
+        <b>失败条件：</b><br>
+        • 时间耗尽<br>
+        • 剩余配对无法连接（无可消除配对）
+        ]]>
+    </string>
+    <string name="settings_title">参数设置</string>
+    <string name="difficulty_setting">选择难度</string>
+    <string name="sound_setting">开启音效</string>
+    <string name="music_setting">开启背景音乐</string>
+    <string name="about_title">关于</string>
+    <string name="version_info">连连看 v1.0\n移动应用开发技术课程作业</string>
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/gameFragment">
+
+    <fragment
+        android:id="@+id/gameFragment"
+        android:name="com.example.lianliankan.fragment.GameFragment"
+        android:label="连连看"
+        tools:layout="@layout/fragment_game" />
+
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="com.example.lianliankan.fragment.HelpFragment"
+        android:label="游戏说明"
+        tools:layout="@layout/fragment_help" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.lianliankan.fragment.SettingsFragment"
+        android:label="参数设置"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/rankingFragment"
+        android:name="com.example.lianliankan.fragment.RankingFragment"
+        android:label="排行榜"
+        tools:layout="@layout/fragment_ranking" />
+
+</navigation>
