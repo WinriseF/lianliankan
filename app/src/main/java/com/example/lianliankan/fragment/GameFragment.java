@@ -31,6 +31,7 @@ import com.example.lianliankan.util.GameGenerator;
 import com.example.lianliankan.util.PreferenceUtil;
 import com.example.lianliankan.util.SoundManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
@@ -344,10 +345,14 @@ public class GameFragment extends Fragment {
         outState.putInt("time_remaining", timeRemaining);
         outState.putBoolean("is_game_active", isGameActive);
 
+        int[] animalIds = new int[board.size()];
         boolean[] matchedStates = new boolean[board.size()];
         for (int i = 0; i < board.size(); i++) {
-            matchedStates[i] = board.get(i).isMatched();
+            AnimalItem item = board.get(i);
+            animalIds[i] = item.getAnimalId();
+            matchedStates[i] = item.isMatched();
         }
+        outState.putIntArray("animal_ids", animalIds);
         outState.putBooleanArray("matched_states", matchedStates);
     }
 
@@ -357,6 +362,20 @@ public class GameFragment extends Fragment {
         score = savedInstanceState.getInt("score", 0);
         timeRemaining = savedInstanceState.getInt("time_remaining", TOTAL_TIME_SECONDS);
         isGameActive = savedInstanceState.getBoolean("is_game_active", true);
+
+        int[] animalIds = savedInstanceState.getIntArray("animal_ids");
+        boolean[] matchedStates = savedInstanceState.getBooleanArray("matched_states");
+        if (animalIds != null && matchedStates != null) {
+            int cols = GameEngine.BOARD_COLS;
+            board = new ArrayList<>();
+            for (int i = 0; i < animalIds.length; i++) {
+                int row = i / cols;
+                int col = i % cols;
+                AnimalItem item = new AnimalItem(animalIds[i], animalIds[i], row, col);
+                item.setMatched(matchedStates[i]);
+                board.add(item);
+            }
+        }
     }
 
     @Override
