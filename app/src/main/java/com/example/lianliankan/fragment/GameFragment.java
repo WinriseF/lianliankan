@@ -296,9 +296,12 @@ public class GameFragment extends Fragment {
                     GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty);
             remainingPairs = GameEngine.PAIRS_COUNT;
             score = 0;
-            adapter.clearSelection();
-            adapter.notifyDataSetChanged();
-            updateRemainingCount();
+            firstSelected = null;
+            secondSelected = null;
+            if (binding != null) {
+                setupGridView();
+                updateRemainingCount();
+            }
             Toast.makeText(requireContext(), "已打乱重排", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(requireContext(), "当前棋盘还有可消除配对，无需重排", Toast.LENGTH_SHORT).show();
@@ -392,7 +395,7 @@ public class GameFragment extends Fragment {
     public void onResume() {
         super.onResume();
         soundManager = new SoundManager(requireContext());
-        if (!isGameActive && timeRemaining <= 0) {
+        if (!isGameActive) {
             resetGame();
         } else if (timer == null) {
             startTimer();
@@ -409,11 +412,8 @@ public class GameFragment extends Fragment {
         isGameActive = false;
         firstSelected = null;
         secondSelected = null;
-        if (adapter != null) {
-            adapter.setPathPositions(null);
-            adapter.notifyDataSetChanged();
-        }
         if (binding != null) {
+            setupGridView();
             updateRemainingCount();
             updateTimerUI();
         }
