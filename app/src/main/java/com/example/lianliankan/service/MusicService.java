@@ -47,6 +47,7 @@ public class MusicService extends Service {
                 stopMusic();
                 stopForeground(true);
                 stopSelf();
+                return START_NOT_STICKY;
             } else if (ACTION_SET_VOLUME.equals(action)) {
                 applyVolume();
             } else {

@@ -30,21 +30,11 @@ public class GameEngine {
     }
 
     /**
-     * 获取指定位置的AnimalItem，如果坐标超出棋盘范围返回null
-     */
-    private static AnimalItem getCell(int row, int col, List<AnimalItem> board) {
-        if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS) {
-            return null; // 棋盘外虚拟位置
-        }
-        return board.get(indexOf(row, col, board));
-    }
-
-    /**
-     * 判断指定位置是否为空（已消除或棋盘外）
+     * 判断指定位置是否为空。当前玩法不允许沿棋盘外框绕行。
      */
     private static boolean isEmpty(int row, int col, List<AnimalItem> board) {
         if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS) {
-            return true; // 棋盘外始终可通过
+            return false;
         }
         return board.get(indexOf(row, col, board)).isMatched();
     }
@@ -72,7 +62,7 @@ public class GameEngine {
 
     /**
      * 核心算法：判断两个格子是否可以连接
-     * 路径最多2个拐点，经过的格子必须已消除或位于棋盘外
+     * 路径最多2个拐点，经过的格子必须已消除，不允许沿棋盘外框绕行。
      */
     public static boolean isLinkable(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
         if (a == null || b == null) return false;
@@ -111,12 +101,9 @@ public class GameEngine {
 
         // ---- 2个拐点 ----
         // 类型1：A垂直→P1(r,ca)，P1水平→P2(r,cb)，P2垂直→B
-        // 遍历所有可能的中间行r（包括棋盘外虚拟行）
-        for (int r = -1; r <= BOARD_ROWS; r++) {
-            if (r >= 0 && r < BOARD_ROWS) {
-                // 中间点在棋盘内，必须为空
-                if (!isEmpty(r, ca, board) || !isEmpty(r, cb, board)) continue;
-            }
+        // 遍历棋盘内所有可能的中间行r
+        for (int r = 0; r < BOARD_ROWS; r++) {
+            if (!isEmpty(r, ca, board) || !isEmpty(r, cb, board)) continue;
             // 检查三段线
             boolean seg1 = (r == ra) || isLineEmpty(ca, ra, r, false, board);  // A垂直到(r,ca)
             boolean seg2 = isLineEmpty(r, ca, cb, true, board);                // (r,ca)水平到(r,cb)
@@ -125,15 +112,11 @@ public class GameEngine {
         }
 
         // 类型2：A水平→P1(ra,c)，P1垂直→P2(rb,c)，P2水平→B
-        // 遍历所有可能的中间列c（包括棋盘外虚拟列）
-        for (int c = -1; c <= BOARD_COLS; c++) {
-            if (c >= 0 && c < BOARD_COLS) {
-                if (!isEmpty(ra, c, board) || !isEmpty(rb, c, board)) continue;
-            }
+        // 遍历棋盘内所有可能的中间列c
+        for (int c = 0; c < BOARD_COLS; c++) {
+            if (!isEmpty(ra, c, board) || !isEmpty(rb, c, board)) continue;
             boolean seg1 = (c == ca) || isLineEmpty(ra, ca, c, true, board);    // A水平到(ra,c)
-            boolean seg2 = isLineEmpty(ra, c, rb, false, board);               // (ra,c)垂直到(rb,c)（注：这里应该用 c 作为 sameCoord）
-            // 修正：seg2应该是列c上从ra到rb的垂直检查
-            seg2 = isLineEmpty(c, ra, rb, false, board);
+            boolean seg2 = isLineEmpty(c, ra, rb, false, board);
             boolean seg3 = (c == cb) || isLineEmpty(rb, c, cb, true, board);    // (rb,c)水平到B
             if (seg1 && seg2 && seg3) return true;
         }
@@ -186,10 +169,8 @@ public class GameEngine {
         }
 
         // 2拐点 - 类型1
-        for (int r = -1; r <= BOARD_ROWS; r++) {
-            if (r >= 0 && r < BOARD_ROWS) {
-                if (!isEmpty(r, ca, board) || !isEmpty(r, cb, board)) continue;
-            }
+        for (int r = 0; r < BOARD_ROWS; r++) {
+            if (!isEmpty(r, ca, board) || !isEmpty(r, cb, board)) continue;
             boolean seg1 = (r == ra) || isLineEmpty(ca, ra, r, false, board);
             boolean seg2 = isLineEmpty(r, ca, cb, true, board);
             boolean seg3 = (r == rb) || isLineEmpty(cb, r, rb, false, board);
@@ -203,10 +184,8 @@ public class GameEngine {
         }
 
         // 2拐点 - 类型2
-        for (int c = -1; c <= BOARD_COLS; c++) {
-            if (c >= 0 && c < BOARD_COLS) {
-                if (!isEmpty(ra, c, board) || !isEmpty(rb, c, board)) continue;
-            }
+        for (int c = 0; c < BOARD_COLS; c++) {
+            if (!isEmpty(ra, c, board) || !isEmpty(rb, c, board)) continue;
             boolean seg1 = (c == ca) || isLineEmpty(ra, ca, c, true, board);
             boolean seg2 = isLineEmpty(c, ra, rb, false, board);
             boolean seg3 = (c == cb) || isLineEmpty(rb, c, cb, true, board);

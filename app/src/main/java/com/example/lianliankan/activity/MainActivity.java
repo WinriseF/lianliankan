@@ -1,6 +1,7 @@
 package com.example.lianliankan.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -20,6 +21,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.ActivityMainBinding;
 import com.example.lianliankan.receiver.GameResultReceiver;
+import com.example.lianliankan.service.MusicService;
 import com.example.lianliankan.util.PreferenceUtil;
 
 public class MainActivity extends AppCompatActivity {
@@ -110,11 +112,18 @@ public class MainActivity extends AppCompatActivity {
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("确认退出")
                     .setMessage("确定要退出游戏吗？当前进度将丢失。")
-                    .setPositiveButton("确定", (dialog, which) -> finish())
+                    .setPositiveButton("确定", (dialog, which) -> exitGame())
                     .setNegativeButton("取消", null)
                     .show();
         } else {
             binding.bottomNavigation.setSelectedItemId(R.id.gameFragment);
         }
+    }
+
+    private void exitGame() {
+        Intent stopMusicIntent = new Intent(this, MusicService.class);
+        stopMusicIntent.setAction(MusicService.ACTION_STOP);
+        startService(stopMusicIntent);
+        finish();
     }
 }
