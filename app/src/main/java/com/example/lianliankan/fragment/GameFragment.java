@@ -6,12 +6,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -51,6 +50,7 @@ public class GameFragment extends Fragment {
     private int timeRemaining = TOTAL_TIME_SECONDS;
     private Timer timer;
     private boolean isGameActive;
+    private boolean isPaused;
     private SoundManager soundManager;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -92,9 +92,14 @@ public class GameFragment extends Fragment {
         setupGridView();
         if (binding != null) {
             updateRemainingCount();
+            updateDifficultyLabel();
             binding.btnShuffle.setOnClickListener(v -> shuffleBoard());
         }
-        startTimer();
+        if (isPaused) {
+            updateTimerUI();
+        } else if (isGameActive || savedInstanceState == null) {
+            startTimer();
+        }
     }
 
     private void setupGridView() {
@@ -104,6 +109,7 @@ public class GameFragment extends Fragment {
         });
         if (binding != null) {
             binding.gridBoard.setAdapter(adapter);
+            registerForContextMenu(binding.gridBoard);
         }
     }
 
@@ -181,39 +187,23 @@ public class GameFragment extends Fragment {
 
     private void onGameWin() {
         isGameActive = false;
+        isPaused = false;
         stopTimer();
         int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
 
-        GameResultReceiver.saveResultToDb(
-                requireContext(), "win", score, timeUsed, difficulty);
-
-        sendWinBroadcast(score, timeUsed);
-
-        Intent intent = new Intent(getActivity(), GameResultActivity.class);
-        intent.putExtra("result", "win");
-        intent.putExtra("score", score);
-        intent.putExtra("time_used", timeUsed);
-        intent.putExtra("difficulty", difficulty);
-        intent.putExtra("pairs_cleared", GameEngine.PAIRS_COUNT - remainingPairs);
-        startActivity(intent);
+        soundManager.playWinSound();
+        sendGameResultBroadcast("win", score, timeUsed);
     }
 
     private void onGameFail(String reason) {
         if (!isGameActive) return;
         isGameActive = false;
+        isPaused = false;
         stopTimer();
         int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
 
-        GameResultReceiver.saveResultToDb(
-                requireContext(), reason, score, timeUsed, difficulty);
-
-        if (getActivity() == null) return;
-        Intent intent = new Intent(getActivity(), GameResultActivity.class);
-        intent.putExtra("result", reason);
-        intent.putExtra("score", score);
-        intent.putExtra("time_used", timeUsed);
-        intent.putExtra("difficulty", difficulty);
-        startActivity(intent);
+        soundManager.playLoseSound();
+        sendGameResultBroadcast(reason, score, timeUsed);
     }
 
     private void onGameDeadlock() {
@@ -223,8 +213,12 @@ public class GameFragment extends Fragment {
         }
     }
 
-    private void sendWinBroadcast(int score, int timeUsed) {
-        Intent broadcastIntent = new Intent(GameResultReceiver.ACTION_GAME_WIN);
+    private void sendGameResultBroadcast(String result, int score, int timeUsed) {
+        String action = "win".equals(result)
+                ? GameResultReceiver.ACTION_GAME_WIN
+                : GameResultReceiver.ACTION_GAME_RESULT;
+        Intent broadcastIntent = new Intent(action);
+        broadcastIntent.putExtra("result", result);
         broadcastIntent.putExtra("score", score);
         broadcastIntent.putExtra("time_used", timeUsed);
         broadcastIntent.putExtra("difficulty", difficulty);
@@ -233,7 +227,9 @@ public class GameFragment extends Fragment {
     }
 
     private void startTimer() {
+        if (timer != null) return;
         isGameActive = true;
+        isPaused = false;
         updateTimerUI();
 
         timer = new Timer();
@@ -287,6 +283,15 @@ public class GameFragment extends Fragment {
         }
     }
 
+    private void updateDifficultyLabel() {
+        if (binding == null) return;
+        String[] difficultyNames = {"简单", "中等", "困难"};
+        String difficultyName = difficulty >= 0 && difficulty < difficultyNames.length
+                ? difficultyNames[difficulty]
+                : "未知";
+        binding.tvDifficultyLabel.setText("难度：" + difficultyName);
+    }
+
     private void shuffleBoard() {
         if (!isGameActive) return;
         if (remainingPairs <= 0) return;
@@ -305,6 +310,52 @@ public class GameFragment extends Fragment {
             Toast.makeText(requireContext(), "已打乱重排", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(requireContext(), "当前棋盘还有可消除配对，无需重排", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.grid_board) {
+            requireActivity().getMenuInflater().inflate(R.menu.board_context_menu, menu);
+            menu.setHeaderTitle("棋盘操作");
+            MenuItem pauseItem = menu.findItem(R.id.menu_pause);
+            if (pauseItem != null) {
+                pauseItem.setTitle(isPaused ? "继续游戏" : "暂停游戏");
+            }
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_shuffle) {
+            shuffleBoard();
+            return true;
+        } else if (itemId == R.id.menu_restart) {
+            resetGame();
+            Toast.makeText(requireContext(), "已重新开始", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.menu_pause) {
+            togglePause();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void togglePause() {
+        if (remainingPairs <= 0 || timeRemaining <= 0) return;
+        if (isPaused) {
+            isPaused = false;
+            isGameActive = true;
+            startTimer();
+            Toast.makeText(requireContext(), "游戏继续", Toast.LENGTH_SHORT).show();
+        } else {
+            isPaused = true;
+            isGameActive = false;
+            stopTimer();
+            Toast.makeText(requireContext(), "游戏已暂停", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -351,6 +402,7 @@ public class GameFragment extends Fragment {
         outState.putInt("score", score);
         outState.putInt("time_remaining", timeRemaining);
         outState.putBoolean("is_game_active", isGameActive);
+        outState.putBoolean("is_paused", isPaused);
 
         int[] animalIds = new int[board.size()];
         boolean[] matchedStates = new boolean[board.size()];
@@ -369,6 +421,7 @@ public class GameFragment extends Fragment {
         score = savedInstanceState.getInt("score", 0);
         timeRemaining = savedInstanceState.getInt("time_remaining", TOTAL_TIME_SECONDS);
         isGameActive = savedInstanceState.getBoolean("is_game_active", true);
+        isPaused = savedInstanceState.getBoolean("is_paused", false);
 
         int[] animalIds = savedInstanceState.getIntArray("animal_ids");
         boolean[] matchedStates = savedInstanceState.getBooleanArray("matched_states");
@@ -395,7 +448,9 @@ public class GameFragment extends Fragment {
     public void onResume() {
         super.onResume();
         soundManager = new SoundManager(requireContext());
-        if (!isGameActive) {
+        if (isPaused) {
+            updateTimerUI();
+        } else if (!isGameActive) {
             resetGame();
         } else if (timer == null) {
             startTimer();
@@ -403,6 +458,7 @@ public class GameFragment extends Fragment {
     }
 
     private void resetGame() {
+        stopTimer();
         difficulty = PreferenceUtil.getDifficulty(requireContext());
         board = GameGenerator.generateBoard(
                 GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty);
@@ -410,11 +466,13 @@ public class GameFragment extends Fragment {
         score = 0;
         timeRemaining = TOTAL_TIME_SECONDS;
         isGameActive = false;
+        isPaused = false;
         firstSelected = null;
         secondSelected = null;
         if (binding != null) {
             setupGridView();
             updateRemainingCount();
+            updateDifficultyLabel();
             updateTimerUI();
         }
         startTimer();

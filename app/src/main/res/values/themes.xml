@@ -1,11 +1,14 @@
 <resources>
-    <style name="Theme.LianLianKan" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">#FF6F00</item>
-        <item name="colorPrimaryVariant">#E65100</item>
+    <style name="Theme.LianLianKan" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
         <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorSecondary">#FFD54F</item>
-        <item name="colorOnSecondary">#000000</item>
-        <item name="android:statusBarColor">#E65100</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/primary_variant</item>
+        <item name="android:navigationBarColor">@color/primary_variant</item>
     </style>
 
     <style name="Theme.LianLianKan.NoActionBar">

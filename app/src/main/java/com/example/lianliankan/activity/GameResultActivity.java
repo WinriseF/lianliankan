@@ -54,22 +54,22 @@ public class GameResultActivity extends AppCompatActivity {
                                int difficulty, int pairsCleared) {
         if ("win".equals(result)) {
             binding.tvResultTitle.setText(R.string.game_success);
-            binding.tvResultTitle.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            binding.tvResultTitle.setTextColor(getResources().getColor(R.color.success_green));
             binding.tvScore.setText(String.valueOf(score));
             binding.tvResultDetail.setText("共消除 " + pairsCleared + " 对动物");
         } else if ("time_up".equals(result)) {
             binding.tvResultTitle.setText(R.string.time_up);
-            binding.tvResultTitle.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));
             binding.tvScore.setText(String.valueOf(score));
             binding.tvResultDetail.setText("时间耗尽！共消除 " + pairsCleared + " 对");
         } else if ("deadlock".equals(result)) {
             binding.tvResultTitle.setText("无可消除配对");
-            binding.tvResultTitle.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));
             binding.tvScore.setText(String.valueOf(score));
             binding.tvResultDetail.setText("无可消除配对，游戏结束");
         } else {
             binding.tvResultTitle.setText(R.string.game_fail);
-            binding.tvResultTitle.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));
             binding.tvScore.setText(String.valueOf(score));
             binding.tvResultDetail.setText("游戏失败");
         }

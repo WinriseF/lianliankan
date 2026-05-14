@@ -2,38 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_app"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#FAFAFA">
+    android:padding="16dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="🏆 排行榜"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#FF6F00"
-        android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:text="排行榜"
+        android:textColor="@color/text_primary"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="按分数排序，记录每一次挑战表现"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/tv_no_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="暂无游戏记录\n快去开始一局游戏吧！"
-        android:textSize="16sp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_panel"
         android:gravity="center"
-        android:textColor="#999999"
-        android:visibility="gone"
-        android:layout_marginTop="60dp" />
+        android:padding="28dp"
+        android:text="暂无游戏记录\n完成一局后会显示在这里"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
     <ListView
         android:id="@+id/list_ranking"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="14dp"
         android:layout_weight="1"
-        android:divider="#E0E0E0"
-        android:dividerHeight="1dp"
+        android:cacheColorHint="@android:color/transparent"
+        android:clipToPadding="false"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:paddingBottom="8dp"
         android:scrollbars="vertical" />
 
 </LinearLayout>

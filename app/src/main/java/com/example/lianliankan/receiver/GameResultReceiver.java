@@ -33,33 +33,29 @@ public class GameResultReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (ACTION_GAME_WIN.equals(action)) {
+        if (ACTION_GAME_WIN.equals(action) || ACTION_GAME_RESULT.equals(action)) {
+            String result = intent.getStringExtra("result");
+            if (result == null) {
+                result = ACTION_GAME_WIN.equals(action) ? "win" : "unknown";
+            }
             int score = intent.getIntExtra("score", 0);
             int timeUsed = intent.getIntExtra("time_used", 0);
             int difficulty = intent.getIntExtra("difficulty", 0);
+            int pairsCleared = intent.getIntExtra("pairs_cleared", 0);
 
-            saveResultToDb(context, "win", score, timeUsed, difficulty);
-            showCongratulationsNotification(context, score, timeUsed);
+            saveResultToDb(context, result, score, timeUsed, difficulty);
+            if ("win".equals(result)) {
+                showCongratulationsNotification(context, score, timeUsed);
+            }
 
             Intent resultIntent = new Intent(context, GameResultActivity.class);
-            resultIntent.putExtra("result", "win");
+            resultIntent.putExtra("result", result);
             resultIntent.putExtra("score", score);
             resultIntent.putExtra("time_used", timeUsed);
             resultIntent.putExtra("difficulty", difficulty);
+            resultIntent.putExtra("pairs_cleared", pairsCleared);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(resultIntent);
-
-            Log.d(TAG, "收到游戏胜利广播: score=" + score + ", time=" + timeUsed + "s");
-
-        } else if (ACTION_GAME_RESULT.equals(action)) {
-            String result = intent.getStringExtra("result");
-            int score = intent.getIntExtra("score", 0);
-            int timeUsed = intent.getIntExtra("time_used", 0);
-            int difficulty = intent.getIntExtra("difficulty", 0);
-
-            if (!"win".equals(result)) {
-                saveResultToDb(context, result, score, timeUsed, difficulty);
-            }
 
             Log.d(TAG, "收到游戏结果广播: result=" + result + ", score=" + score);
         }

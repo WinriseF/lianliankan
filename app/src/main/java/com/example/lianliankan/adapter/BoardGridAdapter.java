@@ -2,12 +2,13 @@ package com.example.lianliankan.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.example.lianliankan.R;
 import com.example.lianliankan.model.AnimalItem;
 import com.example.lianliankan.util.GameEngine;
 
@@ -82,16 +83,16 @@ public class BoardGridAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        TextView textView;
+            TextView textView;
         if (convertView == null) {
             textView = new TextView(context);
             int size = context.getResources().getDisplayMetrics().widthPixels / 10;
             textView.setLayoutParams(new ViewGroup.LayoutParams(size, size));
             textView.setGravity(android.view.Gravity.CENTER);
-            textView.setTextSize(14);
+            textView.setTextSize(20);
             textView.setTypeface(null, android.graphics.Typeface.BOLD);
-            textView.setBackgroundResource(R.drawable.card_background);
-            textView.setPadding(2, 2, 2, 2);
+            int padding = dp(2);
+            textView.setPadding(padding, padding, padding, padding);
             textView.setSingleLine(true);
         } else {
             textView = (TextView) convertView;
@@ -100,30 +101,30 @@ public class BoardGridAdapter extends BaseAdapter {
         AnimalItem item = board.get(position);
 
         if (item.isMatched()) {
-            textView.setBackgroundColor(Color.TRANSPARENT);
+            setCellBackground(textView, Color.TRANSPARENT, Color.TRANSPARENT, 0);
             textView.setText("");
             textView.setEnabled(false);
-            textView.setAlpha(0.3f);
+            textView.setAlpha(0.18f);
         } else if (pathPositions.contains(position)) {
-            textView.setBackgroundColor(Color.parseColor("#81D4FA"));
+            setCellBackground(textView, Color.parseColor("#A7F3D0"), Color.parseColor("#0F766E"), 2);
             textView.setText(getAnimalSymbol(item.getAnimalId()));
-            textView.setTextColor(Color.BLACK);
+            textView.setTextColor(Color.parseColor("#064E3B"));
             textView.setEnabled(true);
             textView.setAlpha(1.0f);
         } else if (position == selectedPosition) {
-            textView.setBackgroundColor(Color.parseColor("#FFD54F"));
+            setCellBackground(textView, Color.parseColor("#FEF3C7"), Color.parseColor("#F59E0B"), 3);
             textView.setText(getAnimalSymbol(item.getAnimalId()));
-            textView.setTextColor(Color.BLACK);
+            textView.setTextColor(Color.parseColor("#78350F"));
             textView.setEnabled(true);
             textView.setAlpha(1.0f);
         } else if (position == secondSelectedPosition) {
-            textView.setBackgroundColor(Color.parseColor("#FF8A65"));
+            setCellBackground(textView, Color.parseColor("#FED7AA"), Color.parseColor("#F97316"), 3);
             textView.setText(getAnimalSymbol(item.getAnimalId()));
-            textView.setTextColor(Color.BLACK);
+            textView.setTextColor(Color.parseColor("#7C2D12"));
             textView.setEnabled(true);
             textView.setAlpha(1.0f);
         } else {
-            textView.setBackgroundColor(item.getAnimalId());
+            setCellBackground(textView, item.getAnimalId(), Color.argb(70, 255, 255, 255), 1);
             textView.setText(getAnimalSymbol(item.getAnimalId()));
             textView.setTextColor(getContrastColor(item.getAnimalId()));
             textView.setEnabled(true);
@@ -138,6 +139,24 @@ public class BoardGridAdapter extends BaseAdapter {
         });
 
         return textView;
+    }
+
+    private void setCellBackground(TextView textView, int fillColor, int strokeColor, int strokeWidthDp) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.RECTANGLE);
+        drawable.setColor(fillColor);
+        drawable.setCornerRadius(dp(10));
+        if (strokeWidthDp > 0) {
+            drawable.setStroke(dp(strokeWidthDp), strokeColor);
+        }
+        textView.setBackground(drawable);
+    }
+
+    private int dp(int value) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                value,
+                context.getResources().getDisplayMetrics());
     }
 
     private String getAnimalSymbol(int color) {

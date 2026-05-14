@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_game"
+        android:id="@+id/gameFragment"
         android:icon="@drawable/ic_play"
         android:title="游戏" />
     <item
-        android:id="@+id/nav_help"
+        android:id="@+id/helpFragment"
         android:icon="@drawable/ic_help"
         android:title="说明" />
     <item
-        android:id="@+id/nav_settings"
+        android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_settings"
         android:title="设置" />
     <item
-        android:id="@+id/nav_ranking"
+        android:id="@+id/rankingFragment"
         android:icon="@drawable/ic_ranking"
         android:title="排行" />
 </menu>

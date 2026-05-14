@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#FF6F00</color>
-    <color name="primary_variant">#E65100</color>
-    <color name="secondary">#FFD54F</color>
-    <color name="background">#FFF8E1</color>
+    <color name="primary">#0F766E</color>
+    <color name="primary_variant">#0B4F4A</color>
+    <color name="secondary">#F97316</color>
+    <color name="background">#F6F8F3</color>
     <color name="card_bg">#FFFFFF</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="success_green">#4CAF50</color>
-    <color name="fail_red">#F44336</color>
-    <color name="game_bg">#FAFAFA</color>
+    <color name="surface_alt">#E9F2EC</color>
+    <color name="surface_warm">#FFF4E6</color>
+    <color name="line_soft">#D7DED8</color>
+    <color name="text_primary">#1F2933</color>
+    <color name="text_secondary">#63706B</color>
+    <color name="success_green">#16A34A</color>
+    <color name="fail_red">#DC2626</color>
+    <color name="warning_amber">#F59E0B</color>
+    <color name="game_bg">#F6F8F3</color>
     <color name="animal1">#FFEB3B</color>
     <color name="animal2">#FF9800</color>
     <color name="animal3">#E91E63</color>

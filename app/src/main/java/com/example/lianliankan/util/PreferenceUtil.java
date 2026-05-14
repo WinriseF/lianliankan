@@ -66,8 +66,6 @@ public class PreferenceUtil {
     }
 
     public static void applySettings(Context context) {
-        // 全局设置应用入口
-        boolean musicEnabled = isMusicEnabled(context);
-        // 可在此处控制全局音乐行为
+        // 全局设置应用入口，保留给 Activity 恢复时统一同步设置。
     }
 }

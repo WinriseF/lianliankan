@@ -1,29 +1,34 @@
 package com.example.lianliankan.activity;
 
-import android.content.Intent;
+import android.Manifest;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.ActivityMainBinding;
-import com.example.lianliankan.fragment.GameFragment;
-import com.example.lianliankan.fragment.HelpFragment;
-import com.example.lianliankan.fragment.RankingFragment;
-import com.example.lianliankan.fragment.SettingsFragment;
 import com.example.lianliankan.receiver.GameResultReceiver;
 import com.example.lianliankan.util.PreferenceUtil;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int REQUEST_POST_NOTIFICATIONS = 1001;
+
     private ActivityMainBinding binding;
     private GameResultReceiver gameResultReceiver;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,39 +36,24 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment, new GameFragment())
-                    .commit();
-        }
-
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         setupBottomNavigation();
-        gameResultReceiver = new GameResultReceiver(this);
+        gameResultReceiver = new GameResultReceiver();
+        requestNotificationPermissionIfNeeded();
     }
 
     private void setupBottomNavigation() {
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
-            int itemId = item.getItemId();
+        NavigationUI.setupWithNavController(binding.bottomNavigation, navController);
+    }
 
-            if (itemId == R.id.nav_game) {
-                selectedFragment = new GameFragment();
-            } else if (itemId == R.id.nav_help) {
-                selectedFragment = new HelpFragment();
-            } else if (itemId == R.id.nav_settings) {
-                selectedFragment = new SettingsFragment();
-            } else if (itemId == R.id.nav_ranking) {
-                selectedFragment = new RankingFragment();
-            }
-
-            if (selectedFragment != null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.nav_host_fragment, selectedFragment)
-                        .commit();
-                return true;
-            }
-            return false;
-        });
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_POST_NOTIFICATIONS);
+        }
     }
 
     @Override
@@ -93,12 +83,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_difficulty) {
-            // 切换到设置Fragment
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment, new SettingsFragment())
-                    .addToBackStack(null)
-                    .commit();
-            binding.bottomNavigation.setSelectedItemId(R.id.nav_settings);
+            if (navController.getCurrentDestination() == null
+                    || navController.getCurrentDestination().getId() != R.id.settingsFragment) {
+                binding.bottomNavigation.setSelectedItemId(R.id.settingsFragment);
+            }
             return true;
         } else if (id == R.id.menu_about) {
             showAboutDialog();
@@ -117,9 +105,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Fragment current = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        if (current instanceof GameFragment) {
-            // 游戏页面按返回键不退出，防止误操作
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.gameFragment) {
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("确认退出")
                     .setMessage("确定要退出游戏吗？当前进度将丢失。")
@@ -127,8 +114,7 @@ public class MainActivity extends AppCompatActivity {
                     .setNegativeButton("取消", null)
                     .show();
         } else {
-            super.onBackPressed();
-            binding.bottomNavigation.setSelectedItemId(R.id.nav_game);
+            binding.bottomNavigation.setSelectedItemId(R.id.gameFragment);
         }
     }
 }

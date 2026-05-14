@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.FragmentSettingsBinding;
+import com.example.lianliankan.service.MusicService;
 import com.example.lianliankan.util.GameEngine;
 import com.example.lianliankan.util.PreferenceUtil;
 
@@ -88,11 +89,10 @@ public class SettingsFragment extends Fragment {
             PreferenceUtil.saveMusicEnabled(requireContext(), isChecked);
             Toast.makeText(requireContext(),
                     isChecked ? "背景音乐已开启" : "背景音乐已关闭", Toast.LENGTH_SHORT).show();
-            // 通知Service
             if (isChecked) {
-                startMusicService("com.example.lianliankan.ACTION_START_MUSIC");
+                startMusicService(MusicService.ACTION_PLAY);
             } else {
-                startMusicService("com.example.lianliankan.ACTION_PAUSE_MUSIC");
+                startMusicService(MusicService.ACTION_PAUSE);
             }
         });
 
@@ -109,8 +109,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void startMusicService(String action) {
-        Intent intent = new Intent(requireContext(),
-                com.example.lianliankan.service.MusicService.class);
+        Intent intent = new Intent(requireContext(), MusicService.class);
         intent.setAction(action);
         requireContext().startService(intent);
     }
