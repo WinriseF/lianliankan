@@ -15,3 +15,4 @@ captures/
 *.apk
 *.aab
 *.keystore
+app/release

@@ -3,12 +3,14 @@ package com.example.lianliankan.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
+import android.widget.ImageView;
 
+import com.example.lianliankan.R;
 import com.example.lianliankan.model.AnimalItem;
 import com.example.lianliankan.util.GameEngine;
 
@@ -17,6 +19,50 @@ import java.util.List;
 import java.util.Set;
 
 public class BoardGridAdapter extends BaseAdapter {
+
+    private static final int[] ANIMAL_COLORS = {
+            0xFFFF5252, 0xFFFF9800, 0xFFFFEB3B, 0xFF4CAF50, 0xFF2196F3,
+            0xFF9C27B0, 0xFFE91E63, 0xFF00BCD4, 0xFF8BC34A, 0xFFFF5722,
+            0xFF673AB7, 0xFF009688, 0xFFCDDC39, 0xFF00ACC1, 0xFF795548,
+            0xFF607D8B, 0xFF3F51B5, 0xFF03A9F4, 0xFFE040FB, 0xFFFF6E40,
+            0xFF18FFFF, 0xFFB2FF59, 0xFFEA80FC, 0xFF8D6E63, 0xFF78909C
+    };
+
+    private static final int[] ANIMAL_DRAWABLES = {
+            R.drawable.ic_animal_00_cat,
+            R.drawable.ic_animal_01_dog,
+            R.drawable.ic_animal_02_fox,
+            R.drawable.ic_animal_03_bear,
+            R.drawable.ic_animal_04_dolphin,
+            R.drawable.ic_animal_05_koala,
+            R.drawable.ic_animal_06_lion,
+            R.drawable.ic_animal_07_cow,
+            R.drawable.ic_animal_08_pig,
+            R.drawable.ic_animal_09_frog,
+            R.drawable.ic_animal_10_chick,
+            R.drawable.ic_animal_11_chicken,
+            R.drawable.ic_animal_12_duck,
+            R.drawable.ic_animal_13_eagle,
+            R.drawable.ic_animal_14_fish,
+            R.drawable.ic_animal_15_octopus,
+            R.drawable.ic_animal_16_crab,
+            R.drawable.ic_animal_17_butterfly,
+            R.drawable.ic_animal_18_bee,
+            R.drawable.ic_animal_19_ant,
+            R.drawable.ic_animal_20_caterpillar,
+            R.drawable.ic_animal_21_snake,
+            R.drawable.ic_animal_22_lizard,
+            R.drawable.ic_animal_23_dinosaur,
+            R.drawable.ic_animal_24_robot
+    };
+
+    private static final SparseIntArray COLOR_TO_INDEX = new SparseIntArray();
+
+    static {
+        for (int i = 0; i < ANIMAL_COLORS.length; i++) {
+            COLOR_TO_INDEX.put(ANIMAL_COLORS[i], i);
+        }
+    }
 
     private final Context context;
     private final List<AnimalItem> board;
@@ -81,70 +127,63 @@ public class BoardGridAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        TextView textView;
+        ImageView imageView;
         if (convertView == null) {
-            textView = new TextView(context);
+            imageView = new ImageView(context);
             int size = context.getResources().getDisplayMetrics().widthPixels / 10;
-            textView.setLayoutParams(new ViewGroup.LayoutParams(size, size));
-            textView.setGravity(android.view.Gravity.CENTER);
-            textView.setTextSize(20);
-            textView.setTypeface(null, android.graphics.Typeface.BOLD);
-            int padding = dp(2);
-            textView.setPadding(padding, padding, padding, padding);
-            textView.setSingleLine(true);
+            imageView.setLayoutParams(new ViewGroup.LayoutParams(size, size));
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            int padding = dp(6);
+            imageView.setPadding(padding, padding, padding, padding);
         } else {
-            textView = (TextView) convertView;
+            imageView = (ImageView) convertView;
         }
 
         AnimalItem item = board.get(position);
-        textView.setScaleX(1.0f);
-        textView.setScaleY(1.0f);
-        textView.setTranslationX(0f);
-        textView.setTranslationY(0f);
-        textView.setRotation(0f);
+        imageView.setScaleX(1.0f);
+        imageView.setScaleY(1.0f);
+        imageView.setTranslationX(0f);
+        imageView.setTranslationY(0f);
+        imageView.setRotation(0f);
 
         if (item.isMatched()) {
-            setCellBackground(textView, Color.TRANSPARENT, Color.TRANSPARENT, 0);
-            textView.setText("");
-            textView.setEnabled(false);
-            textView.setAlpha(0.18f);
+            setCellBackground(imageView, Color.TRANSPARENT, Color.TRANSPARENT, 0);
+            imageView.setImageResource(android.R.color.transparent);
+            imageView.setEnabled(false);
+            imageView.setAlpha(0.18f);
         } else if (pathPositions.contains(position)) {
-            setCellBackground(textView, Color.parseColor("#A7F3D0"), Color.parseColor("#0F766E"), 2);
-            textView.setText(getAnimalSymbol(item.getAnimalId()));
-            textView.setTextColor(Color.parseColor("#064E3B"));
-            textView.setEnabled(true);
-            textView.setAlpha(1.0f);
+            setCellBackground(imageView, Color.parseColor("#A7F3D0"), Color.parseColor("#0F766E"), 2);
+            imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
+            imageView.setEnabled(true);
+            imageView.setAlpha(1.0f);
         } else if (position == selectedPosition) {
-            setCellBackground(textView, Color.parseColor("#FEF3C7"), Color.parseColor("#F59E0B"), 3);
-            textView.setText(getAnimalSymbol(item.getAnimalId()));
-            textView.setTextColor(Color.parseColor("#78350F"));
-            textView.setEnabled(true);
-            textView.setAlpha(1.0f);
+            setCellBackground(imageView, Color.parseColor("#FEF3C7"), Color.parseColor("#F59E0B"), 3);
+            imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
+            imageView.setEnabled(true);
+            imageView.setAlpha(1.0f);
         } else if (position == secondSelectedPosition) {
-            setCellBackground(textView, Color.parseColor("#FED7AA"), Color.parseColor("#F97316"), 3);
-            textView.setText(getAnimalSymbol(item.getAnimalId()));
-            textView.setTextColor(Color.parseColor("#7C2D12"));
-            textView.setEnabled(true);
-            textView.setAlpha(1.0f);
+            setCellBackground(imageView, Color.parseColor("#FED7AA"), Color.parseColor("#F97316"), 3);
+            imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
+            imageView.setEnabled(true);
+            imageView.setAlpha(1.0f);
         } else {
-            setCellBackground(textView, item.getAnimalId(), Color.argb(70, 255, 255, 255), 1);
-            textView.setText(getAnimalSymbol(item.getAnimalId()));
-            textView.setTextColor(getContrastColor(item.getAnimalId()));
-            textView.setEnabled(true);
-            textView.setAlpha(1.0f);
+            setCellBackground(imageView, item.getAnimalId(), Color.argb(70, 255, 255, 255), 1);
+            imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
+            imageView.setEnabled(true);
+            imageView.setAlpha(1.0f);
         }
 
         final int pos = position;
-        textView.setOnClickListener(v -> {
+        imageView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(pos);
             }
         });
 
-        return textView;
+        return imageView;
     }
 
-    private void setCellBackground(TextView textView, int fillColor, int strokeColor, int strokeWidthDp) {
+    private void setCellBackground(ImageView imageView, int fillColor, int strokeColor, int strokeWidthDp) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.RECTANGLE);
         drawable.setColor(fillColor);
@@ -152,7 +191,15 @@ public class BoardGridAdapter extends BaseAdapter {
         if (strokeWidthDp > 0) {
             drawable.setStroke(dp(strokeWidthDp), strokeColor);
         }
-        textView.setBackground(drawable);
+        imageView.setBackground(drawable);
+    }
+
+    private int getDrawableForAnimal(int animalColor) {
+        int index = COLOR_TO_INDEX.get(animalColor, -1);
+        if (index >= 0 && index < ANIMAL_DRAWABLES.length) {
+            return ANIMAL_DRAWABLES[index];
+        }
+        return ANIMAL_DRAWABLES[0];
     }
 
     private int dp(int value) {
@@ -160,22 +207,5 @@ public class BoardGridAdapter extends BaseAdapter {
                 TypedValue.COMPLEX_UNIT_DIP,
                 value,
                 context.getResources().getDisplayMetrics());
-    }
-
-    private String getAnimalSymbol(int color) {
-        int index = Math.abs(color % 25);
-        String[] symbols = {
-                "\uD83D\uDC31", "\uD83D\uDC36", "\uD83E\uDD8A", "\uD83D\uDC3B", "\uD83D\uDC2C",
-                "\uD83D\uDC28", "\uD83E\uDD81", "\uD83D\uDC2E", "\uD83D\uDC37", "\uD83D\uDC38",
-                "\uD83D\uDC24", "\uD83D\uDC14", "\uD83E\uDD86", "\uD83E\uDD85", "\uD83D\uDC20",
-                "\uD83D\uDC19", "\uD83E\uDD80", "\uD83E\uDD8B", "\uD83D\uDC1D", "\uD83D\uDC1E",
-                "\uD83D\uDC1B", "\uD83D\uDC0D", "\uD83E\uDD95", "\uD83E\uDD96", "\uD83E\uDDBE"
-        };
-        return symbols[index];
-    }
-
-    private int getContrastColor(int color) {
-        double luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
-        return luminance > 0.5 ? Color.BLACK : Color.WHITE;
     }
 }
