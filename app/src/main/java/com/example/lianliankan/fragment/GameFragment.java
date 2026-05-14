@@ -45,6 +45,7 @@ public class GameFragment extends Fragment {
     private static final int TOTAL_TIME_SECONDS = 120;
     private static final int MATCH_RESOLVE_DELAY_MS = 300;
     private static final int MISMATCH_RESOLVE_DELAY_MS = 260;
+    private static final int AUTO_HINT_DELAY_MS = 5000;
 
     private FragmentGameBinding binding;
     private List<AnimalItem> board;
@@ -58,6 +59,7 @@ public class GameFragment extends Fragment {
     private boolean isGameActive;
     private boolean isPaused;
     private boolean isResolvingSelection;
+    private int hintGeneration;
     private SoundManager soundManager;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -124,6 +126,7 @@ public class GameFragment extends Fragment {
         AnimalItem item = board.get(position);
         if (item.isMatched()) return;
 
+        scheduleAutoHint();
         soundManager.playClickSound();
 
         if (firstSelected == null) {
@@ -166,6 +169,7 @@ public class GameFragment extends Fragment {
                     firstSelected = null;
                     secondSelected = null;
                     isResolvingSelection = false;
+                    scheduleAutoHint();
                     checkGameState();
                 }, MATCH_RESOLVE_DELAY_MS);
 
@@ -179,6 +183,7 @@ public class GameFragment extends Fragment {
                     firstSelected = null;
                     secondSelected = null;
                     isResolvingSelection = false;
+                    scheduleAutoHint();
                 }, MISMATCH_RESOLVE_DELAY_MS);
             }
         } else {
@@ -241,6 +246,28 @@ public class GameFragment extends Fragment {
         animateShake(secondPosition);
     }
 
+    private void animateHintPair(int firstPosition, int secondPosition) {
+        animateHint(firstPosition);
+        animateHint(secondPosition);
+    }
+
+    private void animateHint(int position) {
+        View view = getGridChildAtPosition(position);
+        if (view == null) return;
+        view.animate().cancel();
+        AnimatorSet set = new AnimatorSet();
+        ObjectAnimator shake = ObjectAnimator.ofFloat(
+                view,
+                View.TRANSLATION_X,
+                0f, -8f, 8f, -6f, 6f, 0f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, View.SCALE_X, 1.0f, 1.12f, 1.0f, 1.10f, 1.0f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, View.SCALE_Y, 1.0f, 1.12f, 1.0f, 1.10f, 1.0f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(view, View.ALPHA, 1.0f, 0.55f, 1.0f, 0.65f, 1.0f);
+        set.playTogether(shake, scaleX, scaleY, alpha);
+        set.setDuration(720);
+        set.start();
+    }
+
     private void animateShake(int position) {
         View view = getGridChildAtPosition(position);
         if (view == null) return;
@@ -274,6 +301,46 @@ public class GameFragment extends Fragment {
         }).start();
     }
 
+    private void scheduleAutoHint() {
+        hintGeneration++;
+        int generation = hintGeneration;
+        handler.postDelayed(() -> {
+            if (generation != hintGeneration
+                    || !isGameActive
+                    || isPaused
+                    || isResolvingSelection
+                    || firstSelected != null
+                    || remainingPairs <= 0) {
+                return;
+            }
+            showAutoHintAsync(generation, remainingPairs);
+        }, AUTO_HINT_DELAY_MS);
+    }
+
+    private void cancelAutoHint() {
+        hintGeneration++;
+    }
+
+    private void showAutoHintAsync(int generation, int expectedRemainingPairs) {
+        List<AnimalItem> boardSnapshot = copyBoard(board);
+        new Thread(() -> {
+            int[] pair = GameEngine.findOneLinkablePair(boardSnapshot);
+            handler.post(() -> {
+                if (generation != hintGeneration
+                        || !isGameActive
+                        || isPaused
+                        || isResolvingSelection
+                        || firstSelected != null
+                        || remainingPairs != expectedRemainingPairs
+                        || pair == null) {
+                    return;
+                }
+                animateHintPair(pair[0], pair[1]);
+                scheduleAutoHint();
+            });
+        }).start();
+    }
+
     private List<AnimalItem> copyBoard(List<AnimalItem> source) {
         List<AnimalItem> snapshot = new ArrayList<>(source.size());
         for (AnimalItem item : source) {
@@ -291,6 +358,7 @@ public class GameFragment extends Fragment {
     private void onGameWin() {
         isGameActive = false;
         isPaused = false;
+        cancelAutoHint();
         stopTimer();
         int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
 
@@ -302,6 +370,7 @@ public class GameFragment extends Fragment {
         if (!isGameActive) return;
         isGameActive = false;
         isPaused = false;
+        cancelAutoHint();
         stopTimer();
         int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
 
@@ -333,6 +402,7 @@ public class GameFragment extends Fragment {
         if (timer != null) return;
         isGameActive = true;
         isPaused = false;
+        scheduleAutoHint();
         updateTimerUI();
 
         timer = new Timer();
@@ -398,6 +468,7 @@ public class GameFragment extends Fragment {
     private void shuffleBoard() {
         if (!isGameActive) return;
         if (remainingPairs <= 0) return;
+        scheduleAutoHint();
 
         if (!GameEngine.hasAnyLinkablePair(board)) {
             board = GameGenerator.generateBoard(
@@ -453,10 +524,12 @@ public class GameFragment extends Fragment {
             isPaused = false;
             isGameActive = true;
             startTimer();
+            scheduleAutoHint();
             Toast.makeText(requireContext(), "游戏继续", Toast.LENGTH_SHORT).show();
         } else {
             isPaused = true;
             isGameActive = false;
+            cancelAutoHint();
             stopTimer();
             Toast.makeText(requireContext(), "游戏已暂停", Toast.LENGTH_SHORT).show();
         }
@@ -544,6 +617,7 @@ public class GameFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        cancelAutoHint();
         stopTimer();
     }
 
@@ -564,6 +638,7 @@ public class GameFragment extends Fragment {
 
     private void resetGame() {
         stopTimer();
+        cancelAutoHint();
         difficulty = PreferenceUtil.getDifficulty(requireContext());
         board = GameGenerator.generateBoard(
                 GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty);
@@ -588,6 +663,7 @@ public class GameFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         stopTimer();
+        cancelAutoHint();
         if (soundManager != null) {
             soundManager.release();
             soundManager = null;
