@@ -2,14 +2,11 @@ package com.example.lianliankan.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.RadioGroup;
-import android.widget.Switch;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -62,6 +59,9 @@ public class SettingsFragment extends Fragment {
 
         binding.switchSoundEffects.setChecked(PreferenceUtil.isSoundEnabled(requireContext()));
         binding.switchBackgroundMusic.setChecked(PreferenceUtil.isMusicEnabled(requireContext()));
+        int currentVolume = PreferenceUtil.getMusicVolume(requireContext());
+        binding.seekMusicVolume.setProgress(currentVolume);
+        updateMusicVolumeText(currentVolume);
 
         // 难度切换
         binding.radioGroupDifficulty.setOnCheckedChangeListener((group, checkedId) -> {
@@ -96,21 +96,51 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        binding.seekMusicVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                updateMusicVolumeText(progress);
+                if (fromUser) {
+                    PreferenceUtil.saveMusicVolume(requireContext(), progress);
+                    startMusicService(MusicService.ACTION_SET_VOLUME);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int volume = seekBar.getProgress();
+                PreferenceUtil.saveMusicVolume(requireContext(), volume);
+                startMusicService(MusicService.ACTION_SET_VOLUME);
+            }
+        });
+
         // 重置设置
         binding.btnResetSettings.setOnClickListener(v -> {
             PreferenceUtil.saveDifficulty(requireContext(), GameEngine.DIFFICULTY_EASY);
             PreferenceUtil.saveSoundEnabled(requireContext(), true);
             PreferenceUtil.saveMusicEnabled(requireContext(), true);
+            PreferenceUtil.saveMusicVolume(requireContext(), PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             binding.radioGroupDifficulty.check(R.id.radio_easy);
             binding.switchSoundEffects.setChecked(true);
             binding.switchBackgroundMusic.setChecked(true);
+            binding.seekMusicVolume.setProgress(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
+            updateMusicVolumeText(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             Toast.makeText(requireContext(), "已恢复默认设置", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void updateMusicVolumeText(int volume) {
+        binding.tvMusicVolume.setText(volume + "%");
     }
 
     private void startMusicService(String action) {
         Intent intent = new Intent(requireContext(), MusicService.class);
         intent.setAction(action);
+        intent.putExtra(MusicService.EXTRA_VOLUME, PreferenceUtil.getMusicVolume(requireContext()));
         requireContext().startService(intent);
     }
 

@@ -21,9 +21,12 @@ public class MusicService extends Service {
     public static final String ACTION_PLAY = "com.example.lianliankan.PLAY_MUSIC";
     public static final String ACTION_PAUSE = "com.example.lianliankan.PAUSE_MUSIC";
     public static final String ACTION_STOP = "com.example.lianliankan.STOP_MUSIC";
+    public static final String ACTION_SET_VOLUME = "com.example.lianliankan.SET_MUSIC_VOLUME";
+    public static final String EXTRA_VOLUME = "music_volume";
     public static final String CHANNEL_ID = "music_channel";
 
     private MediaPlayer mediaPlayer;
+    private int musicVolume = 70;
 
     @Override
     public void onCreate() {
@@ -35,6 +38,7 @@ public class MusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             String action = intent.getAction();
+            musicVolume = intent.getIntExtra(EXTRA_VOLUME, musicVolume);
             if (ACTION_PLAY.equals(action)) {
                 startMusic();
             } else if (ACTION_PAUSE.equals(action)) {
@@ -43,6 +47,8 @@ public class MusicService extends Service {
                 stopMusic();
                 stopForeground(true);
                 stopSelf();
+            } else if (ACTION_SET_VOLUME.equals(action)) {
+                applyVolume();
             } else {
                 // 默认启动播放
                 startMusic();
@@ -61,8 +67,10 @@ public class MusicService extends Service {
                         mediaPlayer.start();
                     }
                 });
+                applyVolume();
             }
             if (!mediaPlayer.isPlaying()) {
+                applyVolume();
                 mediaPlayer.start();
                 showForegroundNotification();
             }
@@ -75,6 +83,12 @@ public class MusicService extends Service {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
+    }
+
+    private void applyVolume() {
+        if (mediaPlayer == null) return;
+        float volume = Math.max(0, Math.min(100, musicVolume)) / 100f;
+        mediaPlayer.setVolume(volume, volume);
     }
 
     private void stopMusic() {

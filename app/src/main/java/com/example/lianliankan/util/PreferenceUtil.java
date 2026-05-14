@@ -15,7 +15,9 @@ public class PreferenceUtil {
     private static final String KEY_DIFFICULTY = "difficulty";
     private static final String KEY_SOUND_ENABLED = "sound_enabled";
     private static final String KEY_MUSIC_ENABLED = "music_enabled";
+    private static final String KEY_MUSIC_VOLUME = "music_volume";
     private static final String KEY_PLAYER_NAME = "player_name";
+    public static final int DEFAULT_MUSIC_VOLUME = 70;
 
     public static void saveDifficulty(Context context, int difficulty) {
         SharedPreferences.Editor editor = context.getSharedPreferences(
@@ -56,6 +58,20 @@ public class PreferenceUtil {
         return prefs.getBoolean(KEY_MUSIC_ENABLED, true);
     }
 
+    public static void saveMusicVolume(Context context, int volume) {
+        int safeVolume = Math.max(0, Math.min(100, volume));
+        SharedPreferences.Editor editor = context.getSharedPreferences(
+                PREFS_NAME, Context.MODE_PRIVATE).edit();
+        editor.putInt(KEY_MUSIC_VOLUME, safeVolume);
+        editor.apply();
+    }
+
+    public static int getMusicVolume(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(
+                PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_MUSIC_VOLUME, DEFAULT_MUSIC_VOLUME);
+    }
+
     public static void savePlayerName(Context context, String name) {
         SharedPreferences.Editor editor = context.getSharedPreferences(
                 PREFS_NAME, Context.MODE_PRIVATE).edit();
@@ -71,6 +87,7 @@ public class PreferenceUtil {
 
     public static void applySettings(Context context) {
         Intent intent = new Intent(context, MusicService.class);
+        intent.putExtra(MusicService.EXTRA_VOLUME, getMusicVolume(context));
         if (isMusicEnabled(context)) {
             intent.setAction(MusicService.ACTION_PLAY);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
