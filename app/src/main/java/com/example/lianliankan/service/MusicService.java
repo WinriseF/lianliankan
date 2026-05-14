@@ -54,7 +54,7 @@ public class MusicService extends Service {
     private void startMusic() {
         try {
             if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer.create(this, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
+                mediaPlayer = MediaPlayer.create(this, R.raw.background_music);
                 mediaPlayer.setLooping(true);
                 mediaPlayer.setOnCompletionListener(mp -> {
                     if (mediaPlayer != null) {

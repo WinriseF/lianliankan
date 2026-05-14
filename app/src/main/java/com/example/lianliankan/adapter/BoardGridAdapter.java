@@ -37,10 +37,8 @@ public class BoardGridAdapter extends BaseAdapter {
     }
 
     public void setSelectedPosition(int position) {
-        int old = selectedPosition;
         selectedPosition = position;
-        if (old >= 0) notifyDataSetChanged();
-        if (position >= 0) notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     public void setSecondSelectedPosition(int position) {
@@ -83,7 +81,7 @@ public class BoardGridAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView;
+        TextView textView;
         if (convertView == null) {
             textView = new TextView(context);
             int size = context.getResources().getDisplayMetrics().widthPixels / 10;
@@ -99,6 +97,11 @@ public class BoardGridAdapter extends BaseAdapter {
         }
 
         AnimalItem item = board.get(position);
+        textView.setScaleX(1.0f);
+        textView.setScaleY(1.0f);
+        textView.setTranslationX(0f);
+        textView.setTranslationY(0f);
+        textView.setRotation(0f);
 
         if (item.isMatched()) {
             setCellBackground(textView, Color.TRANSPARENT, Color.TRANSPARENT, 0);

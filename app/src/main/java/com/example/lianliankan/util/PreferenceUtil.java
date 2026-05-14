@@ -1,9 +1,13 @@
 package com.example.lianliankan.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 
-import com.example.lianliankan.util.GameEngine;
+import androidx.core.content.ContextCompat;
+
+import com.example.lianliankan.service.MusicService;
 
 public class PreferenceUtil {
 
@@ -66,6 +70,17 @@ public class PreferenceUtil {
     }
 
     public static void applySettings(Context context) {
-        // 全局设置应用入口，保留给 Activity 恢复时统一同步设置。
+        Intent intent = new Intent(context, MusicService.class);
+        if (isMusicEnabled(context)) {
+            intent.setAction(MusicService.ACTION_PLAY);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ContextCompat.startForegroundService(context, intent);
+            } else {
+                context.startService(intent);
+            }
+        } else {
+            intent.setAction(MusicService.ACTION_PAUSE);
+            context.startService(intent);
+        }
     }
 }

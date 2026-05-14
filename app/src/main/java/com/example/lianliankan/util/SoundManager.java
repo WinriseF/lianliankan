@@ -4,11 +4,10 @@ import android.content.Context;
 import android.media.MediaPlayer;
 
 import com.example.lianliankan.R;
-import com.example.lianliankan.util.PreferenceUtil;
 
 public class SoundManager {
 
-    private Context context;
+    private final Context context;
     private MediaPlayer clickSound;
     private MediaPlayer matchSound;
     private MediaPlayer failSound;
@@ -17,60 +16,41 @@ public class SoundManager {
 
     public SoundManager(Context context) {
         this.context = context.getApplicationContext();
+        clickSound = createPlayer(R.raw.sound_click);
+        matchSound = createPlayer(R.raw.sound_match);
+        failSound = createPlayer(R.raw.sound_fail);
+        winSound = createPlayer(R.raw.sound_win);
+        loseSound = createPlayer(R.raw.sound_lose);
     }
 
     public void playClickSound() {
         if (!PreferenceUtil.isSoundEnabled(context)) return;
-        releaseMediaPlayer(clickSound);
-        clickSound = MediaPlayer.create(context, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
-        if (clickSound != null) {
-            clickSound.start();
-        }
+        play(clickSound);
     }
 
     public void playMatchSound() {
         if (!PreferenceUtil.isSoundEnabled(context)) return;
-        releaseMediaPlayer(matchSound);
-        matchSound = MediaPlayer.create(context, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
-        if (matchSound != null) {
-            matchSound.start();
-        }
+        play(matchSound);
     }
 
     public void playFailSound() {
         if (!PreferenceUtil.isSoundEnabled(context)) return;
-        releaseMediaPlayer(failSound);
-        failSound = MediaPlayer.create(context, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
-        if (failSound != null) {
-            failSound.start();
-        }
+        play(failSound);
     }
 
     public void playWinSound() {
         if (!PreferenceUtil.isSoundEnabled(context)) return;
-        releaseMediaPlayer(winSound);
-        winSound = MediaPlayer.create(context, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
-        if (winSound != null) {
-            winSound.start();
-        }
+        play(winSound);
     }
 
     public void playLoseSound() {
         if (!PreferenceUtil.isSoundEnabled(context)) return;
-        releaseMediaPlayer(loseSound);
-        loseSound = MediaPlayer.create(context, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
-        if (loseSound != null) {
-            loseSound.start();
-        }
+        play(loseSound);
     }
 
     public void playDefaultSound() {
         if (!PreferenceUtil.isSoundEnabled(context)) return;
-        MediaPlayer mp = MediaPlayer.create(context, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
-        if (mp != null) {
-            mp.start();
-            mp.setOnCompletionListener(MediaPlayer::release);
-        }
+        play(clickSound);
     }
 
     public void release() {
@@ -79,6 +59,28 @@ public class SoundManager {
         releaseMediaPlayer(failSound);
         releaseMediaPlayer(winSound);
         releaseMediaPlayer(loseSound);
+        clickSound = null;
+        matchSound = null;
+        failSound = null;
+        winSound = null;
+        loseSound = null;
+    }
+
+    private MediaPlayer createPlayer(int resId) {
+        return MediaPlayer.create(context, resId);
+    }
+
+    private void play(MediaPlayer player) {
+        if (player == null) return;
+        try {
+            if (player.isPlaying()) {
+                player.pause();
+            }
+            player.seekTo(0);
+            player.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void releaseMediaPlayer(MediaPlayer mp) {

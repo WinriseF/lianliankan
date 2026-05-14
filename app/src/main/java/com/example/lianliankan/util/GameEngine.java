@@ -147,7 +147,10 @@ public class GameEngine {
      */
     public static LinkedList<Point> findPath(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
         LinkedList<Point> path = new LinkedList<>();
-        if (!isLinkable(a, b, board)) return path;
+        if (a == null || b == null) return path;
+        if (a.getAnimalId() != b.getAnimalId()) return path;
+        if (a.isMatched() || b.isMatched()) return path;
+        if (a.getRow() == b.getRow() && a.getCol() == b.getCol()) return path;
 
         int ra = a.getRow(), ca = a.getCol();
         int rb = b.getRow(), cb = b.getCol();

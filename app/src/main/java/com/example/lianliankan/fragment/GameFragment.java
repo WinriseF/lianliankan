@@ -1,5 +1,8 @@
 package com.example.lianliankan.fragment;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -11,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -39,6 +43,8 @@ import java.util.TimerTask;
 public class GameFragment extends Fragment {
 
     private static final int TOTAL_TIME_SECONDS = 120;
+    private static final int MATCH_RESOLVE_DELAY_MS = 300;
+    private static final int MISMATCH_RESOLVE_DELAY_MS = 260;
 
     private FragmentGameBinding binding;
     private List<AnimalItem> board;
@@ -51,6 +57,7 @@ public class GameFragment extends Fragment {
     private Timer timer;
     private boolean isGameActive;
     private boolean isPaused;
+    private boolean isResolvingSelection;
     private SoundManager soundManager;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -104,7 +111,7 @@ public class GameFragment extends Fragment {
 
     private void setupGridView() {
         adapter = new BoardGridAdapter(requireContext(), board, position -> {
-            if (!isGameActive) return;
+            if (!isGameActive || isResolvingSelection) return;
             onAnimalClicked(position);
         });
         if (binding != null) {
@@ -122,6 +129,7 @@ public class GameFragment extends Fragment {
         if (firstSelected == null) {
             firstSelected = new GameEngine.Point(item.getRow(), item.getCol());
             adapter.setSelectedPosition(position);
+            animatePress(position);
         } else if (secondSelected == null) {
             int firstPos = firstSelected.row * GameEngine.BOARD_COLS + firstSelected.col;
             if (position == firstPos) {
@@ -134,55 +142,150 @@ public class GameFragment extends Fragment {
             AnimalItem firstItem = board.get(firstPos);
             AnimalItem secondItem = board.get(position);
 
-            if (firstItem.getAnimalId() == secondItem.getAnimalId()
-                    && GameEngine.isLinkable(firstItem, secondItem, board)) {
+            java.util.List<GameEngine.Point> path =
+                    GameEngine.findPath(firstItem, secondItem, board);
 
-                java.util.List<GameEngine.Point> path =
-                        GameEngine.findPath(firstItem, secondItem, board);
+            if (path != null && !path.isEmpty()) {
+                isResolvingSelection = true;
+
                 if (path != null && path.size() > 1) {
                     adapter.setPathPositions(path);
                 }
 
-                firstItem.setMatched(true);
-                secondItem.setMatched(true);
                 score += 10 * (difficulty + 1);
                 remainingPairs--;
 
                 soundManager.playMatchSound();
                 updateRemainingCount();
 
+                animateMatchPair(firstPos, position);
                 handler.postDelayed(() -> {
+                    firstItem.setMatched(true);
+                    secondItem.setMatched(true);
                     adapter.clearSelection();
-                    adapter.setPathPositions(null);
-                    adapter.notifyDataSetChanged();
                     firstSelected = null;
                     secondSelected = null;
+                    isResolvingSelection = false;
                     checkGameState();
-                }, 500);
+                }, MATCH_RESOLVE_DELAY_MS);
 
             } else {
+                isResolvingSelection = true;
                 soundManager.playFailSound();
                 adapter.setSecondSelectedPosition(position);
+                animateMismatchPair(firstPos, position);
                 handler.postDelayed(() -> {
                     adapter.clearSelection();
-                    adapter.notifyDataSetChanged();
                     firstSelected = null;
                     secondSelected = null;
-                }, 600);
+                    isResolvingSelection = false;
+                }, MISMATCH_RESOLVE_DELAY_MS);
             }
         } else {
             adapter.clearSelection();
             firstSelected = new GameEngine.Point(item.getRow(), item.getCol());
             adapter.setSelectedPosition(position);
+            animatePress(position);
         }
     }
 
+    private View getGridChildAtPosition(int adapterPosition) {
+        if (binding == null) return null;
+        int childIndex = adapterPosition - binding.gridBoard.getFirstVisiblePosition();
+        if (childIndex < 0 || childIndex >= binding.gridBoard.getChildCount()) return null;
+        return binding.gridBoard.getChildAt(childIndex);
+    }
+
+    private void animatePress(int position) {
+        View view = getGridChildAtPosition(position);
+        if (view == null) return;
+        view.animate().cancel();
+        view.setScaleX(0.94f);
+        view.setScaleY(0.94f);
+        view.animate()
+                .scaleX(1.08f)
+                .scaleY(1.08f)
+                .setDuration(120)
+                .setInterpolator(new OvershootInterpolator(1.8f))
+                .withEndAction(() -> view.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .setDuration(90)
+                        .start())
+                .start();
+    }
+
+    private void animateMatchPair(int firstPosition, int secondPosition) {
+        View firstView = getGridChildAtPosition(firstPosition);
+        View secondView = getGridChildAtPosition(secondPosition);
+        List<Animator> animators = new ArrayList<>();
+        addMatchAnimators(animators, firstView);
+        addMatchAnimators(animators, secondView);
+        if (animators.isEmpty()) return;
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(animators);
+        set.setDuration(360);
+        set.setInterpolator(new OvershootInterpolator(1.4f));
+        set.start();
+    }
+
+    private void addMatchAnimators(List<Animator> animators, View view) {
+        if (view == null) return;
+        animators.add(ObjectAnimator.ofFloat(view, View.SCALE_X, 1.0f, 1.18f, 0.05f));
+        animators.add(ObjectAnimator.ofFloat(view, View.SCALE_Y, 1.0f, 1.18f, 0.05f));
+        animators.add(ObjectAnimator.ofFloat(view, View.ALPHA, 1.0f, 0.42f, 1.0f, 0.0f));
+    }
+
+    private void animateMismatchPair(int firstPosition, int secondPosition) {
+        animateShake(firstPosition);
+        animateShake(secondPosition);
+    }
+
+    private void animateShake(int position) {
+        View view = getGridChildAtPosition(position);
+        if (view == null) return;
+        view.animate().cancel();
+        ObjectAnimator shake = ObjectAnimator.ofFloat(
+                view,
+                View.TRANSLATION_X,
+                0f, -10f, 10f, -8f, 8f, -4f, 4f, 0f);
+        shake.setDuration(260);
+        shake.start();
+    }
+
     private void checkGameState() {
-        if (GameEngine.isGameWon(board)) {
+        if (remainingPairs == 0) {
             onGameWin();
-        } else if (!GameEngine.hasAnyLinkablePair(board)) {
-            onGameDeadlock();
+        } else {
+            checkDeadlockAsync(remainingPairs);
         }
+    }
+
+    private void checkDeadlockAsync(int expectedRemainingPairs) {
+        List<AnimalItem> boardSnapshot = copyBoard(board);
+        new Thread(() -> {
+            boolean hasPair = GameEngine.hasAnyLinkablePair(boardSnapshot);
+            handler.post(() -> {
+                if (!isGameActive || remainingPairs != expectedRemainingPairs) return;
+                if (!hasPair) {
+                    onGameDeadlock();
+                }
+            });
+        }).start();
+    }
+
+    private List<AnimalItem> copyBoard(List<AnimalItem> source) {
+        List<AnimalItem> snapshot = new ArrayList<>(source.size());
+        for (AnimalItem item : source) {
+            AnimalItem copy = new AnimalItem(
+                    item.getAnimalId(),
+                    item.getImageResId(),
+                    item.getRow(),
+                    item.getCol());
+            copy.setMatched(item.isMatched());
+            snapshot.add(copy);
+        }
+        return snapshot;
     }
 
     private void onGameWin() {
@@ -447,7 +550,9 @@ public class GameFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        soundManager = new SoundManager(requireContext());
+        if (soundManager == null) {
+            soundManager = new SoundManager(requireContext());
+        }
         if (isPaused) {
             updateTimerUI();
         } else if (!isGameActive) {
@@ -467,6 +572,7 @@ public class GameFragment extends Fragment {
         timeRemaining = TOTAL_TIME_SECONDS;
         isGameActive = false;
         isPaused = false;
+        isResolvingSelection = false;
         firstSelected = null;
         secondSelected = null;
         if (binding != null) {
@@ -484,6 +590,7 @@ public class GameFragment extends Fragment {
         stopTimer();
         if (soundManager != null) {
             soundManager.release();
+            soundManager = null;
         }
     }
 }
