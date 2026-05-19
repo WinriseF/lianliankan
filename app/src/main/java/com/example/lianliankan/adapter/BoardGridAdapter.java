@@ -131,25 +131,41 @@ public class BoardGridAdapter extends BaseAdapter {
         if (item.isMatched()) {
             imageView.setBackground(null);
             imageView.setImageResource(android.R.color.transparent);
-            imageView.setEnabled(false);
+            imageView.setEnabled(true);
             imageView.setAlpha(0.18f);
         } else if (pathPositions.contains(position)) {
-            imageView.setBackground(null);
+            setCellBackground(
+                    imageView,
+                    Color.parseColor("#E8F5E9"),
+                    Color.parseColor("#43A047"),
+                    2);
             imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
             imageView.setEnabled(true);
             imageView.setAlpha(1.0f);
         } else if (position == selectedPosition) {
-            imageView.setBackground(null);
+            setCellBackground(
+                    imageView,
+                    Color.parseColor("#FFF8E1"),
+                    Color.parseColor("#FF9800"),
+                    3);
             imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
             imageView.setEnabled(true);
             imageView.setAlpha(1.0f);
         } else if (position == secondSelectedPosition) {
-            imageView.setBackground(null);
+            setCellBackground(
+                    imageView,
+                    Color.parseColor("#FBE9E7"),
+                    Color.parseColor("#FF5722"),
+                    3);
             imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
             imageView.setEnabled(true);
             imageView.setAlpha(1.0f);
         } else {
-            imageView.setBackground(null);
+            setCellBackground(
+                    imageView,
+                    Color.parseColor("#FFFFFF"),
+                    Color.parseColor("#DDE5DF"),
+                    1);
             imageView.setImageResource(getDrawableForAnimal(item.getAnimalId()));
             imageView.setEnabled(true);
             imageView.setAlpha(1.0f);

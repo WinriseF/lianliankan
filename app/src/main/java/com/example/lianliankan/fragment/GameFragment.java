@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.os.Looper;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
@@ -105,6 +107,7 @@ public class GameFragment extends Fragment {
             updateRemainingCount();
             updateDifficultyLabel();
             binding.btnShuffle.setOnClickListener(v -> shuffleBoard());
+            setupSelectionDismissTargets();
         }
         if (isPaused) {
             updateTimerUI();
@@ -120,13 +123,109 @@ public class GameFragment extends Fragment {
         });
         if (binding != null) {
             binding.gridBoard.setAdapter(adapter);
+            binding.gridBoard.post(this::fitGridBoardToContent);
             registerForContextMenu(binding.gridBoard);
         }
     }
 
+    private void fitGridBoardToContent() {
+        if (binding == null || adapter == null) return;
+
+        int rows = (int) Math.ceil(adapter.getCount() / (float) GameEngine.BOARD_COLS);
+        if (rows <= 0) return;
+
+        int cellHeight = 0;
+        if (binding.gridBoard.getChildCount() > 0) {
+            cellHeight = binding.gridBoard.getChildAt(0).getMeasuredHeight();
+        }
+        if (cellHeight <= 0) {
+            cellHeight = requireContext().getResources().getDisplayMetrics().widthPixels / 10;
+        }
+
+        int height = binding.gridBoard.getPaddingTop()
+                + binding.gridBoard.getPaddingBottom()
+                + rows * cellHeight
+                + (rows - 1) * binding.gridBoard.getVerticalSpacing();
+
+        ViewGroup.LayoutParams params = binding.gridBoard.getLayoutParams();
+        if (params.height != height) {
+            params.height = height;
+            binding.gridBoard.setLayoutParams(params);
+        }
+    }
+
+    private void setupSelectionDismissTargets() {
+        View.OnTouchListener dismissSelectionOnTouch = (target, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                clearSelectionIfTouchOutsideActiveItem(event);
+            }
+            return false;
+        };
+
+        binding.getRoot().setOnTouchListener(dismissSelectionOnTouch);
+        binding.gameContent.setOnTouchListener(dismissSelectionOnTouch);
+        binding.toolbar.setOnTouchListener(dismissSelectionOnTouch);
+        binding.gridBoard.setOnTouchListener(dismissSelectionOnTouch);
+        binding.progressTimer.setOnTouchListener(dismissSelectionOnTouch);
+        binding.tvTimer.setOnTouchListener(dismissSelectionOnTouch);
+        binding.tvDifficultyLabel.setOnTouchListener(dismissSelectionOnTouch);
+        binding.tvRemaining.setOnTouchListener(dismissSelectionOnTouch);
+        binding.btnShuffle.setOnTouchListener(dismissSelectionOnTouch);
+    }
+
+    private void clearSelectionIfTouchOutsideActiveItem(MotionEvent event) {
+        if (binding == null || adapter == null || firstSelected == null || isResolvingSelection) {
+            return;
+        }
+        if (isTouchOnActiveBoardItem(event.getRawX(), event.getRawY())) {
+            return;
+        }
+        clearCurrentSelection();
+    }
+
+    private boolean isTouchOnActiveBoardItem(float rawX, float rawY) {
+        if (binding == null || board == null) return false;
+
+        Rect gridBounds = getViewScreenBounds(binding.gridBoard);
+        int x = (int) rawX;
+        int y = (int) rawY;
+        if (!gridBounds.contains(x, y)) return false;
+
+        for (int i = 0; i < binding.gridBoard.getChildCount(); i++) {
+            View child = binding.gridBoard.getChildAt(i);
+            if (!getViewScreenBounds(child).contains(x, y)) continue;
+
+            int adapterPosition = binding.gridBoard.getFirstVisiblePosition() + i;
+            return adapterPosition >= 0
+                    && adapterPosition < board.size()
+                    && !board.get(adapterPosition).isMatched();
+        }
+        return false;
+    }
+
+    private Rect getViewScreenBounds(View view) {
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        return new Rect(
+                location[0],
+                location[1],
+                location[0] + view.getWidth(),
+                location[1] + view.getHeight());
+    }
+
+    private void clearCurrentSelection() {
+        adapter.clearSelection();
+        firstSelected = null;
+        secondSelected = null;
+        scheduleAutoHint();
+    }
+
     private void onAnimalClicked(int position) {
         AnimalItem item = board.get(position);
-        if (item.isMatched()) return;
+        if (item.isMatched()) {
+            clearCurrentSelection();
+            return;
+        }
 
         scheduleAutoHint();
         soundManager.playClickSound();
