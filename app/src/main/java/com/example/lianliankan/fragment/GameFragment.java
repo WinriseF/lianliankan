@@ -379,10 +379,20 @@ public class GameFragment extends Fragment {
     }
 
     private void onGameDeadlock() {
-        Toast.makeText(requireContext(), "无可消除配对，游戏结束", Toast.LENGTH_LONG).show();
-        if (isGameActive) {
-            onGameFail("deadlock");
+        if (!isGameActive) return;
+        
+        Toast.makeText(requireContext(), "无可消除配对，自动打乱重排", Toast.LENGTH_SHORT).show();
+        cancelAutoHint();
+        
+        board = GameGenerator.shuffleRemaining(board);
+        firstSelected = null;
+        secondSelected = null;
+        if (binding != null) {
+            setupGridView();
+            updateRemainingCount();
         }
+        
+        scheduleAutoHint();
     }
 
     private void sendGameResultBroadcast(String result, int score, int timeUsed) {
@@ -469,22 +479,17 @@ public class GameFragment extends Fragment {
         if (!isGameActive) return;
         if (remainingPairs <= 0) return;
         scheduleAutoHint();
+        cancelAutoHint();
 
-        if (!GameEngine.hasAnyLinkablePair(board)) {
-            board = GameGenerator.generateBoard(
-                    GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty);
-            remainingPairs = GameEngine.PAIRS_COUNT;
-            score = 0;
-            firstSelected = null;
-            secondSelected = null;
-            if (binding != null) {
-                setupGridView();
-                updateRemainingCount();
-            }
-            Toast.makeText(requireContext(), "已打乱重排", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(requireContext(), "当前棋盘还有可消除配对，无需重排", Toast.LENGTH_SHORT).show();
+        board = GameGenerator.shuffleRemaining(board);
+        firstSelected = null;
+        secondSelected = null;
+        if (binding != null) {
+            setupGridView();
+            updateRemainingCount();
         }
+        Toast.makeText(requireContext(), "已打乱重排", Toast.LENGTH_SHORT).show();
+        scheduleAutoHint();
     }
 
     @Override
