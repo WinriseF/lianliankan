@@ -49,6 +49,7 @@ public class RankingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
         setupListView();
+        setupClearButton();
         loadRankingData();
     }
 
@@ -65,6 +66,10 @@ public class RankingFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupClearButton() {
+        binding.btnClearRanking.setOnClickListener(v -> clearRanking());
     }
 
     private void clearRanking() {

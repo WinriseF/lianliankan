@@ -74,7 +74,7 @@ public class SettingsFragment extends Fragment {
                 difficulty = GameEngine.DIFFICULTY_HARD;
             }
             PreferenceUtil.saveDifficulty(requireContext(), difficulty);
-            Toast.makeText(requireContext(), "难度已修改，下次游戏生效", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "难度已修改", Toast.LENGTH_SHORT).show();
         });
 
         // 音效开关

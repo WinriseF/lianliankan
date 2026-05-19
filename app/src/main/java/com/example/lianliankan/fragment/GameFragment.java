@@ -63,6 +63,7 @@ public class GameFragment extends Fragment {
     private SoundManager soundManager;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private int lastKnownDifficulty;
 
     public GameFragment() {
     }
@@ -75,6 +76,7 @@ public class GameFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         difficulty = PreferenceUtil.getDifficulty(requireContext());
+        lastKnownDifficulty = difficulty;
         soundManager = new SoundManager(requireContext());
         if (savedInstanceState != null) {
             restoreState(savedInstanceState);
@@ -632,6 +634,15 @@ public class GameFragment extends Fragment {
         if (soundManager == null) {
             soundManager = new SoundManager(requireContext());
         }
+        
+        int currentDifficulty = PreferenceUtil.getDifficulty(requireContext());
+        if (currentDifficulty != lastKnownDifficulty) {
+            lastKnownDifficulty = currentDifficulty;
+            resetGame();
+            Toast.makeText(requireContext(), "难度已切换，游戏重新开始", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
         if (isPaused) {
             updateTimerUI();
         } else if (!isGameActive) {
