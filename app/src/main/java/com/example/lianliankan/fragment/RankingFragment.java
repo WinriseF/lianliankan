@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -44,8 +47,47 @@ public class RankingFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setHasOptionsMenu(true);
         setupListView();
         loadRankingData();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.ranking_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_clear_ranking) {
+            clearRanking();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void clearRanking() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("确认清空")
+                .setMessage("确定要清空所有排行榜数据吗？")
+                .setPositiveButton("清空", (dialog, which) -> {
+                    new Thread(() -> {
+                        try {
+                            ContentResolver resolver = requireContext().getContentResolver();
+                            resolver.delete(RankContract.RankEntry.CONTENT_URI, null, null);
+                            requireActivity().runOnUiThread(() -> {
+                                loadRankingData();
+                                Toast.makeText(requireContext(), "排行榜已清空", Toast.LENGTH_SHORT).show();
+                            });
+                        } catch (Exception e) {
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(requireContext(), "清空失败", Toast.LENGTH_SHORT).show());
+                        }
+                    }).start();
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     private void setupListView() {
