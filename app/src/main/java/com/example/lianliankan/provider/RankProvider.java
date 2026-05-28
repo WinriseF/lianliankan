@@ -5,6 +5,7 @@ import com.example.lianliankan.provider.RankContract.RankEntry;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -34,13 +35,16 @@ public class RankProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        dbHelper = new RankDatabaseHelper(getContext());
+        Context context = getContext();
+        if (context == null) return false;
+        dbHelper = new RankDatabaseHelper(context.getApplicationContext());
         return true;
     }
 
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
+        ensureReady();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor;
         switch (uriMatcher.match(uri)) {
@@ -58,7 +62,10 @@ public class RankProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        Context context = getContext();
+        if (context != null) {
+            cursor.setNotificationUri(context.getContentResolver(), uri);
+        }
         return cursor;
     }
 
@@ -76,13 +83,15 @@ public class RankProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
+        ensureReady();
         if (uriMatcher.match(uri) != RANKS) {
             throw new IllegalArgumentException("Insert not supported for " + uri);
         }
+        ContentValues safeValues = sanitizeRankValues(values);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long id = db.insert(RankEntry.TABLE_NAME, null, values);
+        long id = db.insert(RankEntry.TABLE_NAME, null, safeValues);
         if (id > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            notifyChange(uri);
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
         return null;
@@ -90,6 +99,7 @@ public class RankProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
+        ensureReady();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int rowsDeleted;
         switch (uriMatcher.match(uri)) {
@@ -105,7 +115,7 @@ public class RankProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         if (rowsDeleted > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            notifyChange(uri);
         }
         return rowsDeleted;
     }
@@ -113,6 +123,8 @@ public class RankProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
+        ensureReady();
+        if (values == null || values.size() == 0) return 0;
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int rowsUpdated;
         switch (uriMatcher.match(uri)) {
@@ -128,8 +140,52 @@ public class RankProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         if (rowsUpdated > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            notifyChange(uri);
         }
         return rowsUpdated;
+    }
+
+    private void ensureReady() {
+        if (dbHelper == null) {
+            Context context = getContext();
+            if (context == null) {
+                throw new IllegalStateException("RankProvider context is not available");
+            }
+            dbHelper = new RankDatabaseHelper(context.getApplicationContext());
+        }
+    }
+
+    private ContentValues sanitizeRankValues(ContentValues values) {
+        ContentValues safeValues = new ContentValues();
+        String playerName = values != null
+                ? values.getAsString(RankEntry.COLUMN_PLAYER_NAME)
+                : null;
+        if (playerName == null || playerName.trim().isEmpty()) {
+            playerName = "玩家";
+        }
+        safeValues.put(RankEntry.COLUMN_PLAYER_NAME, playerName.trim());
+        safeValues.put(RankEntry.COLUMN_SCORE, getInt(values, RankEntry.COLUMN_SCORE));
+        safeValues.put(RankEntry.COLUMN_TIME_USED, getInt(values, RankEntry.COLUMN_TIME_USED));
+        safeValues.put(RankEntry.COLUMN_DIFFICULTY, getInt(values, RankEntry.COLUMN_DIFFICULTY));
+        String timestamp = values != null ? values.getAsString(RankEntry.COLUMN_TIMESTAMP) : null;
+        safeValues.put(RankEntry.COLUMN_TIMESTAMP, timestamp == null ? "" : timestamp);
+        return safeValues;
+    }
+
+    private int getInt(ContentValues values, String key) {
+        if (values == null || !values.containsKey(key)) return 0;
+        try {
+            Integer value = values.getAsInteger(key);
+            return value == null ? 0 : value;
+        } catch (ClassCastException | NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private void notifyChange(Uri uri) {
+        Context context = getContext();
+        if (context != null) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
     }
 }

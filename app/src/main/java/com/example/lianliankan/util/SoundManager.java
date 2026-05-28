@@ -1,26 +1,37 @@
 package com.example.lianliankan.util;
 
 import android.content.Context;
-import android.media.MediaPlayer;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 
 import com.example.lianliankan.R;
 
 public class SoundManager {
 
     private final Context context;
-    private MediaPlayer clickSound;
-    private MediaPlayer matchSound;
-    private MediaPlayer failSound;
-    private MediaPlayer winSound;
-    private MediaPlayer loseSound;
+    private final SoundPool soundPool;
+    private final int clickSound;
+    private final int matchSound;
+    private final int failSound;
+    private final int winSound;
+    private final int loseSound;
+    private boolean released;
 
     public SoundManager(Context context) {
         this.context = context.getApplicationContext();
-        clickSound = createPlayer(R.raw.sound_click);
-        matchSound = createPlayer(R.raw.sound_match);
-        failSound = createPlayer(R.raw.sound_fail);
-        winSound = createPlayer(R.raw.sound_win);
-        loseSound = createPlayer(R.raw.sound_lose);
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(5)
+                .setAudioAttributes(attributes)
+                .build();
+        clickSound = soundPool.load(this.context, R.raw.sound_click, 1);
+        matchSound = soundPool.load(this.context, R.raw.sound_match, 1);
+        failSound = soundPool.load(this.context, R.raw.sound_fail, 1);
+        winSound = soundPool.load(this.context, R.raw.sound_win, 1);
+        loseSound = soundPool.load(this.context, R.raw.sound_lose, 1);
     }
 
     public void playClickSound() {
@@ -54,42 +65,17 @@ public class SoundManager {
     }
 
     public void release() {
-        releaseMediaPlayer(clickSound);
-        releaseMediaPlayer(matchSound);
-        releaseMediaPlayer(failSound);
-        releaseMediaPlayer(winSound);
-        releaseMediaPlayer(loseSound);
-        clickSound = null;
-        matchSound = null;
-        failSound = null;
-        winSound = null;
-        loseSound = null;
+        if (released) return;
+        released = true;
+        soundPool.release();
     }
 
-    private MediaPlayer createPlayer(int resId) {
-        return MediaPlayer.create(context, resId);
-    }
-
-    private void play(MediaPlayer player) {
-        if (player == null) return;
+    private void play(int soundId) {
+        if (released || soundId == 0) return;
         try {
-            if (player.isPlaying()) {
-                player.pause();
-            }
-            player.seekTo(0);
-            player.start();
+            soundPool.play(soundId, 1f, 1f, 1, 0, 1f);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private void releaseMediaPlayer(MediaPlayer mp) {
-        if (mp != null) {
-            try {
-                mp.release();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }

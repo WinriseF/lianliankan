@@ -33,10 +33,13 @@ public class GameEngine {
      * 判断指定位置是否为空。当前玩法不允许沿棋盘外框绕行。
      */
     private static boolean isEmpty(int row, int col, List<AnimalItem> board) {
+        if (board == null) return false;
         if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS) {
             return false;
         }
-        return board.get(indexOf(row, col, board)).isMatched();
+        int index = indexOf(row, col, board);
+        if (index < 0 || index >= board.size() || board.get(index) == null) return false;
+        return board.get(index).isMatched();
     }
 
     /**
@@ -205,7 +208,9 @@ public class GameEngine {
      * 判断游戏是否胜利（所有格子均已匹配）
      */
     public static boolean isGameWon(List<AnimalItem> board) {
+        if (board == null || board.isEmpty()) return false;
         for (AnimalItem item : board) {
+            if (item == null) return false;
             if (!item.isMatched()) return false;
         }
         return true;
@@ -215,12 +220,13 @@ public class GameEngine {
      * 检测是否存在至少一对可消除的动物
      */
     public static boolean hasAnyLinkablePair(List<AnimalItem> board) {
+        if (board == null || board.isEmpty()) return false;
         for (int i = 0; i < board.size(); i++) {
             AnimalItem a = board.get(i);
-            if (a.isMatched()) continue;
+            if (a == null || a.isMatched()) continue;
             for (int j = i + 1; j < board.size(); j++) {
                 AnimalItem b = board.get(j);
-                if (b.isMatched()) continue;
+                if (b == null || b.isMatched()) continue;
                 if (a.getAnimalId() == b.getAnimalId()) {
                     if (isLinkable(a, b, board)) {
                         return true;
@@ -235,12 +241,13 @@ public class GameEngine {
      * 寻找一对可消除的配对（下标）
      */
     public static int[] findOneLinkablePair(List<AnimalItem> board) {
+        if (board == null || board.isEmpty()) return null;
         for (int i = 0; i < board.size(); i++) {
             AnimalItem a = board.get(i);
-            if (a.isMatched()) continue;
+            if (a == null || a.isMatched()) continue;
             for (int j = i + 1; j < board.size(); j++) {
                 AnimalItem b = board.get(j);
-                if (b.isMatched()) continue;
+                if (b == null || b.isMatched()) continue;
                 if (a.getAnimalId() == b.getAnimalId() && isLinkable(a, b, board)) {
                     return new int[]{i, j};
                 }

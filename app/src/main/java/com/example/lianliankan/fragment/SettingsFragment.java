@@ -2,6 +2,7 @@ package com.example.lianliankan.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.lianliankan.R;
@@ -129,6 +131,7 @@ public class SettingsFragment extends Fragment {
             binding.switchBackgroundMusic.setChecked(true);
             binding.seekMusicVolume.setProgress(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             updateMusicVolumeText(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
+            startMusicService(MusicService.ACTION_PLAY);
             Toast.makeText(requireContext(), "已恢复默认设置", Toast.LENGTH_SHORT).show();
         });
     }
@@ -141,7 +144,12 @@ public class SettingsFragment extends Fragment {
         Intent intent = new Intent(requireContext(), MusicService.class);
         intent.setAction(action);
         intent.putExtra(MusicService.EXTRA_VOLUME, PreferenceUtil.getMusicVolume(requireContext()));
-        requireContext().startService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && MusicService.ACTION_PLAY.equals(action)) {
+            ContextCompat.startForegroundService(requireContext(), intent);
+        } else {
+            requireContext().startService(intent);
+        }
     }
 
     @Override

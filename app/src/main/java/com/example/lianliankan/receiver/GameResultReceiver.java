@@ -10,7 +10,6 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.activity.GameResultActivity;
-import com.example.lianliankan.dao.RankDatabaseHelper;
 import com.example.lianliankan.provider.RankContract;
 import com.example.lianliankan.util.PreferenceUtil;
 
@@ -63,8 +62,8 @@ public class GameResultReceiver extends BroadcastReceiver {
 
     public static void saveResultToDb(Context context, String result, int score,
                                       int timeUsed, int difficulty) {
+        if (context == null) return;
         try {
-            RankDatabaseHelper dbHelper = new RankDatabaseHelper(context);
             String playerName = PreferenceUtil.getPlayerName(context);
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                     .format(new Date());
@@ -77,7 +76,6 @@ public class GameResultReceiver extends BroadcastReceiver {
             values.put(RankContract.RankEntry.COLUMN_TIMESTAMP, timestamp);
 
             context.getContentResolver().insert(RankContract.RankEntry.CONTENT_URI, values);
-            dbHelper.close();
 
             Log.d(TAG, "排名数据已保存: " + playerName + ", score=" + score);
         } catch (Exception e) {
@@ -101,6 +99,7 @@ public class GameResultReceiver extends BroadcastReceiver {
             android.app.NotificationManager nm =
                     (android.app.NotificationManager)
                             context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
 
             String channelId = "game_result";
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

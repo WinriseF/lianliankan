@@ -12,6 +12,7 @@ public class GameGenerator {
     public static final int BOARD_COLS = GameEngine.BOARD_COLS;
 
     public static List<AnimalItem> generateBoard(int rows, int cols, int difficulty) {
+        difficulty = clampDifficulty(difficulty);
         int totalCells = rows * cols;
         int pairsNeeded = totalCells / 2;
         int animalTypes = GameEngine.DIFFICULTY_ANIMAL_COUNTS[difficulty];
@@ -53,7 +54,7 @@ public class GameGenerator {
     }
 
     public static int getAnimalCountForDifficulty(int difficulty) {
-        return GameEngine.DIFFICULTY_ANIMAL_COUNTS[difficulty];
+        return GameEngine.DIFFICULTY_ANIMAL_COUNTS[clampDifficulty(difficulty)];
     }
 
     /**
@@ -62,6 +63,9 @@ public class GameGenerator {
      * @return 重排后的棋盘，如果多次尝试仍无解则返回最后一次结果
      */
     public static List<AnimalItem> shuffleRemaining(List<AnimalItem> board) {
+        if (board == null || board.isEmpty()) {
+            return new ArrayList<>();
+        }
         // 收集所有未匹配的方块
         List<AnimalItem> unmatched = new ArrayList<>();
         List<GameEngine.Point> positions = new ArrayList<>();
@@ -136,5 +140,11 @@ public class GameGenerator {
         }
         
         return fallbackBoard;
+    }
+
+    private static int clampDifficulty(int difficulty) {
+        if (difficulty < GameEngine.DIFFICULTY_EASY) return GameEngine.DIFFICULTY_EASY;
+        if (difficulty > GameEngine.DIFFICULTY_HARD) return GameEngine.DIFFICULTY_HARD;
+        return difficulty;
     }
 }

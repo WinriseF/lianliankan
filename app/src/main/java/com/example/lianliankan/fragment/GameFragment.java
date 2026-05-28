@@ -324,6 +324,8 @@ public class GameFragment extends Fragment {
     private void animateMatchPair(int firstPosition, int secondPosition) {
         View firstView = getGridChildAtPosition(firstPosition);
         View secondView = getGridChildAtPosition(secondPosition);
+        triggerExplosion(firstView);
+        triggerExplosion(secondView);
         List<Animator> animators = new ArrayList<>();
         addMatchAnimators(animators, firstView);
         addMatchAnimators(animators, secondView);
@@ -333,6 +335,17 @@ public class GameFragment extends Fragment {
         set.setDuration(360);
         set.setInterpolator(new OvershootInterpolator(1.4f));
         set.start();
+    }
+
+    private void triggerExplosion(View target) {
+        if (binding == null || target == null) return;
+        int[] targetLocation = new int[2];
+        int[] layerLocation = new int[2];
+        target.getLocationOnScreen(targetLocation);
+        binding.effectLayer.getLocationOnScreen(layerLocation);
+        float centerX = targetLocation[0] - layerLocation[0] + target.getWidth() / 2f;
+        float centerY = targetLocation[1] - layerLocation[1] + target.getHeight() / 2f;
+        binding.effectLayer.explodeAt(centerX, centerY);
     }
 
     private void addMatchAnimators(List<Animator> animators, View view) {
@@ -443,8 +456,10 @@ public class GameFragment extends Fragment {
     }
 
     private List<AnimalItem> copyBoard(List<AnimalItem> source) {
+        if (source == null) return new ArrayList<>();
         List<AnimalItem> snapshot = new ArrayList<>(source.size());
         for (AnimalItem item : source) {
+            if (item == null) continue;
             AnimalItem copy = new AnimalItem(
                     item.getAnimalId(),
                     item.getImageResId(),
@@ -685,6 +700,7 @@ public class GameFragment extends Fragment {
         outState.putInt("time_remaining", timeRemaining);
         outState.putBoolean("is_game_active", isGameActive);
         outState.putBoolean("is_paused", isPaused);
+        if (board == null) return;
 
         int[] animalIds = new int[board.size()];
         boolean[] matchedStates = new boolean[board.size()];
