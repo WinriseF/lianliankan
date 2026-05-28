@@ -26,7 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.lianliankan.R;
-import com.example.lianliankan.activity.GameResultActivity;
+import com.example.lianliankan.activity.MainActivity;
 import com.example.lianliankan.adapter.BoardGridAdapter;
 import com.example.lianliankan.databinding.FragmentGameBinding;
 import com.example.lianliankan.model.AnimalItem;
@@ -674,7 +674,7 @@ public class GameFragment extends Fragment {
                 nm.createNotificationChannel(channel);
             }
 
-            Intent notifyIntent = new Intent(requireContext(), GameResultActivity.class);
+            Intent notifyIntent = new Intent(requireContext(), MainActivity.class);
             android.app.PendingIntent pi = android.app.PendingIntent.getActivity(
                     requireContext(), 0, notifyIntent,
                     android.app.PendingIntent.FLAG_UPDATE_CURRENT |

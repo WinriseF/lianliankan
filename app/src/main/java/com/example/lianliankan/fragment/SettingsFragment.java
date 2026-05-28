@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -20,6 +19,7 @@ import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.FragmentSettingsBinding;
 import com.example.lianliankan.service.MusicService;
 import com.example.lianliankan.util.GameEngine;
+import com.example.lianliankan.util.LocaleUtil;
 import com.example.lianliankan.util.PreferenceUtil;
 
 public class SettingsFragment extends Fragment {
@@ -95,7 +95,7 @@ public class SettingsFragment extends Fragment {
             if (isChecked) {
                 startMusicService(MusicService.ACTION_PLAY);
             } else {
-                startMusicService(MusicService.ACTION_PAUSE);
+                startMusicService(MusicService.ACTION_STOP);
             }
         });
 
@@ -113,6 +113,7 @@ public class SettingsFragment extends Fragment {
             PreferenceUtil.saveSoundEnabled(requireContext(), true);
             PreferenceUtil.saveMusicEnabled(requireContext(), true);
             PreferenceUtil.saveMusicVolume(requireContext(), PreferenceUtil.DEFAULT_MUSIC_VOLUME);
+            PreferenceUtil.saveLanguage(requireContext(), LocaleUtil.LANGUAGE_EN);
             binding.radioGroupDifficulty.check(R.id.radio_easy);
             binding.switchSoundEffects.setChecked(true);
             binding.switchBackgroundMusic.setChecked(true);
@@ -120,6 +121,7 @@ public class SettingsFragment extends Fragment {
             updateMusicVolumeText(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             startMusicService(MusicService.ACTION_PLAY);
             Toast.makeText(requireContext(), R.string.settings_reset, Toast.LENGTH_SHORT).show();
+            requireActivity().recreate();
         });
     }
 
@@ -134,28 +136,27 @@ public class SettingsFragment extends Fragment {
         binding.spinnerLanguage.setAdapter(adapter);
 
         String currentLang = PreferenceUtil.getLanguage(requireContext());
-        int langIndex = "zh".equals(currentLang) ? 1 : 0;
+        int langIndex = 0;
+        for (int i = 0; i < langValues.length; i++) {
+            if (currentLang.equals(langValues[i])) {
+                langIndex = i;
+                break;
+            }
+        }
         binding.spinnerLanguage.setText(langLabels[langIndex], false);
+        binding.spinnerLanguage.dismissDropDown();
 
         binding.spinnerLanguage.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedLang = langValues[position];
+            if (position < 0 || position >= langValues.length) return;
+            String selectedLang = LocaleUtil.normalizeLanguage(langValues[position]);
             String savedLang = PreferenceUtil.getLanguage(requireContext());
             if (!selectedLang.equals(savedLang)) {
                 PreferenceUtil.saveLanguage(requireContext(), selectedLang);
-                applyLanguage(selectedLang);
+                requireActivity().recreate();
+            } else {
+                binding.spinnerLanguage.setText(langLabels[position], false);
             }
         });
-    }
-
-    private void applyLanguage(String langCode) {
-        java.util.Locale locale;
-        if ("zh".equals(langCode)) {
-            locale = java.util.Locale.CHINESE;
-        } else {
-            locale = java.util.Locale.ENGLISH;
-        }
-        AppCompatDelegate.setApplicationLocales(
-                androidx.core.os.LocaleListCompat.create(locale));
     }
 
     private void updateMusicVolumeText(int volume) {

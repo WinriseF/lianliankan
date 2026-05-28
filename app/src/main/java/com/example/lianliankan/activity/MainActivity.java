@@ -1,9 +1,11 @@
 package com.example.lianliankan.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -23,6 +25,7 @@ import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.ActivityMainBinding;
 import com.example.lianliankan.receiver.GameResultReceiver;
 import com.example.lianliankan.service.MusicService;
+import com.example.lianliankan.util.LocaleUtil;
 import com.example.lianliankan.util.PreferenceUtil;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +35,21 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private GameResultReceiver gameResultReceiver;
     private NavController navController;
+    private Context localeContext;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        localeContext = LocaleUtil.attachBaseContext(newBase);
+        super.attachBaseContext(localeContext);
+    }
+
+    @Override
+    public Resources getResources() {
+        if (localeContext != null) {
+            return localeContext.getResources();
+        }
+        return super.getResources();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

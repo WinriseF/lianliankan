@@ -1,5 +1,7 @@
 package com.example.lianliankan.activity;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -9,8 +11,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.ActivityGameResultBinding;
 import com.example.lianliankan.util.PreferenceUtil;
+import com.example.lianliankan.util.LocaleUtil;
 
 public class GameResultActivity extends AppCompatActivity {
+
+    private Context localeContext;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        localeContext = LocaleUtil.attachBaseContext(newBase);
+        super.attachBaseContext(localeContext);
+    }
+
+    @Override
+    public Resources getResources() {
+        if (localeContext != null) {
+            return localeContext.getResources();
+        }
+        return super.getResources();
+    }
 
     private ActivityGameResultBinding binding;
 

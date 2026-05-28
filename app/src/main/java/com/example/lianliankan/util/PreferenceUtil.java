@@ -89,14 +89,14 @@ public class PreferenceUtil {
     public static void saveLanguage(Context context, String langCode) {
         SharedPreferences.Editor editor = context.getSharedPreferences(
                 PREFS_NAME, Context.MODE_PRIVATE).edit();
-        editor.putString(KEY_LANGUAGE, langCode);
+        editor.putString(KEY_LANGUAGE, LocaleUtil.normalizeLanguage(langCode));
         editor.apply();
     }
 
     public static String getLanguage(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(
                 PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_LANGUAGE, "en");
+        return LocaleUtil.normalizeLanguage(prefs.getString(KEY_LANGUAGE, LocaleUtil.LANGUAGE_EN));
     }
 
     public static void applySettings(Context context) {
@@ -110,7 +110,8 @@ public class PreferenceUtil {
                 context.startService(intent);
             }
         } else {
-            intent.setAction(MusicService.ACTION_PAUSE);
+            // 用户关闭背景音乐时要真正停止服务和通知，而不是只暂停。
+            intent.setAction(MusicService.ACTION_STOP);
             context.startService(intent);
         }
     }

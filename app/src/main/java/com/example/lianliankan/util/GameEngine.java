@@ -20,30 +20,35 @@ public class GameEngine {
     public static final int DIFFICULTY_MEDIUM = 1;
     public static final int DIFFICULTY_HARD = 2;
 
+    // 当前资源里有 0~24 共 25 张图，困难模式保留 25 种。
     public static final int[] DIFFICULTY_ANIMAL_COUNTS = {10, 15, 25};
 
     /**
-     * 将棋盘坐标映射到board列表索引
+     * 将棋盘坐标映射到 board 列表索引。
      */
-    private static int indexOf(int row, int col, List<AnimalItem> board) {
+    private static int indexOf(int row, int col) {
         return row * BOARD_COLS + col;
     }
 
     /**
-     * 判断指定位置是否为空。当前玩法不允许沿棋盘外框绕行。
+     * 判断指定位置是否为空。
+     *
+     * 连连看规则允许路径沿棋盘外边框绕行，所以 row/col 落在棋盘外一圈时，
+     * 也视为空格。真实棋盘内的格子只有已经消除后才算空。
      */
     private static boolean isEmpty(int row, int col, List<AnimalItem> board) {
         if (board == null) return false;
         if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS) {
-            return false;
+            return true;
         }
-        int index = indexOf(row, col, board);
+        int index = indexOf(row, col);
         if (index < 0 || index >= board.size() || board.get(index) == null) return false;
         return board.get(index).isMatched();
     }
 
     /**
-     * 检查水平或垂直直线上所有中间格子是否为空
+     * 检查水平或垂直直线上所有中间格子是否为空。
+     *
      * @param sameCoord 行号（水平线）或列号（垂直线）
      * @param start 起始坐标（列号或行号）
      * @param end 终止坐标（列号或行号）
@@ -63,85 +68,38 @@ public class GameEngine {
         return true;
     }
 
-    /**
-     * 核心算法：判断两个格子是否可以连接
-     * 路径最多2个拐点，经过的格子必须已消除，不允许沿棋盘外框绕行。
-     */
-    public static boolean isLinkable(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
+    private static boolean isSameTile(AnimalItem a, AnimalItem b) {
+        return a.getRow() == b.getRow() && a.getCol() == b.getCol();
+    }
+
+    private static boolean canTryLink(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
         if (a == null || b == null) return false;
+        if (board == null || board.isEmpty()) return false;
         if (a.getAnimalId() != b.getAnimalId()) return false;
         if (a.isMatched() || b.isMatched()) return false;
-        if (a.getRow() == b.getRow() && a.getCol() == b.getCol()) return false;
-
-        int ra = a.getRow(), ca = a.getCol();
-        int rb = b.getRow(), cb = b.getCol();
-
-        // ---- 0个拐点：直接直线连接 ----
-        if (ra == rb) {
-            // 同行水平连接
-            return isLineEmpty(ra, ca, cb, true, board);
-        }
-        if (ca == cb) {
-            // 同列垂直连接
-            return isLineEmpty(ca, ra, rb, false, board);
-        }
-
-        // ---- 1个拐点：L形连接 ----
-        // 拐点1：(ra, cb) — A水平到拐点，拐点垂直到B
-        if (isEmpty(ra, cb, board)) {
-            if (isLineEmpty(ra, ca, cb, true, board)  // A水平到(ra,cb)
-                    && isLineEmpty(cb, ra, rb, false, board)) { // (ra,cb)垂直到B
-                return true;
-            }
-        }
-        // 拐点2：(rb, ca) — A垂直到拐点，拐点水平到B
-        if (isEmpty(rb, ca, board)) {
-            if (isLineEmpty(ca, ra, rb, false, board)  // A垂直到(rb,ca)
-                    && isLineEmpty(rb, ca, cb, true, board)) { // (rb,ca)水平到B
-                return true;
-            }
-        }
-
-        // ---- 2个拐点 ----
-        // 类型1：A垂直→P1(r,ca)，P1水平→P2(r,cb)，P2垂直→B
-        // 遍历棋盘内所有可能的中间行r
-        for (int r = 0; r < BOARD_ROWS; r++) {
-            if (!isEmpty(r, ca, board) || !isEmpty(r, cb, board)) continue;
-            // 检查三段线
-            boolean seg1 = (r == ra) || isLineEmpty(ca, ra, r, false, board);  // A垂直到(r,ca)
-            boolean seg2 = isLineEmpty(r, ca, cb, true, board);                // (r,ca)水平到(r,cb)
-            boolean seg3 = (r == rb) || isLineEmpty(cb, r, rb, false, board);  // (r,cb)垂直到B
-            if (seg1 && seg2 && seg3) return true;
-        }
-
-        // 类型2：A水平→P1(ra,c)，P1垂直→P2(rb,c)，P2水平→B
-        // 遍历棋盘内所有可能的中间列c
-        for (int c = 0; c < BOARD_COLS; c++) {
-            if (!isEmpty(ra, c, board) || !isEmpty(rb, c, board)) continue;
-            boolean seg1 = (c == ca) || isLineEmpty(ra, ca, c, true, board);    // A水平到(ra,c)
-            boolean seg2 = isLineEmpty(c, ra, rb, false, board);
-            boolean seg3 = (c == cb) || isLineEmpty(rb, c, cb, true, board);    // (rb,c)水平到B
-            if (seg1 && seg2 && seg3) return true;
-        }
-
-        return false;
+        return !isSameTile(a, b);
     }
 
     /**
-     * 寻找一条具体路径（用于绘制连线）
-     * 返回路径点列表，按顺序从A到B
+     * 核心算法：判断两个格子是否可以连接。
+     * 路径最多 2 个拐点，经过的真实棋盘格必须已经消除，允许沿棋盘外框绕行。
+     */
+    public static boolean isLinkable(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
+        return !findPath(a, b, board).isEmpty();
+    }
+
+    /**
+     * 寻找一条具体路径（用于绘制连线）。
+     * 返回路径点列表，按顺序从 A 到 B。
      */
     public static LinkedList<Point> findPath(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
         LinkedList<Point> path = new LinkedList<>();
-        if (a == null || b == null) return path;
-        if (a.getAnimalId() != b.getAnimalId()) return path;
-        if (a.isMatched() || b.isMatched()) return path;
-        if (a.getRow() == b.getRow() && a.getCol() == b.getCol()) return path;
+        if (!canTryLink(a, b, board)) return path;
 
         int ra = a.getRow(), ca = a.getCol();
         int rb = b.getRow(), cb = b.getCol();
 
-        // 0拐点
+        // 0 拐点：同一行或同一列直接连接。
         if (ra == rb && isLineEmpty(ra, ca, cb, true, board)) {
             path.add(new Point(ra, ca));
             path.add(new Point(rb, cb));
@@ -153,26 +111,26 @@ public class GameEngine {
             return path;
         }
 
-        // 1拐点
-        if (isEmpty(ra, cb, board)) {
-            if (isLineEmpty(ra, ca, cb, true, board) && isLineEmpty(cb, ra, rb, false, board)) {
-                path.add(new Point(ra, ca));
-                path.add(new Point(ra, cb));
-                path.add(new Point(rb, cb));
-                return path;
-            }
+        // 1 拐点：两个可能的 L 形拐点都在棋盘内。
+        if (isEmpty(ra, cb, board)
+                && isLineEmpty(ra, ca, cb, true, board)
+                && isLineEmpty(cb, ra, rb, false, board)) {
+            path.add(new Point(ra, ca));
+            path.add(new Point(ra, cb));
+            path.add(new Point(rb, cb));
+            return path;
         }
-        if (isEmpty(rb, ca, board)) {
-            if (isLineEmpty(ca, ra, rb, false, board) && isLineEmpty(rb, ca, cb, true, board)) {
-                path.add(new Point(ra, ca));
-                path.add(new Point(rb, ca));
-                path.add(new Point(rb, cb));
-                return path;
-            }
+        if (isEmpty(rb, ca, board)
+                && isLineEmpty(ca, ra, rb, false, board)
+                && isLineEmpty(rb, ca, cb, true, board)) {
+            path.add(new Point(ra, ca));
+            path.add(new Point(rb, ca));
+            path.add(new Point(rb, cb));
+            return path;
         }
 
-        // 2拐点 - 类型1
-        for (int r = 0; r < BOARD_ROWS; r++) {
+        // 2 拐点：扫描中间行。范围包含 -1 和 BOARD_ROWS，代表棋盘上下外边框。
+        for (int r = -1; r <= BOARD_ROWS; r++) {
             if (!isEmpty(r, ca, board) || !isEmpty(r, cb, board)) continue;
             boolean seg1 = (r == ra) || isLineEmpty(ca, ra, r, false, board);
             boolean seg2 = isLineEmpty(r, ca, cb, true, board);
@@ -186,8 +144,8 @@ public class GameEngine {
             }
         }
 
-        // 2拐点 - 类型2
-        for (int c = 0; c < BOARD_COLS; c++) {
+        // 2 拐点：扫描中间列。范围包含 -1 和 BOARD_COLS，代表棋盘左右外边框。
+        for (int c = -1; c <= BOARD_COLS; c++) {
             if (!isEmpty(ra, c, board) || !isEmpty(rb, c, board)) continue;
             boolean seg1 = (c == ca) || isLineEmpty(ra, ca, c, true, board);
             boolean seg2 = isLineEmpty(c, ra, rb, false, board);
@@ -205,7 +163,7 @@ public class GameEngine {
     }
 
     /**
-     * 判断游戏是否胜利（所有格子均已匹配）
+     * 判断游戏是否胜利（所有格子均已匹配）。
      */
     public static boolean isGameWon(List<AnimalItem> board) {
         if (board == null || board.isEmpty()) return false;
@@ -217,7 +175,7 @@ public class GameEngine {
     }
 
     /**
-     * 检测是否存在至少一对可消除的动物
+     * 检测是否存在至少一对可消除的动物。
      */
     public static boolean hasAnyLinkablePair(List<AnimalItem> board) {
         if (board == null || board.isEmpty()) return false;
@@ -227,10 +185,8 @@ public class GameEngine {
             for (int j = i + 1; j < board.size(); j++) {
                 AnimalItem b = board.get(j);
                 if (b == null || b.isMatched()) continue;
-                if (a.getAnimalId() == b.getAnimalId()) {
-                    if (isLinkable(a, b, board)) {
-                        return true;
-                    }
+                if (a.getAnimalId() == b.getAnimalId() && isLinkable(a, b, board)) {
+                    return true;
                 }
             }
         }
@@ -238,7 +194,7 @@ public class GameEngine {
     }
 
     /**
-     * 寻找一对可消除的配对（下标）
+     * 寻找一对可消除的配对（下标）。
      */
     public static int[] findOneLinkablePair(List<AnimalItem> board) {
         if (board == null || board.isEmpty()) return null;
@@ -257,7 +213,7 @@ public class GameEngine {
     }
 
     /**
-     * 路径点
+     * 路径点。
      */
     public static class Point {
         public final int row, col;

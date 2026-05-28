@@ -52,7 +52,7 @@ public class RankProvider extends ContentProvider {
             case RANKS:
                 cursor = db.query(RankEntry.TABLE_NAME, projection, selection,
                         selectionArgs, null, null,
-                        sortOrder != null ? sortOrder : RankEntry.COLUMN_SCORE + " DESC");
+                        sortOrder != null ? sortOrder : defaultSortOrder());
                 break;
             case RANK_ID:
                 String id = uri.getLastPathSegment();
@@ -144,6 +144,12 @@ public class RankProvider extends ContentProvider {
             notifyChange(uri);
         }
         return rowsUpdated;
+    }
+
+    private String defaultSortOrder() {
+        return RankEntry.COLUMN_SCORE + " DESC, "
+                + RankEntry.COLUMN_TIME_USED + " ASC, "
+                + RankEntry.COLUMN_TIMESTAMP + " DESC";
     }
 
     private void ensureReady() {

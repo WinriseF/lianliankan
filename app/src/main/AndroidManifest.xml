@@ -38,7 +38,7 @@
         <activity
             android:name=".activity.VersionCheckActivity"
             android:exported="false"
-            android:label="版本检查" />
+            android:label="@string/version_check" />
 
         <!-- 背景音乐Service -->
         <service
@@ -72,7 +72,7 @@
         <provider
             android:name=".provider.RankProvider"
             android:authorities="com.example.lianliankan.rankprovider"
-            android:exported="true"
+            android:exported="false"
             android:grantUriPermissions="true" />
 
     </application>

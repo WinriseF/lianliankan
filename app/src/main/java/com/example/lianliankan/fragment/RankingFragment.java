@@ -106,7 +106,9 @@ public class RankingFragment extends Fragment {
                 final Cursor cursor = resolver.query(
                         RankContract.RankEntry.CONTENT_URI,
                         null, null, null,
-                        RankContract.RankEntry.COLUMN_SCORE + " DESC"
+                        RankContract.RankEntry.COLUMN_SCORE + " DESC, " +
+                                RankContract.RankEntry.COLUMN_TIME_USED + " ASC, " +
+                                RankContract.RankEntry.COLUMN_TIMESTAMP + " DESC"
                 );
 
                 requireActivity().runOnUiThread(() -> {
