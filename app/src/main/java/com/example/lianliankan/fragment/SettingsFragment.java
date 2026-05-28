@@ -7,8 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.SeekBar;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,8 +21,6 @@ import com.example.lianliankan.databinding.FragmentSettingsBinding;
 import com.example.lianliankan.service.MusicService;
 import com.example.lianliankan.util.GameEngine;
 import com.example.lianliankan.util.PreferenceUtil;
-
-import java.util.Locale;
 
 public class SettingsFragment extends Fragment {
 
@@ -65,10 +62,10 @@ public class SettingsFragment extends Fragment {
         binding.switchSoundEffects.setChecked(PreferenceUtil.isSoundEnabled(requireContext()));
         binding.switchBackgroundMusic.setChecked(PreferenceUtil.isMusicEnabled(requireContext()));
         int currentVolume = PreferenceUtil.getMusicVolume(requireContext());
-        binding.seekMusicVolume.setProgress(currentVolume);
+        binding.seekMusicVolume.setValue(currentVolume);
         updateMusicVolumeText(currentVolume);
 
-        setupLanguageSpinner();
+        setupLanguageDropdown();
 
         binding.radioGroupDifficulty.setOnCheckedChangeListener((group, checkedId) -> {
             int difficulty;
@@ -102,23 +99,10 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        binding.seekMusicVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                updateMusicVolumeText(progress);
-                if (fromUser) {
-                    PreferenceUtil.saveMusicVolume(requireContext(), progress);
-                    startMusicService(MusicService.ACTION_SET_VOLUME);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                int volume = seekBar.getProgress();
+        binding.seekMusicVolume.addOnChangeListener((slider, value, fromUser) -> {
+            int volume = (int) value;
+            updateMusicVolumeText(volume);
+            if (fromUser) {
                 PreferenceUtil.saveMusicVolume(requireContext(), volume);
                 startMusicService(MusicService.ACTION_SET_VOLUME);
             }
@@ -132,41 +116,33 @@ public class SettingsFragment extends Fragment {
             binding.radioGroupDifficulty.check(R.id.radio_easy);
             binding.switchSoundEffects.setChecked(true);
             binding.switchBackgroundMusic.setChecked(true);
-            binding.seekMusicVolume.setProgress(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
+            binding.seekMusicVolume.setValue(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             updateMusicVolumeText(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             startMusicService(MusicService.ACTION_PLAY);
             Toast.makeText(requireContext(), R.string.settings_reset, Toast.LENGTH_SHORT).show();
         });
     }
 
-    private void setupLanguageSpinner() {
+    private void setupLanguageDropdown() {
+        String[] langLabels = getResources().getStringArray(R.array.language_entries);
+        String[] langValues = getResources().getStringArray(R.array.language_values);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                langLabels);
+        binding.spinnerLanguage.setAdapter(adapter);
+
         String currentLang = PreferenceUtil.getLanguage(requireContext());
-        int langIndex;
-        if ("zh".equals(currentLang)) {
-            langIndex = 1;
-        } else {
-            langIndex = 0;
-        }
-        binding.spinnerLanguage.setSelection(langIndex);
+        int langIndex = "zh".equals(currentLang) ? 1 : 0;
+        binding.spinnerLanguage.setText(langLabels[langIndex], false);
 
-        binding.spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedLang;
-                if (position == 1) {
-                    selectedLang = "zh";
-                } else {
-                    selectedLang = "en";
-                }
-                String savedLang = PreferenceUtil.getLanguage(requireContext());
-                if (!selectedLang.equals(savedLang)) {
-                    PreferenceUtil.saveLanguage(requireContext(), selectedLang);
-                    applyLanguage(selectedLang);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+        binding.spinnerLanguage.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedLang = langValues[position];
+            String savedLang = PreferenceUtil.getLanguage(requireContext());
+            if (!selectedLang.equals(savedLang)) {
+                PreferenceUtil.saveLanguage(requireContext(), selectedLang);
+                applyLanguage(selectedLang);
             }
         });
     }

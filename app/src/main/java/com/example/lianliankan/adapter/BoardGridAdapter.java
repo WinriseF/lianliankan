@@ -43,7 +43,8 @@ public class BoardGridAdapter extends BaseAdapter {
             R.drawable.ic_animal_20_pineapple,
             R.drawable.ic_animal_21_paw,
             R.drawable.ic_animal_22_diamond,
-            R.drawable.ic_animal_23_bee
+            R.drawable.ic_animal_23_bee,
+            R.drawable.ic_animal_24_cherry_bird
     };
 
     private final Context context;

@@ -1,62 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app"
+    android:background="@color/md_theme_light_background"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/spacing_lg">
 
+    <!-- Header -->
     <TextView
+        style="@style/TextAppearance.Material3.HeadlineMedium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/ranking"
-        android:textColor="@color/text_primary"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+        android:textColor="@color/md_theme_light_onBackground" />
 
     <TextView
+        style="@style/TextAppearance.Material3.BodyMedium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/spacing_xs"
         android:text="@string/ranking_subtitle"
-        android:textColor="@color/text_secondary"
-        android:textSize="14sp" />
+        android:textColor="@color/md_theme_light_onSurfaceVariant" />
 
-    <TextView
-        android:id="@+id/tv_no_data"
+    <!-- Empty State -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_no_data"
+        style="@style/Widget.LianLianKan.CardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/bg_panel"
-        android:gravity="center"
-        android:padding="28dp"
-        android:text="@string/no_ranking_data"
-        android:textColor="@color/text_secondary"
-        android:textSize="16sp"
-        android:visibility="gone" />
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_xxl">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@android:drawable/ic_menu_sort_by_size"
+                android:alpha="0.4"
+                app:tint="@color/md_theme_light_onSurfaceVariant" />
+
+            <TextView
+                style="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:gravity="center"
+                android:text="@string/no_ranking_data"
+                android:textColor="@color/md_theme_light_onSurfaceVariant" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Ranking List -->
     <ListView
         android:id="@+id/list_ranking"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="@dimen/spacing_md"
         android:layout_weight="1"
         android:cacheColorHint="@android:color/transparent"
         android:clipToPadding="false"
         android:divider="@android:color/transparent"
-        android:dividerHeight="8dp"
-        android:paddingBottom="8dp"
+        android:dividerHeight="@dimen/spacing_sm"
+        android:paddingBottom="@dimen/spacing_sm"
         android:scrollbars="vertical" />
 
-    <Button
+    <!-- Clear Button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_clear_ranking"
+        style="@style/Widget.LianLianKan.Button.Outlined"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="@dimen/component_height_large"
+        android:layout_marginTop="@dimen/spacing_lg"
         android:text="@string/clear_ranking"
-        android:textSize="16sp"
-        android:background="@drawable/bg_secondary_button"
-        android:textColor="@color/text_primary" />
+        android:textAllCaps="false"
+        app:icon="@android:drawable/ic_menu_delete"
+        app:iconTint="@color/md_theme_light_error" />
 
 </LinearLayout>

@@ -112,10 +112,10 @@ public class RankingFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     if (cursor != null && cursor.getCount() > 0) {
                         adapter.changeCursor(cursor);
-                        binding.tvNoData.setVisibility(View.GONE);
+                        binding.cardNoData.setVisibility(View.GONE);
                         binding.listRanking.setVisibility(View.VISIBLE);
                     } else {
-                        binding.tvNoData.setVisibility(View.VISIBLE);
+                        binding.cardNoData.setVisibility(View.VISIBLE);
                         binding.listRanking.setVisibility(View.GONE);
                         if (cursor != null) cursor.close();
                     }

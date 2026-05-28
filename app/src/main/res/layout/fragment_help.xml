@@ -1,114 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app"
-    android:clipToPadding="false"
-    android:padding="16dp">
+    android:background="@color/md_theme_light_background"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="18dp">
+        android:padding="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/spacing_xxl">
 
+        <!-- Header -->
         <TextView
+            style="@style/TextAppearance.Material3.HeadlineMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/help_title"
-            android:textColor="@color/text_primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textColor="@color/md_theme_light_onBackground" />
 
         <TextView
+            style="@style/TextAppearance.Material3.BodyMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:text="@string/help_subtitle"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:textColor="@color/md_theme_light_onSurfaceVariant" />
 
-        <TextView
-            android:id="@+id/tv_rules"
+        <!-- Rules Card -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.LianLianKan.CardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_panel"
-            android:lineSpacingMultiplier="1.25"
-            android:padding="16dp"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp" />
+            android:layout_marginTop="@dimen/spacing_lg">
 
+            <TextView
+                android:id="@+id/tv_rules"
+                style="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingMultiplier="1.3"
+                android:textColor="@color/md_theme_light_onSurface" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Connection Types Section -->
         <TextView
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="@dimen/spacing_xl"
             android:text="@string/connection_types"
-            android:textColor="@color/primary_variant"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textColor="@color/md_theme_light_primary" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:orientation="vertical">
 
-            <TextView
+            <!-- Rule 0 -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_rule_step"
-                android:padding="14dp"
-                android:text="@string/rule_0_turn"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
+                app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow"
+                app:cardCornerRadius="@dimen/shape_corner_medium"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_rule_step"
-                android:padding="14dp"
-                android:text="@string/rule_1_turn"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/spacing_md">
 
-            <TextView
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_add"
+                        android:alpha="0.5"
+                        app:tint="@color/md_theme_light_primary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Material3.BodyMedium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/rule_0_turn"
+                        android:textColor="@color/md_theme_light_onSurface" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Rule 1 -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_rule_step"
-                android:padding="14dp"
-                android:text="@string/rule_2_turn"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
+                android:layout_marginTop="@dimen/spacing_sm"
+                app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow"
+                app:cardCornerRadius="@dimen/shape_corner_medium"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/spacing_md">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_crop"
+                        android:alpha="0.5"
+                        app:tint="@color/md_theme_light_secondary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Material3.BodyMedium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/rule_1_turn"
+                        android:textColor="@color/md_theme_light_onSurface" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Rule 2 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow"
+                app:cardCornerRadius="@dimen/shape_corner_medium"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/spacing_md">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_rotate"
+                        android:alpha="0.5"
+                        app:tint="@color/md_theme_light_tertiary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Material3.BodyMedium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/rule_2_turn"
+                        android:textColor="@color/md_theme_light_onSurface" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <LinearLayout
+        <!-- Difficulty & Strategy Card -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.LianLianKan.CardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_marginTop="@dimen/spacing_xl"
+            app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/difficulty_strategy"
-                android:textColor="@color/primary_variant"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:lineSpacingMultiplier="1.35"
-                android:text="@string/difficulty_strategy_desc"
-                android:textColor="@color/text_secondary"
-                android:textSize="15sp" />
-        </LinearLayout>
+                <TextView
+                    style="@style/TextAppearance.Material3.TitleMedium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/difficulty_strategy"
+                    android:textColor="@color/md_theme_light_primary" />
+
+                <TextView
+                    style="@style/TextAppearance.Material3.BodyMedium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:lineSpacingMultiplier="1.35"
+                    android:text="@string/difficulty_strategy_desc"
+                    android:textColor="@color/md_theme_light_onSurfaceVariant" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-
 </ScrollView>

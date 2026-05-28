@@ -1,22 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#0F766E</color>
-    <color name="primary_variant">#0B4F4A</color>
-    <color name="secondary">#F97316</color>
-    <color name="background">#F6F8F3</color>
-    <color name="card_bg">#FFFFFF</color>
-    <color name="surface_alt">#E9F2EC</color>
-    <color name="surface_warm">#FFF4E6</color>
-    <color name="line_soft">#D7DED8</color>
-    <color name="text_primary">#1F2933</color>
-    <color name="text_secondary">#63706B</color>
+    <!-- Material 3 Color System - Teal/Orange Game Theme -->
+    <color name="md_theme_light_primary">#006B5E</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#74F8E1</color>
+    <color name="md_theme_light_onPrimaryContainer">#00201B</color>
+
+    <color name="md_theme_light_secondary">#C06400</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#FFE0CC</color>
+    <color name="md_theme_light_onSecondaryContainer">#3D1600</color>
+
+    <color name="md_theme_light_tertiary">#5C5D72</color>
+    <color name="md_theme_light_onTertiary">#FFFFFF</color>
+    <color name="md_theme_light_tertiaryContainer">#E1E0F9</color>
+    <color name="md_theme_light_onTertiaryContainer">#191A2C</color>
+
+    <color name="md_theme_light_error">#BA1A1A</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    <color name="md_theme_light_errorContainer">#FFDAD6</color>
+    <color name="md_theme_light_onErrorContainer">#410002</color>
+
+    <color name="md_theme_light_background">#F5FBF8</color>
+    <color name="md_theme_light_onBackground">#171D1B</color>
+
+    <color name="md_theme_light_surface">#F5FBF8</color>
+    <color name="md_theme_light_onSurface">#171D1B</color>
+    <color name="md_theme_light_surfaceVariant">#DAE5E0</color>
+    <color name="md_theme_light_onSurfaceVariant">#3F4945</color>
+
+    <color name="md_theme_light_surfaceDim">#D5DBD8</color>
+    <color name="md_theme_light_surfaceBright">#F5FBF8</color>
+    <color name="md_theme_light_surfaceContainerLowest">#FFFFFF</color>
+    <color name="md_theme_light_surfaceContainerLow">#EFF5F2</color>
+    <color name="md_theme_light_surfaceContainer">#E9EFEC</color>
+    <color name="md_theme_light_surfaceContainerHigh">#E3EAE7</color>
+    <color name="md_theme_light_surfaceContainerHighest">#DEE4E1</color>
+
+    <color name="md_theme_light_outline">#6F7975</color>
+    <color name="md_theme_light_outlineVariant">#BFC9C4</color>
+
+    <color name="md_theme_light_inverseSurface">#2C3230</color>
+    <color name="md_theme_light_inverseOnSurface">#ECF2EF</color>
+    <color name="md_theme_light_inversePrimary">#53DBC5</color>
+
+    <!-- Semantic Colors -->
     <color name="success_green">#16A34A</color>
     <color name="fail_red">#DC2626</color>
     <color name="warning_amber">#F59E0B</color>
-    <color name="game_bg">#F6F8F3</color>
-    <color name="animal1">#FFEB3B</color>
-    <color name="animal2">#FF9800</color>
-    <color name="animal3">#E91E63</color>
-    <color name="animal4">#9C27B0</color>
-    <color name="animal5">#2196F3</color>
+
+    <!-- Legacy aliases for backward compatibility -->
+    <color name="primary">#006B5E</color>
+    <color name="primary_variant">#004D42</color>
+    <color name="secondary">#C06400</color>
+    <color name="background">#F5FBF8</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="surface_alt">#E9EFEC</color>
+    <color name="surface_warm">#FFE0CC</color>
+    <color name="line_soft">#BFC9C4</color>
+    <color name="text_primary">#171D1B</color>
+    <color name="text_secondary">#3F4945</color>
+    <color name="game_bg">#F5FBF8</color>
 </resources>

@@ -1,162 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app"
-    android:fillViewport="true"
-    android:padding="20dp">
+    android:background="@color/md_theme_light_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingBottom="18dp">
+        android:padding="@dimen/spacing_xl">
 
+        <!-- Result Title -->
         <TextView
             android:id="@+id/tv_result_title"
+            style="@style/TextAppearance.Material3.HeadlineLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/game_success"
-            android:textColor="@color/success_green"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            android:textColor="@color/success_green" />
 
-        <LinearLayout
+        <!-- Score Card -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/info_layout"
+            style="@style/Widget.LianLianKan.CardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical"
-            android:padding="18dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/game_score_label"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_score"
-                android:layout_width="match_parent"
-                android:layout_height="96dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_result_score"
-                android:gravity="center"
-                android:text="0"
-                android:textColor="@color/secondary"
-                android:textSize="42sp"
-                android:textStyle="bold" />
+            android:layout_marginTop="@dimen/spacing_xl">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="72dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_rule_step"
+                <!-- Score Label -->
+                <TextView
+                    style="@style/TextAppearance.Material3.LabelLarge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:text="@string/game_score_label"
+                    android:textColor="@color/md_theme_light_onSurfaceVariant" />
+
+                <!-- Score Value -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow"
+                    app:cardCornerRadius="@dimen/shape_corner_extra_large"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tv_score"
+                        style="@style/TextAppearance.Material3.DisplaySmall"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/game_difficulty_label"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tv_difficulty_result"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/easy"
-                        android:textColor="@color/primary_variant"
-                        android:textSize="18sp"
+                        android:paddingVertical="@dimen/spacing_lg"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textColor="@color/md_theme_light_secondary"
                         android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Stats Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_lg"
+                    android:orientation="horizontal">
+
+                    <!-- Difficulty -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/spacing_xs"
+                        android:layout_weight="1"
+                        app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow"
+                        app:cardCornerRadius="@dimen/shape_corner_medium"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <TextView
+                                style="@style/TextAppearance.Material3.LabelSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/game_difficulty_label"
+                                android:textColor="@color/md_theme_light_onSurfaceVariant" />
+
+                            <TextView
+                                android:id="@+id/tv_difficulty_result"
+                                style="@style/TextAppearance.Material3.TitleMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xs"
+                                android:text="@string/easy"
+                                android:textColor="@color/md_theme_light_primary"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Time -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        android:layout_weight="1"
+                        app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLow"
+                        app:cardCornerRadius="@dimen/shape_corner_medium"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <TextView
+                                style="@style/TextAppearance.Material3.LabelSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/game_time_label"
+                                android:textColor="@color/md_theme_light_onSurfaceVariant" />
+
+                            <TextView
+                                android:id="@+id/tv_time_used"
+                                style="@style/TextAppearance.Material3.TitleMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xs"
+                                android:text="02:00"
+                                android:textColor="@color/md_theme_light_onSurface"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="72dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_rule_step"
+                <!-- Result Detail -->
+                <TextView
+                    android:id="@+id/tv_result_detail"
+                    style="@style/TextAppearance.Material3.BodyLarge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_lg"
                     android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/game_time_label"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tv_time_used"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="02:00"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:textColor="@color/md_theme_light_onSurfaceVariant" />
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/tv_result_detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:text=""
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp" />
-        </LinearLayout>
-
+        <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:baselineAligned="false"
-            android:gravity="center"
+            android:layout_marginTop="@dimen/spacing_xl"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_restart"
+                style="@style/Widget.LianLianKan.Button.Filled"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_marginEnd="8dp"
+                android:layout_height="@dimen/component_height_large"
+                android:layout_marginEnd="@dimen/spacing_sm"
                 android:layout_weight="1"
-                android:background="@drawable/bg_secondary_button"
                 android:text="@string/btn_play_again"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textAllCaps="false"
+                app:cornerRadius="@dimen/shape_corner_large" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_back"
+                style="@style/Widget.LianLianKan.Button.Outlined"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
+                android:layout_height="@dimen/component_height_large"
+                android:layout_marginStart="@dimen/spacing_sm"
                 android:layout_weight="1"
-                android:background="@drawable/bg_ghost_button"
                 android:text="@string/btn_back_home"
-                android:textColor="@color/primary_variant"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textAllCaps="false"
+                app:cornerRadius="@dimen/shape_corner_large" />
         </LinearLayout>
     </LinearLayout>
-
 </ScrollView>

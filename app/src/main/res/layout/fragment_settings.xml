@@ -1,238 +1,288 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app"
-    android:clipToPadding="false"
-    android:padding="16dp">
+    android:background="@color/md_theme_light_background"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="18dp">
+        android:padding="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/spacing_xxl">
 
+        <!-- Header -->
         <TextView
+            style="@style/TextAppearance.Material3.HeadlineMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/settings_title"
-            android:textColor="@color/text_primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textColor="@color/md_theme_light_onBackground" />
 
         <TextView
+            style="@style/TextAppearance.Material3.BodyMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:text="@string/settings_subtitle"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:textColor="@color/md_theme_light_onSurfaceVariant" />
 
-        <!-- Language -->
-        <LinearLayout
+        <!-- Language Card -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.LianLianKan.CardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_marginTop="@dimen/spacing_lg">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/language_setting"
-                android:textColor="@color/primary_variant"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Spinner
-                android:id="@+id/spinner_language"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="10dp"
-                android:entries="@array/language_entries"
-                android:background="@drawable/bg_chip" />
-        </LinearLayout>
-
-        <!-- Difficulty -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/difficulty_selection"
-                android:textColor="@color/primary_variant"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <RadioGroup
-                android:id="@+id/radio_group_difficulty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:orientation="vertical">
 
-                <RadioButton
-                    android:id="@+id/radio_easy"
+                <TextView
+                    style="@style/TextAppearance.Material3.TitleMedium"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:buttonTint="@color/primary"
-                    android:gravity="center_vertical"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="@string/difficulty_easy_desc"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_setting"
+                    android:textColor="@color/md_theme_light_onSurface" />
 
-                <RadioButton
-                    android:id="@+id/radio_medium"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:buttonTint="@color/primary"
-                    android:gravity="center_vertical"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="@string/difficulty_medium_desc"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:hint="@string/language_setting"
+                    app:boxCornerRadiusBottomEnd="@dimen/shape_corner_medium"
+                    app:boxCornerRadiusBottomStart="@dimen/shape_corner_medium"
+                    app:boxCornerRadiusTopEnd="@dimen/shape_corner_medium"
+                    app:boxCornerRadiusTopStart="@dimen/shape_corner_medium"
+                    app:startIconDrawable="@android:drawable/ic_menu_mapmode">
 
-                <RadioButton
-                    android:id="@+id/radio_hard"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:buttonTint="@color/primary"
-                    android:gravity="center_vertical"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="@string/difficulty_hard_desc"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
-            </RadioGroup>
-        </LinearLayout>
+                    <AutoCompleteTextView
+                        android:id="@+id/spinner_language"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:text="@string/language_en" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Sound -->
-        <LinearLayout
+        <!-- Difficulty Card -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.LianLianKan.CardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sound"
-                android:textColor="@color/primary_variant"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/sound_effects"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
-
-                <Switch
-                    android:id="@+id/switch_sound_effects"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:thumbTint="@color/primary" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/line_soft" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/background_music"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
-
-                <Switch
-                    android:id="@+id/switch_background_music"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:thumbTint="@color/primary" />
-            </LinearLayout>
+            android:layout_marginTop="@dimen/spacing_md">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="6dp"
-                android:paddingBottom="2dp">
+                android:orientation="vertical">
 
-                <LinearLayout
+                <TextView
+                    style="@style/TextAppearance.Material3.TitleMedium"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="@string/difficulty_selection"
+                    android:textColor="@color/md_theme_light_onSurface" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_difficulty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_easy"
+                        style="@style/Widget.LianLianKan.RadioButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/component_height_large"
+                        android:gravity="center_vertical"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:paddingEnd="@dimen/spacing_sm"
+                        android:text="@string/difficulty_easy_desc"
+                        android:textSize="@dimen/type_body_large" />
+
+                    <RadioButton
+                        android:id="@+id/radio_medium"
+                        style="@style/Widget.LianLianKan.RadioButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/component_height_large"
+                        android:gravity="center_vertical"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:paddingEnd="@dimen/spacing_sm"
+                        android:text="@string/difficulty_medium_desc"
+                        android:textSize="@dimen/type_body_large" />
+
+                    <RadioButton
+                        android:id="@+id/radio_hard"
+                        style="@style/Widget.LianLianKan.RadioButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/component_height_large"
+                        android:gravity="center_vertical"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:paddingEnd="@dimen/spacing_sm"
+                        android:text="@string/difficulty_hard_desc"
+                        android:textSize="@dimen/type_body_large" />
+                </RadioGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Sound Card -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.LianLianKan.CardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TextAppearance.Material3.TitleMedium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sound"
+                    android:textColor="@color/md_theme_light_onSurface" />
+
+                <!-- Sound Effects Toggle -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/component_height_extra_large"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/music_volume"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp" />
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tv_music_volume"
-                        android:layout_width="52dp"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="70%"
-                        android:textColor="@color/secondary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            style="@style/TextAppearance.Material3.BodyLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sound_effects"
+                            android:textColor="@color/md_theme_light_onSurface" />
+
+                        <TextView
+                            style="@style/TextAppearance.Material3.BodySmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/pref_sound_effects_desc"
+                            android:textColor="@color/md_theme_light_onSurfaceVariant" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_sound_effects"
+                        style="@style/Widget.LianLianKan.Switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
-                <SeekBar
-                    android:id="@+id/seek_music_volume"
+                <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:max="100"
-                    android:progress="70"
-                    android:progressTint="@color/secondary"
-                    android:thumbTint="@color/secondary" />
+                    android:layout_height="wrap_content"
+                    app:dividerColor="@color/md_theme_light_outlineVariant"
+                    app:dividerInsetEnd="@dimen/spacing_none"
+                    app:dividerInsetStart="@dimen/spacing_none"
+                    app:dividerThickness="1dp" />
+
+                <!-- Background Music Toggle -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/component_height_extra_large"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.Material3.BodyLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/background_music"
+                            android:textColor="@color/md_theme_light_onSurface" />
+
+                        <TextView
+                            style="@style/TextAppearance.Material3.BodySmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/pref_bg_music_desc"
+                            android:textColor="@color/md_theme_light_onSurfaceVariant" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_background_music"
+                        style="@style/Widget.LianLianKan.Switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- Music Volume -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/spacing_sm">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            style="@style/TextAppearance.Material3.BodyMedium"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/music_volume"
+                            android:textColor="@color/md_theme_light_onSurface" />
+
+                        <TextView
+                            android:id="@+id/tv_music_volume"
+                            style="@style/TextAppearance.Material3.LabelLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="70%"
+                            android:textColor="@color/md_theme_light_secondary" />
+                    </LinearLayout>
+
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/seek_music_volume"
+                        style="@style/Widget.LianLianKan.Slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:valueFrom="0"
+                        android:valueTo="100"
+                        android:value="70" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <Button
+        <!-- Reset Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_reset_settings"
+            style="@style/Widget.LianLianKan.Button.Outlined"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_ghost_button"
+            android:layout_height="@dimen/component_height_large"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:text="@string/reset_settings"
-            android:textColor="@color/primary_variant"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:textAllCaps="false"
+            app:icon="@android:drawable/ic_menu_revert"
+            app:iconTint="@color/md_theme_light_secondary" />
 
+    </LinearLayout>
 </ScrollView>

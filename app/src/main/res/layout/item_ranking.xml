@@ -1,71 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
-    android:background="@drawable/bg_rank_item"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingStart="12dp"
-    android:paddingEnd="12dp">
-
-    <TextView
-        android:id="@+id/tv_rank_num"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        android:background="@drawable/bg_chip"
-        android:gravity="center"
-        android:textColor="@color/primary_variant"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_xs"
+    app:cardBackgroundColor="@color/md_theme_light_surfaceContainerLowest"
+    app:cardCornerRadius="@dimen/shape_corner_medium"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/md_theme_light_outlineVariant">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/component_height_extra_large"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/spacing_md">
 
+        <!-- Rank Badge -->
         <TextView
-            android:id="@+id/tv_rank_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:id="@+id/tv_rank_num"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_chip"
+            android:gravity="center"
+            android:textColor="@color/md_theme_light_onPrimaryContainer"
+            android:textSize="@dimen/type_label_large"
             android:textStyle="bold" />
 
+        <!-- Player Info -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:orientation="horizontal">
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_rank_time"
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_rank_name"
+                style="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/tv_rank_difficulty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:textColor="@color/secondary"
-                android:textSize="13sp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textColor="@color/md_theme_light_onSurface"
                 android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxs"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_rank_time"
+                    style="@style/TextAppearance.Material3.LabelSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/md_theme_light_onSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/tv_rank_difficulty"
+                    style="@style/TextAppearance.Material3.LabelSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:textColor="@color/md_theme_light_secondary"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
+
+        <!-- Score -->
+        <TextView
+            android:id="@+id/tv_rank_score"
+            style="@style/TextAppearance.Material3.TitleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:paddingStart="@dimen/spacing_md"
+            android:textColor="@color/success_green" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_rank_score"
-        android:layout_width="74dp"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:textColor="@color/success_green"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>
