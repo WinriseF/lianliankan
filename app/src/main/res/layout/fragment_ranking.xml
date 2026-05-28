@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="排行榜"
+        android:text="@string/ranking"
         android:textColor="@color/text_primary"
         android:textSize="26sp"
         android:textStyle="bold" />
@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="按分数排序，记录每一次挑战表现"
+        android:text="@string/ranking_subtitle"
         android:textColor="@color/text_secondary"
         android:textSize="14sp" />
 
@@ -30,7 +30,7 @@
         android:background="@drawable/bg_panel"
         android:gravity="center"
         android:padding="28dp"
-        android:text="暂无游戏记录\n完成一局后会显示在这里"
+        android:text="@string/no_ranking_data"
         android:textColor="@color/text_secondary"
         android:textSize="16sp"
         android:visibility="gone" />
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
-        android:text="清空排行榜"
+        android:text="@string/clear_ranking"
         android:textSize="16sp"
         android:background="@drawable/bg_secondary_button"
         android:textColor="@color/text_primary" />

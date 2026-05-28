@@ -14,7 +14,7 @@
         android:elevation="4dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:title="连连看"
+        android:title="@string/app_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -51,7 +51,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="剩余时间"
+                    android:text="@string/remaining_time"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -76,7 +76,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_chip"
                 android:gravity="center"
-                android:text="难度：简单"
+                android:text="@string/difficulty_label"
                 android:textColor="@color/primary_variant"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -91,7 +91,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="已消除"
+                    android:text="@string/pairs_cleared"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -140,7 +140,7 @@
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_secondary_button"
             android:paddingHorizontal="24dp"
-            android:text="打乱重排"
+            android:text="@string/shuffle"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold" />

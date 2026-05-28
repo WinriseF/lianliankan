@@ -17,6 +17,7 @@ public class PreferenceUtil {
     private static final String KEY_MUSIC_ENABLED = "music_enabled";
     private static final String KEY_MUSIC_VOLUME = "music_volume";
     private static final String KEY_PLAYER_NAME = "player_name";
+    private static final String KEY_LANGUAGE = "language";
     public static final int DEFAULT_MUSIC_VOLUME = 70;
 
     public static void saveDifficulty(Context context, int difficulty) {
@@ -82,7 +83,20 @@ public class PreferenceUtil {
     public static String getPlayerName(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(
                 PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_PLAYER_NAME, "玩家");
+        return prefs.getString(KEY_PLAYER_NAME, "Player");
+    }
+
+    public static void saveLanguage(Context context, String langCode) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(
+                PREFS_NAME, Context.MODE_PRIVATE).edit();
+        editor.putString(KEY_LANGUAGE, langCode);
+        editor.apply();
+    }
+
+    public static String getLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(
+                PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_LANGUAGE, "en");
     }
 
     public static void applySettings(Context context) {

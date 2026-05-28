@@ -1,47 +1,146 @@
 <resources>
-    <string name="app_name">连连看</string>
-    <string name="title_game">🎮 游戏</string>
-    <string name="title_help">📖 游戏说明</string>
-    <string name="title_settings">⚙️ 参数设置</string>
-    <string name="title_ranking">🏆 排行榜</string>
-    <string name="easy">简单</string>
-    <string name="medium">中等</string>
-    <string name="hard">困难</string>
-    <string name="game_success">恭喜通关！</string>
-    <string name="game_fail">游戏失败！</string>
-    <string name="time_up">时间到！</string>
-    <string name="restart">重新开始</string>
-    <string name="shuffle">打乱重排</string>
-    <string name="no_pairs_available">无可消除配对！</string>
-    <string name="game_time">游戏用时</string>
-    <string name="score_text">得分</string>
-    <string name="difficulty_text">难度</string>
-    <string name="ranking">排名</string>
-    <string name="player_name">玩家</string>
-    <string name="remain_pairs">剩余配对</string>
-    <string name="game_rule">
-        <![CDATA[
-        <h3>🎮 连连看游戏规则</h3><br>
-        <b>基本玩法：</b><br>
-        • 点击两个相同图案的动物进行消除<br>
-        • 连接路径最多允许<b>2个拐点</b>（即最多3段直线）<br>
-        • 路径不能穿过其他未消除的动物方块<br>
-        • 路径可以沿着棋盘外边框绕行<br><br>
-        <b>难度说明：</b><br>
-        • <font color="#4CAF50">简单：</font>10种动物，容易区分<br>
-        • <font color="#FFC107">中等：</font>15种动物，中等难度<br>
-        • <font color="#F44336">困难：</font>25种动物，极具挑战<br><br>
-        <b>胜利条件：</b><br>
-        在限定时间内消除所有动物配对<br><br>
-        <b>失败条件：</b><br>
-        • 时间耗尽<br>
-        • 剩余配对无法连接（无可消除配对）
-        ]]>
-    </string>
-    <string name="settings_title">参数设置</string>
-    <string name="difficulty_setting">选择难度</string>
-    <string name="sound_setting">开启音效</string>
-    <string name="music_setting">开启背景音乐</string>
-    <string name="about_title">关于</string>
-    <string name="version_info">连连看 v1.0\n移动应用开发技术课程作业</string>
+    <!-- App -->
+    <string name="app_name">LianLianKan</string>
+
+    <!-- Navigation -->
+    <string name="title_game">Game</string>
+    <string name="title_help">Rules</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_ranking">Ranking</string>
+
+    <!-- Difficulty -->
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
+    <string name="unknown">Unknown</string>
+    <string name="difficulty_label">Difficulty: %s</string>
+    <string name="difficulty_setting">Select Difficulty</string>
+
+    <!-- Game -->
+    <string name="game_success">Congratulations!</string>
+    <string name="game_fail">Game Over</string>
+    <string name="time_up">Time\'s Up!</string>
+    <string name="restart">Restart</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="no_pairs_available">No linkable pairs!</string>
+    <string name="game_time">Time</string>
+    <string name="score_text">Score</string>
+    <string name="difficulty_text">Difficulty</string>
+    <string name="remain_pairs">Remaining</string>
+    <string name="remaining_time">Time Left</string>
+    <string name="pairs_cleared">Cleared</string>
+    <string name="pause_game">Pause</string>
+    <string name="continue_game">Resume</string>
+    <string name="game_over">Game Over</string>
+    <string name="game_restarted">Game restarted</string>
+    <string name="game_resumed">Game resumed</string>
+    <string name="game_paused">Game paused</string>
+    <string name="board_shuffled">Board shuffled</string>
+    <string name="board_operations">Board Operations</string>
+    <string name="no_pairs_auto_shuffle">No linkable pairs, auto-shuffling</string>
+    <string name="difficulty_changed_restart">Difficulty changed, game restarted</string>
+    <string name="difficulty_modified">Difficulty updated</string>
+
+    <!-- Game result -->
+    <string name="game_score_label">Score</string>
+    <string name="game_difficulty_label">Difficulty</string>
+    <string name="game_time_label">Time</string>
+    <string name="result_pairs_cleared_win">Cleared %d pairs of animals</string>
+    <string name="result_pairs_cleared_timeup">Time\'s up! Cleared %d pairs</string>
+    <string name="no_linkable_pairs_end">No linkable pairs</string>
+    <string name="no_pairs_game_over">No linkable pairs, game over</string>
+    <string name="btn_play_again">Play Again</string>
+    <string name="btn_back_home">Back to Home</string>
+
+    <!-- Ranking -->
+    <string name="ranking">Ranking</string>
+    <string name="player_name">Player</string>
+    <string name="ranking_subtitle">Sorted by score, track every challenge</string>
+    <string name="no_ranking_data">No records yet\nComplete a game to see results here</string>
+    <string name="clear_ranking">Clear Ranking</string>
+    <string name="confirm_clear_title">Confirm Clear</string>
+    <string name="confirm_clear_message">Are you sure you want to clear all ranking data?</string>
+    <string name="clear">Clear</string>
+    <string name="ranking_cleared">Ranking cleared</string>
+    <string name="clear_failed">Clear failed</string>
+    <string name="load_ranking_failed">Failed to load ranking</string>
+
+    <!-- Help -->
+    <string name="help_title">How to Play</string>
+    <string name="help_subtitle">Tap two matching animals to connect them. Paths can turn at most 2 times.</string>
+    <string name="connection_types">Connection Types</string>
+    <string name="rule_0_turn">0 turns: Same row or column, no unmatched tiles in between.</string>
+    <string name="rule_1_turn">1 turn: L-shaped path, the corner must be empty.</string>
+    <string name="rule_2_turn">2 turns: Z-shaped or U-shaped paths allowed.</string>
+    <string name="difficulty_strategy">Difficulty &amp; Strategy</string>
+    <string name="difficulty_strategy_desc">Easy uses 10 animal types for beginners; Medium uses 15; Hard uses 25. Prioritize clearing edges and directly connectable tiles to open up paths.</string>
+    <string name="game_rules_detail">Tap two identical animals to attempt a connection. The path extends only horizontally or vertically, with at most 2 turns, and cannot pass through unmatched tiles. Clear all 36 pairs within 2 minutes to win; time running out or no linkable pairs means game over.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Adjust difficulty, sound, and music preferences</string>
+    <string name="difficulty_selection">Difficulty</string>
+    <string name="difficulty_easy_desc">Easy (10 animals)</string>
+    <string name="difficulty_medium_desc">Medium (15 animals)</string>
+    <string name="difficulty_hard_desc">Hard (25 animals)</string>
+    <string name="sound">Sound</string>
+    <string name="sound_effects">Click &amp; match effects</string>
+    <string name="background_music">Background Music</string>
+    <string name="music_volume">Music Volume</string>
+    <string name="reset_settings">Reset to Defaults</string>
+    <string name="settings_reset">Settings restored to defaults</string>
+    <string name="sound_effects_on">Sound effects enabled</string>
+    <string name="sound_effects_off">Sound effects disabled</string>
+    <string name="bg_music_on">Background music enabled</string>
+    <string name="bg_music_off">Background music disabled</string>
+
+    <!-- Language -->
+    <string name="language_setting">Language</string>
+    <string name="language_en">English</string>
+    <string name="language_zh">Chinese</string>
+
+    <!-- About -->
+    <string name="about_title">About LianLianKan</string>
+    <string name="about_message">LianLianKan v1.0\n\nMobile Application Development Course Project\n\nHow to Play:\n• Tap two identical animals to match\n• Path can have at most 2 turns\n• Clear all pairs within 2 minutes\n\nDifficulty:\n• Easy: 10 animal types\n• Medium: 15 animal types\n• Hard: 25 animal types</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_exit_title">Confirm Exit</string>
+    <string name="confirm_exit_message">Are you sure you want to exit? Current progress will be lost.</string>
+
+    <!-- Version check -->
+    <string name="version_check">Version Check</string>
+    <string name="upgrade_now">Upgrade</string>
+    <string name="network_disconnected">Network disconnected, showing local version info</string>
+    <string name="network_unavailable_heading">Network Unavailable</string>
+    <string name="network_unavailable_desc">Unable to check online version. Please reconnect and try again.</string>
+    <string name="local_version_info">Local version: LianLianKan v1.0</string>
+
+    <!-- Notifications -->
+    <string name="time_warning_channel">Time Warning</string>
+    <string name="time_remaining_30s">30 seconds remaining!</string>
+    <string name="game_result_channel">Game Result</string>
+    <string name="notification_congrats">Congratulations!</string>
+    <string name="notification_score_time">Score: %1$d | Time: %2$s</string>
+    <string name="bg_music_channel">Background Music</string>
+    <string name="bg_music_channel_desc">LianLianKan background music playback control</string>
+    <string name="bg_music_playing">Background music playing</string>
+    <string name="bg_music_paused">Background music paused</string>
+    <string name="pause">Pause</string>
+    <string name="play">Play</string>
+
+    <!-- Preferences XML -->
+    <string name="pref_game_settings">Game Settings</string>
+    <string name="pref_game_difficulty">Game Difficulty</string>
+    <string name="pref_current_difficulty">Current difficulty: Easy</string>
+    <string name="pref_sound_effects">Sound Effects</string>
+    <string name="pref_sound_effects_desc">Enable or disable click and match sound effects</string>
+    <string name="pref_bg_music">Background Music</string>
+    <string name="pref_bg_music_desc">Enable or disable background music</string>
+    <string name="pref_about">About</string>
+    <string name="pref_about_summary">LianLianKan v1.0\nMobile Application Development Course Project</string>
+    <string name="pref_clear_records">Clear Ranking Records</string>
+    <string name="pref_clear_records_desc">Clear all historical score data</string>
+
+    <!-- Game rule HTML -->
+    <string name="game_rule"><![CDATA[<h3>Game Rules</h3><br><b>How to Play:</b><br>• Tap two identical animals to eliminate them<br>• Connection path allows at most <b>2 turns</b> (i.e., at most 3 straight segments)<br>• Path cannot pass through other unmatched animal tiles<br>• Path can go along the board outer border<br><br><b>Difficulty:</b><br>• <font color="#4CAF50">Easy:</font> 10 animal types, easy to distinguish<br>• <font color="#FFC107">Medium:</font> 15 animal types, moderate difficulty<br>• <font color="#F44336">Hard:</font> 25 animal types, very challenging<br><br><b>Win Condition:</b><br>Clear all animal pairs within the time limit<br><br><b>Lose Conditions:</b><br>• Time runs out<br>• No remaining linkable pairs]]></string>
 </resources>

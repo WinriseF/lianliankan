@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="游戏设置">
+    <PreferenceCategory android:title="@string/pref_game_settings">
 
         <ListPreference
             android:key="difficulty"
-            android:title="游戏难度"
+            android:title="@string/pref_game_difficulty"
             android:entries="@array/difficulty_entries"
             android:entryValues="@array/difficulty_values"
             android:defaultValue="0"
-            android:summary="当前难度：简单" />
+            android:summary="@string/pref_current_difficulty" />
 
         <SwitchPreferenceCompat
             android:key="sound_effects"
-            android:title="音效开关"
-            android:summary="开启或关闭点击、消除等音效"
+            android:title="@string/pref_sound_effects"
+            android:summary="@string/pref_sound_effects_desc"
             android:defaultValue="true" />
 
         <SwitchPreferenceCompat
             android:key="background_music"
-            android:title="背景音乐"
-            android:summary="开启或关闭背景音乐"
+            android:title="@string/pref_bg_music"
+            android:summary="@string/pref_bg_music_desc"
             android:defaultValue="true" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="关于">
+    <PreferenceCategory android:title="@string/pref_about">
 
         <Preference
             android:key="about"
-            android:title="关于连连看"
-            android:summary="连连看 v1.0&#10;移动应用开发技术课程作业" />
+            android:title="@string/about_title"
+            android:summary="@string/pref_about_summary" />
 
         <Preference
             android:key="clear_records"
-            android:title="清除排行榜记录"
-            android:summary="清除所有历史成绩数据" />
+            android:title="@string/pref_clear_records"
+            android:summary="@string/pref_clear_records_desc" />
 
     </PreferenceCategory>
 

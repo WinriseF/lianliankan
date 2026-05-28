@@ -1,0 +1,146 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">连连看</string>
+
+    <!-- Navigation -->
+    <string name="title_game">游戏</string>
+    <string name="title_help">说明</string>
+    <string name="title_settings">设置</string>
+    <string name="title_ranking">排行</string>
+
+    <!-- Difficulty -->
+    <string name="easy">简单</string>
+    <string name="medium">中等</string>
+    <string name="hard">困难</string>
+    <string name="unknown">未知</string>
+    <string name="difficulty_label">难度：%s</string>
+    <string name="difficulty_setting">选择难度</string>
+
+    <!-- Game -->
+    <string name="game_success">恭喜通关！</string>
+    <string name="game_fail">游戏失败！</string>
+    <string name="time_up">时间到！</string>
+    <string name="restart">重新开始</string>
+    <string name="shuffle">打乱重排</string>
+    <string name="no_pairs_available">无可消除配对！</string>
+    <string name="game_time">游戏用时</string>
+    <string name="score_text">得分</string>
+    <string name="difficulty_text">难度</string>
+    <string name="remain_pairs">剩余配对</string>
+    <string name="remaining_time">剩余时间</string>
+    <string name="pairs_cleared">已消除</string>
+    <string name="pause_game">暂停游戏</string>
+    <string name="continue_game">继续游戏</string>
+    <string name="game_over">游戏结束</string>
+    <string name="game_restarted">已重新开始</string>
+    <string name="game_resumed">游戏继续</string>
+    <string name="game_paused">游戏已暂停</string>
+    <string name="board_shuffled">已打乱重排</string>
+    <string name="board_operations">棋盘操作</string>
+    <string name="no_pairs_auto_shuffle">无可消除配对，自动打乱重排</string>
+    <string name="difficulty_changed_restart">难度已切换，游戏重新开始</string>
+    <string name="difficulty_modified">难度已修改</string>
+
+    <!-- Game result -->
+    <string name="game_score_label">本局得分</string>
+    <string name="game_difficulty_label">难度</string>
+    <string name="game_time_label">用时</string>
+    <string name="result_pairs_cleared_win">共消除 %d 对动物</string>
+    <string name="result_pairs_cleared_timeup">时间耗尽！共消除 %d 对</string>
+    <string name="no_linkable_pairs_end">无可消除配对</string>
+    <string name="no_pairs_game_over">无可消除配对，游戏结束</string>
+    <string name="btn_play_again">再来一局</string>
+    <string name="btn_back_home">返回主页</string>
+
+    <!-- Ranking -->
+    <string name="ranking">排名</string>
+    <string name="player_name">玩家</string>
+    <string name="ranking_subtitle">按分数排序，记录每一次挑战表现</string>
+    <string name="no_ranking_data">暂无游戏记录\n完成一局后会显示在这里</string>
+    <string name="clear_ranking">清空排行榜</string>
+    <string name="confirm_clear_title">确认清空</string>
+    <string name="confirm_clear_message">确定要清空所有排行榜数据吗？</string>
+    <string name="clear">清空</string>
+    <string name="ranking_cleared">排行榜已清空</string>
+    <string name="clear_failed">清空失败</string>
+    <string name="load_ranking_failed">加载排行榜失败</string>
+
+    <!-- Help -->
+    <string name="help_title">游戏说明</string>
+    <string name="help_subtitle">连接相同动物，路径最多允许两个拐点</string>
+    <string name="connection_types">连接方式</string>
+    <string name="rule_0_turn">0 拐点：同行或同列，中间没有未消除方块。</string>
+    <string name="rule_1_turn">1 拐点：形成 L 型路径，拐点位置必须为空。</string>
+    <string name="rule_2_turn">2 拐点：允许 Z 型或沿棋盘外框绕行。</string>
+    <string name="difficulty_strategy">难度与策略</string>
+    <string name="difficulty_strategy_desc">简单模式使用 10 种动物，适合熟悉规则；中等模式使用 15 种动物；困难模式使用 25 种动物。优先清理边缘和可直接连接的方块，可以更容易打开后续路径。</string>
+    <string name="game_rules_detail">点击两个相同动物即可尝试连接。路径只能横向或纵向延伸，最多允许 2 个拐点，且不能穿过未消除的方块。2 分钟内清空全部 36 对动物即可胜利；时间耗尽或无可消除配对则游戏结束。</string>
+
+    <!-- Settings -->
+    <string name="settings_title">参数设置</string>
+    <string name="settings_subtitle">调整难度、声音和音乐偏好</string>
+    <string name="difficulty_selection">难度选择</string>
+    <string name="difficulty_easy_desc">简单（10种动物）</string>
+    <string name="difficulty_medium_desc">中等（15种动物）</string>
+    <string name="difficulty_hard_desc">困难（25种动物）</string>
+    <string name="sound">声音</string>
+    <string name="sound_effects">点击与消除音效</string>
+    <string name="background_music">背景音乐</string>
+    <string name="music_volume">背景音乐音量</string>
+    <string name="reset_settings">恢复默认设置</string>
+    <string name="settings_reset">已恢复默认设置</string>
+    <string name="sound_effects_on">音效已开启</string>
+    <string name="sound_effects_off">音效已关闭</string>
+    <string name="bg_music_on">背景音乐已开启</string>
+    <string name="bg_music_off">背景音乐已关闭</string>
+
+    <!-- Language -->
+    <string name="language_setting">语言</string>
+    <string name="language_en">English</string>
+    <string name="language_zh">中文</string>
+
+    <!-- About -->
+    <string name="about_title">关于连连看</string>
+    <string name="about_message">连连看 v1.0\n\n移动应用开发技术课程作业\n\n游戏规则：\n• 点击两个相同图案消除\n• 路径最多2个拐点\n• 在2分钟内消除所有配对\n\n难度说明：\n• 简单：10种动物\n• 中等：15种动物\n• 困难：25种动物</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="confirm_exit_title">确认退出</string>
+    <string name="confirm_exit_message">确定要退出游戏吗？当前进度将丢失。</string>
+
+    <!-- Version check -->
+    <string name="version_check">版本检查</string>
+    <string name="upgrade_now">立即升级</string>
+    <string name="network_disconnected">网络已断开，当前显示本地版本信息</string>
+    <string name="network_unavailable_heading">网络连接不可用</string>
+    <string name="network_unavailable_desc">暂时无法检查在线版本，请恢复网络后重试。</string>
+    <string name="local_version_info">本地版本：连连看 v1.0</string>
+
+    <!-- Notifications -->
+    <string name="time_warning_channel">时间提醒</string>
+    <string name="time_remaining_30s">剩余30秒！</string>
+    <string name="game_result_channel">游戏结果</string>
+    <string name="notification_congrats">🎉 恭喜通关！</string>
+    <string name="notification_score_time">得分: %1$d | 用时: %2$s</string>
+    <string name="bg_music_channel">背景音乐</string>
+    <string name="bg_music_channel_desc">连连看背景音乐播放控制</string>
+    <string name="bg_music_playing">背景音乐正在播放</string>
+    <string name="bg_music_paused">背景音乐已暂停</string>
+    <string name="pause">暂停</string>
+    <string name="play">继续</string>
+
+    <!-- Preferences XML -->
+    <string name="pref_game_settings">游戏设置</string>
+    <string name="pref_game_difficulty">游戏难度</string>
+    <string name="pref_current_difficulty">当前难度：简单</string>
+    <string name="pref_sound_effects">音效开关</string>
+    <string name="pref_sound_effects_desc">开启或关闭点击、消除等音效</string>
+    <string name="pref_bg_music">背景音乐</string>
+    <string name="pref_bg_music_desc">开启或关闭背景音乐</string>
+    <string name="pref_about">关于</string>
+    <string name="pref_about_summary">连连看 v1.0\n移动应用开发技术课程作业</string>
+    <string name="pref_clear_records">清除排行榜记录</string>
+    <string name="pref_clear_records_desc">清除所有历史成绩数据</string>
+
+    <!-- Game rule HTML -->
+    <string name="game_rule"><![CDATA[<h3>🎮 连连看游戏规则</h3><br><b>基本玩法：</b><br>• 点击两个相同图案的动物进行消除<br>• 连接路径最多允许<b>2个拐点</b>（即最多3段直线）<br>• 路径不能穿过其他未消除的动物方块<br>• 路径可以沿着棋盘外边框绕行<br><br><b>难度说明：</b><br>• <font color="#4CAF50">简单：</font>10种动物，容易区分<br>• <font color="#FFC107">中等：</font>15种动物，中等难度<br>• <font color="#F44336">困难：</font>25种动物，极具挑战<br><br><b>胜利条件：</b><br>在限定时间内消除所有动物配对<br><br><b>失败条件：</b><br>• 时间耗尽<br>• 剩余配对无法连接（无可消除配对）]]></string>
+</resources>

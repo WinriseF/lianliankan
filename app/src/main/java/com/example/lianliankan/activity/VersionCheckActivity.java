@@ -22,13 +22,13 @@ public class VersionCheckActivity extends AppCompatActivity {
         if (NetworkUtil.isNetworkAvailable(this)) {
             webView.loadUrl("file:///android_asset/version_check.html");
         } else {
-            Toast.makeText(this, "网络已断开，当前显示本地版本信息", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.network_disconnected, Toast.LENGTH_LONG).show();
             webView.loadDataWithBaseURL(
                     null,
                     "<html><body style='font-family:sans-serif;padding:24px;'>"
-                            + "<h2>网络连接不可用</h2>"
-                            + "<p>暂时无法检查在线版本，请恢复网络后重试。</p>"
-                            + "<p>本地版本：连连看 v1.0</p>"
+                            + "<h2>" + getString(R.string.network_unavailable_heading) + "</h2>"
+                            + "<p>" + getString(R.string.network_unavailable_desc) + "</p>"
+                            + "<p>" + getString(R.string.local_version_info) + "</p>"
                             + "</body></html>",
                     "text/html",
                     "UTF-8",

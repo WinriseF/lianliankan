@@ -24,7 +24,6 @@ public class RankingCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        int rankIndex = cursor.getColumnIndex(RankContract.RankEntry._ID);
         int nameIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_PLAYER_NAME);
         int scoreIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_SCORE);
         int timeIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_TIME_USED);
@@ -47,8 +46,14 @@ public class RankingCursorAdapter extends CursorAdapter {
         }
         if (diffIndex >= 0) {
             int d = cursor.getInt(diffIndex);
-            String[] diffs = {"简单", "中等", "困难"};
-            tvDiff.setText(d >= 0 && d < diffs.length ? diffs[d] : "未知");
+            int diffTextRes;
+            switch (d) {
+                case 0: diffTextRes = R.string.easy; break;
+                case 1: diffTextRes = R.string.medium; break;
+                case 2: diffTextRes = R.string.hard; break;
+                default: diffTextRes = R.string.unknown; break;
+            }
+            tvDiff.setText(diffTextRes);
         }
     }
 }

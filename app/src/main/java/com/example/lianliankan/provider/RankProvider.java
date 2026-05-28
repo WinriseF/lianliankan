@@ -1,5 +1,6 @@
 package com.example.lianliankan.provider;
 
+import com.example.lianliankan.R;
 import com.example.lianliankan.dao.RankDatabaseHelper;
 import com.example.lianliankan.provider.RankContract.RankEntry;
 
@@ -161,7 +162,8 @@ public class RankProvider extends ContentProvider {
                 ? values.getAsString(RankEntry.COLUMN_PLAYER_NAME)
                 : null;
         if (playerName == null || playerName.trim().isEmpty()) {
-            playerName = "玩家";
+            Context ctx = getContext();
+            playerName = ctx != null ? ctx.getString(R.string.player_name) : "Player";
         }
         safeValues.put(RankEntry.COLUMN_PLAYER_NAME, playerName.trim());
         safeValues.put(RankEntry.COLUMN_SCORE, getInt(values, RankEntry.COLUMN_SCORE));

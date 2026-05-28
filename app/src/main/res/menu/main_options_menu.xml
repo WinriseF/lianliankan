@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_difficulty"
-        android:title="难度设置"
+        android:title="@string/difficulty_setting"
         android:icon="@android:drawable/ic_menu_preferences"
         android:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_about"
-        android:title="关于"
+        android:title="@string/about_title"
         android:showAsAction="never" />
 </menu>

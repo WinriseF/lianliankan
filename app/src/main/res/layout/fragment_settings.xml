@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="参数设置"
+            android:text="@string/settings_title"
             android:textColor="@color/text_primary"
             android:textSize="26sp"
             android:textStyle="bold" />
@@ -24,10 +24,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="调整难度、声音和音乐偏好"
+            android:text="@string/settings_subtitle"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
+        <!-- Language -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,7 +40,33 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="难度选择"
+                android:text="@string/language_setting"
+                android:textColor="@color/primary_variant"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_language"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:entries="@array/language_entries"
+                android:background="@drawable/bg_chip" />
+        </LinearLayout>
+
+        <!-- Difficulty -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/difficulty_selection"
                 android:textColor="@color/primary_variant"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -59,7 +86,7 @@
                     android:gravity="center_vertical"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:text="简单（10种动物）"
+                    android:text="@string/difficulty_easy_desc"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -71,7 +98,7 @@
                     android:gravity="center_vertical"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:text="中等（15种动物）"
+                    android:text="@string/difficulty_medium_desc"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -83,12 +110,13 @@
                     android:gravity="center_vertical"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:text="困难（25种动物）"
+                    android:text="@string/difficulty_hard_desc"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
             </RadioGroup>
         </LinearLayout>
 
+        <!-- Sound -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -100,7 +128,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="声音"
+                android:text="@string/sound"
                 android:textColor="@color/primary_variant"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -115,7 +143,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="点击与消除音效"
+                    android:text="@string/sound_effects"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -141,7 +169,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="背景音乐"
+                    android:text="@string/background_music"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -169,7 +197,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="背景音乐音量"
+                        android:text="@string/music_volume"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp" />
 
@@ -201,7 +229,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/bg_ghost_button"
-            android:text="恢复默认设置"
+            android:text="@string/reset_settings"
             android:textColor="@color/primary_variant"
             android:textSize="15sp"
             android:textStyle="bold" />

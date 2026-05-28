@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.FragmentHelpBinding;
 
 public class HelpFragment extends Fragment {
@@ -33,7 +34,7 @@ public class HelpFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.tvRules.setText("点击两个相同动物即可尝试连接。路径只能横向或纵向延伸，最多允许 2 个拐点，且不能穿过未消除的方块。2 分钟内清空全部 36 对动物即可胜利；时间耗尽或无可消除配对则游戏结束。");
+        binding.tvRules.setText(R.string.game_rules_detail);
     }
 
     @Override

@@ -21,9 +21,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.app.NotificationCompat;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.activity.GameResultActivity;
@@ -246,7 +246,7 @@ public class GameFragment extends Fragment {
             AnimalItem firstItem = board.get(firstPos);
             AnimalItem secondItem = board.get(position);
 
-            java.util.List<GameEngine.Point> path =
+            List<GameEngine.Point> path =
                     GameEngine.findPath(firstItem, secondItem, board);
 
             if (path != null && !path.isEmpty()) {
@@ -497,7 +497,7 @@ public class GameFragment extends Fragment {
     private void onGameDeadlock() {
         if (!isGameActive) return;
         
-        Toast.makeText(requireContext(), "无可消除配对，自动打乱重排", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), R.string.no_pairs_auto_shuffle, Toast.LENGTH_SHORT).show();
         cancelAutoHint();
         
         board = GameGenerator.shuffleRemaining(board);
@@ -584,11 +584,14 @@ public class GameFragment extends Fragment {
 
     private void updateDifficultyLabel() {
         if (binding == null) return;
-        String[] difficultyNames = {"简单", "中等", "困难"};
-        String difficultyName = difficulty >= 0 && difficulty < difficultyNames.length
-                ? difficultyNames[difficulty]
-                : "未知";
-        binding.tvDifficultyLabel.setText("难度：" + difficultyName);
+        int diffTextRes;
+        switch (difficulty) {
+            case 0: diffTextRes = R.string.easy; break;
+            case 1: diffTextRes = R.string.medium; break;
+            case 2: diffTextRes = R.string.hard; break;
+            default: diffTextRes = R.string.unknown; break;
+        }
+        binding.tvDifficultyLabel.setText(getString(R.string.difficulty_label, getString(diffTextRes)));
     }
 
     private void shuffleBoard() {
@@ -604,7 +607,7 @@ public class GameFragment extends Fragment {
             setupGridView();
             updateRemainingCount();
         }
-        Toast.makeText(requireContext(), "已打乱重排", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), R.string.board_shuffled, Toast.LENGTH_SHORT).show();
         scheduleAutoHint();
     }
 
@@ -614,10 +617,10 @@ public class GameFragment extends Fragment {
         super.onCreateContextMenu(menu, v, menuInfo);
         if (v.getId() == R.id.grid_board) {
             requireActivity().getMenuInflater().inflate(R.menu.board_context_menu, menu);
-            menu.setHeaderTitle("棋盘操作");
+            menu.setHeaderTitle(R.string.board_operations);
             MenuItem pauseItem = menu.findItem(R.id.menu_pause);
             if (pauseItem != null) {
-                pauseItem.setTitle(isPaused ? "继续游戏" : "暂停游戏");
+                pauseItem.setTitle(isPaused ? R.string.continue_game : R.string.pause_game);
             }
         }
     }
@@ -630,7 +633,7 @@ public class GameFragment extends Fragment {
             return true;
         } else if (itemId == R.id.menu_restart) {
             resetGame();
-            Toast.makeText(requireContext(), "已重新开始", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.game_restarted, Toast.LENGTH_SHORT).show();
             return true;
         } else if (itemId == R.id.menu_pause) {
             togglePause();
@@ -646,13 +649,13 @@ public class GameFragment extends Fragment {
             isGameActive = true;
             startTimer();
             scheduleAutoHint();
-            Toast.makeText(requireContext(), "游戏继续", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.game_resumed, Toast.LENGTH_SHORT).show();
         } else {
             isPaused = true;
             isGameActive = false;
             cancelAutoHint();
             stopTimer();
-            Toast.makeText(requireContext(), "游戏已暂停", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.game_paused, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -666,7 +669,7 @@ public class GameFragment extends Fragment {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 android.app.NotificationChannel channel =
                         new android.app.NotificationChannel(
-                                channelId, "时间提醒",
+                                channelId, getString(R.string.time_warning_channel),
                                 android.app.NotificationManager.IMPORTANCE_HIGH);
                 nm.createNotificationChannel(channel);
             }
@@ -679,8 +682,8 @@ public class GameFragment extends Fragment {
 
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(requireContext(), channelId)
-                            .setContentTitle("连连看")
-                            .setContentText("剩余30秒！")
+                            .setContentTitle(getString(R.string.app_name))
+                            .setContentText(getString(R.string.time_remaining_30s))
                             .setSmallIcon(android.R.drawable.ic_dialog_alert)
                             .setContentIntent(pi)
                             .setAutoCancel(true);
@@ -754,7 +757,7 @@ public class GameFragment extends Fragment {
         if (currentDifficulty != lastKnownDifficulty) {
             lastKnownDifficulty = currentDifficulty;
             resetGame();
-            Toast.makeText(requireContext(), "难度已切换，游戏重新开始", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.difficulty_changed_restart, Toast.LENGTH_SHORT).show();
             return;
         }
         

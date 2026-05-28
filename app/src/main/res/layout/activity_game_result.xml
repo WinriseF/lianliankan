@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="恭喜通关！"
+            android:text="@string/game_success"
             android:textColor="@color/success_green"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="本局得分"
+                android:text="@string/game_score_label"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
@@ -71,7 +71,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="难度"
+                        android:text="@string/game_difficulty_label"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp" />
 
@@ -80,7 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="简单"
+                        android:text="@string/easy"
                         android:textColor="@color/primary_variant"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -98,7 +98,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="用时"
+                        android:text="@string/game_time_label"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp" />
 
@@ -140,7 +140,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_secondary_button"
-                android:text="再来一局"
+                android:text="@string/btn_play_again"
                 android:textColor="#FFFFFF"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -152,7 +152,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_ghost_button"
-                android:text="返回主页"
+                android:text="@string/btn_back_home"
                 android:textColor="@color/primary_variant"
                 android:textSize="15sp"
                 android:textStyle="bold" />

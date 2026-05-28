@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -20,6 +22,8 @@ import com.example.lianliankan.databinding.FragmentSettingsBinding;
 import com.example.lianliankan.service.MusicService;
 import com.example.lianliankan.util.GameEngine;
 import com.example.lianliankan.util.PreferenceUtil;
+
+import java.util.Locale;
 
 public class SettingsFragment extends Fragment {
 
@@ -45,7 +49,6 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
 
-        // 加载当前设置
         int currentDifficulty = PreferenceUtil.getDifficulty(requireContext());
         switch (currentDifficulty) {
             case GameEngine.DIFFICULTY_EASY:
@@ -65,7 +68,8 @@ public class SettingsFragment extends Fragment {
         binding.seekMusicVolume.setProgress(currentVolume);
         updateMusicVolumeText(currentVolume);
 
-        // 难度切换
+        setupLanguageSpinner();
+
         binding.radioGroupDifficulty.setOnCheckedChangeListener((group, checkedId) -> {
             int difficulty;
             if (checkedId == R.id.radio_easy) {
@@ -76,21 +80,21 @@ public class SettingsFragment extends Fragment {
                 difficulty = GameEngine.DIFFICULTY_HARD;
             }
             PreferenceUtil.saveDifficulty(requireContext(), difficulty);
-            Toast.makeText(requireContext(), "难度已修改", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.difficulty_modified, Toast.LENGTH_SHORT).show();
         });
 
-        // 音效开关
         binding.switchSoundEffects.setOnCheckedChangeListener((buttonView, isChecked) -> {
             PreferenceUtil.saveSoundEnabled(requireContext(), isChecked);
             Toast.makeText(requireContext(),
-                    isChecked ? "音效已开启" : "音效已关闭", Toast.LENGTH_SHORT).show();
+                    isChecked ? R.string.sound_effects_on : R.string.sound_effects_off,
+                    Toast.LENGTH_SHORT).show();
         });
 
-        // 背景音乐开关
         binding.switchBackgroundMusic.setOnCheckedChangeListener((buttonView, isChecked) -> {
             PreferenceUtil.saveMusicEnabled(requireContext(), isChecked);
             Toast.makeText(requireContext(),
-                    isChecked ? "背景音乐已开启" : "背景音乐已关闭", Toast.LENGTH_SHORT).show();
+                    isChecked ? R.string.bg_music_on : R.string.bg_music_off,
+                    Toast.LENGTH_SHORT).show();
             if (isChecked) {
                 startMusicService(MusicService.ACTION_PLAY);
             } else {
@@ -120,7 +124,6 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        // 重置设置
         binding.btnResetSettings.setOnClickListener(v -> {
             PreferenceUtil.saveDifficulty(requireContext(), GameEngine.DIFFICULTY_EASY);
             PreferenceUtil.saveSoundEnabled(requireContext(), true);
@@ -132,8 +135,51 @@ public class SettingsFragment extends Fragment {
             binding.seekMusicVolume.setProgress(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             updateMusicVolumeText(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             startMusicService(MusicService.ACTION_PLAY);
-            Toast.makeText(requireContext(), "已恢复默认设置", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.settings_reset, Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void setupLanguageSpinner() {
+        String currentLang = PreferenceUtil.getLanguage(requireContext());
+        int langIndex;
+        if ("zh".equals(currentLang)) {
+            langIndex = 1;
+        } else {
+            langIndex = 0;
+        }
+        binding.spinnerLanguage.setSelection(langIndex);
+
+        binding.spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedLang;
+                if (position == 1) {
+                    selectedLang = "zh";
+                } else {
+                    selectedLang = "en";
+                }
+                String savedLang = PreferenceUtil.getLanguage(requireContext());
+                if (!selectedLang.equals(savedLang)) {
+                    PreferenceUtil.saveLanguage(requireContext(), selectedLang);
+                    applyLanguage(selectedLang);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void applyLanguage(String langCode) {
+        java.util.Locale locale;
+        if ("zh".equals(langCode)) {
+            locale = java.util.Locale.CHINESE;
+        } else {
+            locale = java.util.Locale.ENGLISH;
+        }
+        AppCompatDelegate.setApplicationLocales(
+                androidx.core.os.LocaleListCompat.create(locale));
     }
 
     private void updateMusicVolumeText(int volume) {

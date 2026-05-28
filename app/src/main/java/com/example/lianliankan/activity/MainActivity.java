@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -62,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         PreferenceUtil.applySettings(this);
-        // 使用 LocalBroadcastManager 注册，与 GameFragment 发送的广播保持一致
         IntentFilter filter = new IntentFilter();
         filter.addAction(GameResultReceiver.ACTION_GAME_WIN);
         filter.addAction(GameResultReceiver.ACTION_GAME_RESULT);
@@ -98,10 +98,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAboutDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("关于连连看")
-                .setMessage("连连看 v1.0\n\n移动应用开发技术课程作业\n\n游戏规则：\n• 点击两个相同图案消除\n• 路径最多2个拐点\n• 在2分钟内消除所有配对\n\n难度说明：\n• 简单：10种动物\n• 中等：15种动物\n• 困难：25种动物")
-                .setPositiveButton("确定", null)
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.about_title)
+                .setMessage(R.string.about_message)
+                .setPositiveButton(R.string.ok, null)
                 .show();
     }
 
@@ -109,11 +109,11 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (navController.getCurrentDestination() != null
                 && navController.getCurrentDestination().getId() == R.id.gameFragment) {
-            new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("确认退出")
-                    .setMessage("确定要退出游戏吗？当前进度将丢失。")
-                    .setPositiveButton("确定", (dialog, which) -> exitGame())
-                    .setNegativeButton("取消", null)
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.confirm_exit_title)
+                    .setMessage(R.string.confirm_exit_message)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> exitGame())
+                    .setNegativeButton(R.string.cancel, null)
                     .show();
         } else {
             binding.bottomNavigation.setSelectedItemId(R.id.gameFragment);

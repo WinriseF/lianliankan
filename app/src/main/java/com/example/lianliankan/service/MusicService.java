@@ -53,7 +53,6 @@ public class MusicService extends Service {
             } else if (ACTION_SET_VOLUME.equals(action)) {
                 applyVolume();
             } else {
-                // 默认启动播放
                 startMusic();
             }
         }
@@ -77,7 +76,8 @@ public class MusicService extends Service {
             if (!mediaPlayer.isPlaying()) {
                 applyVolume();
                 mediaPlayer.start();
-                showForegroundNotification("背景音乐正在播放", ACTION_PAUSE, "暂停");
+                showForegroundNotification(
+                        R.string.bg_music_playing, ACTION_PAUSE, R.string.pause);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +89,8 @@ public class MusicService extends Service {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
             }
-            showForegroundNotification("背景音乐已暂停", ACTION_PLAY, "继续");
+            showForegroundNotification(
+                    R.string.bg_music_paused, ACTION_PLAY, R.string.play);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,7 +114,7 @@ public class MusicService extends Service {
         }
     }
 
-    private void showForegroundNotification(String text, String action, String actionTitle) {
+    private void showForegroundNotification(int textResId, String action, int actionTitleResId) {
         try {
             Intent notificationIntent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -128,15 +129,15 @@ public class MusicService extends Service {
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("连连看")
-                    .setContentText(text)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText(getString(textResId))
                     .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                     .setContentIntent(pendingIntent)
                     .setOngoing(ACTION_PAUSE.equals(action))
                     .addAction(ACTION_PAUSE.equals(action)
                                     ? android.R.drawable.ic_media_pause
                                     : android.R.drawable.ic_media_play,
-                            actionTitle,
+                            getString(actionTitleResId),
                             actionPendingIntent)
                     .build();
 
@@ -149,8 +150,9 @@ public class MusicService extends Service {
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, "背景音乐", NotificationManager.IMPORTANCE_LOW);
-            channel.setDescription("连连看背景音乐播放控制");
+                    CHANNEL_ID, getString(R.string.bg_music_channel),
+                    NotificationManager.IMPORTANCE_LOW);
+            channel.setDescription(getString(R.string.bg_music_channel_desc));
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(channel);

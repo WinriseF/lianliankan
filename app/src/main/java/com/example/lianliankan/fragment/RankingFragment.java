@@ -2,7 +2,6 @@ package com.example.lianliankan.fragment;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,7 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +16,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.example.lianliankan.R;
@@ -73,25 +72,25 @@ public class RankingFragment extends Fragment {
     }
 
     private void clearRanking() {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("确认清空")
-                .setMessage("确定要清空所有排行榜数据吗？")
-                .setPositiveButton("清空", (dialog, which) -> {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.confirm_clear_title)
+                .setMessage(R.string.confirm_clear_message)
+                .setPositiveButton(R.string.clear, (dialog, which) -> {
                     new Thread(() -> {
                         try {
                             ContentResolver resolver = requireContext().getContentResolver();
                             resolver.delete(RankContract.RankEntry.CONTENT_URI, null, null);
                             requireActivity().runOnUiThread(() -> {
                                 loadRankingData();
-                                Toast.makeText(requireContext(), "排行榜已清空", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), R.string.ranking_cleared, Toast.LENGTH_SHORT).show();
                             });
                         } catch (Exception e) {
                             requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), "清空失败", Toast.LENGTH_SHORT).show());
+                                    Toast.makeText(requireContext(), R.string.clear_failed, Toast.LENGTH_SHORT).show());
                         }
                     }).start();
                 })
-                .setNegativeButton("取消", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
@@ -123,7 +122,7 @@ public class RankingFragment extends Fragment {
                 });
             } catch (Exception e) {
                 requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "加载排行榜失败", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(requireContext(), R.string.load_ranking_failed, Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
@@ -134,9 +133,6 @@ public class RankingFragment extends Fragment {
         loadRankingData();
     }
 
-    /**
-     * 自定义 CursorAdapter：正确映射数据库列到布局视图
-     */
     private static class RankingCursorAdapter extends android.widget.CursorAdapter {
 
         public RankingCursorAdapter(Context context, Cursor c) {
@@ -152,7 +148,6 @@ public class RankingFragment extends Fragment {
         public void bindView(View view, Context context, Cursor cursor) {
             int rankPos = cursor.getPosition() + 1;
 
-            int idIndex = cursor.getColumnIndex(RankContract.RankEntry._ID);
             int nameIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_PLAYER_NAME);
             int scoreIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_SCORE);
             int timeIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_TIME_USED);
@@ -174,8 +169,14 @@ public class RankingFragment extends Fragment {
             }
             if (diffIndex >= 0) {
                 int d = cursor.getInt(diffIndex);
-                String[] diffs = {"简单", "中等", "困难"};
-                tvDiff.setText(d >= 0 && d < diffs.length ? diffs[d] : "未知");
+                int diffTextRes;
+                switch (d) {
+                    case 0: diffTextRes = R.string.easy; break;
+                    case 1: diffTextRes = R.string.medium; break;
+                    case 2: diffTextRes = R.string.hard; break;
+                    default: diffTextRes = R.string.unknown; break;
+                }
+                tvDiff.setText(diffTextRes);
             }
         }
     }

@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_shuffle"
-        android:title="打乱重排" />
+        android:title="@string/shuffle" />
     <item
         android:id="@+id/menu_restart"
-        android:title="重新开始" />
+        android:title="@string/restart" />
     <item
         android:id="@+id/menu_pause"
-        android:title="暂停游戏" />
+        android:title="@string/pause_game" />
 </menu>

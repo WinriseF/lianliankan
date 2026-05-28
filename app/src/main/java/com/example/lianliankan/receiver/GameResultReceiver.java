@@ -1,8 +1,8 @@
 package com.example.lianliankan.receiver;
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.util.Log;
 
@@ -56,7 +56,7 @@ public class GameResultReceiver extends BroadcastReceiver {
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(resultIntent);
 
-            Log.d(TAG, "收到游戏结果广播: result=" + result + ", score=" + score);
+            Log.d(TAG, "Game result broadcast: result=" + result + ", score=" + score);
         }
     }
 
@@ -77,9 +77,9 @@ public class GameResultReceiver extends BroadcastReceiver {
 
             context.getContentResolver().insert(RankContract.RankEntry.CONTENT_URI, values);
 
-            Log.d(TAG, "排名数据已保存: " + playerName + ", score=" + score);
+            Log.d(TAG, "Rank data saved: " + playerName + ", score=" + score);
         } catch (Exception e) {
-            Log.e(TAG, "保存排名失败", e);
+            Log.e(TAG, "Failed to save rank", e);
         }
     }
 
@@ -105,22 +105,25 @@ public class GameResultReceiver extends BroadcastReceiver {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 android.app.NotificationChannel channel =
                         new android.app.NotificationChannel(
-                                channelId, "游戏结果",
+                                channelId, context.getString(R.string.game_result_channel),
                                 android.app.NotificationManager.IMPORTANCE_HIGH);
                 nm.createNotificationChannel(channel);
             }
 
+            String timeStr = String.format(Locale.getDefault(), "%02d:%02d",
+                    timeUsed / 60, timeUsed % 60);
+
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(context, channelId)
-                            .setContentTitle("🎉 恭喜通关！")
-                            .setContentText("得分: " + score + " | 用时: " + formatTime(timeUsed))
+                            .setContentTitle(context.getString(R.string.notification_congrats))
+                            .setContentText(context.getString(R.string.notification_score_time, score, timeStr))
                             .setSmallIcon(android.R.drawable.ic_dialog_info)
                             .setContentIntent(pendingIntent)
                             .setAutoCancel(true);
 
             nm.notify(1001, builder.build());
         } catch (Exception e) {
-            Log.e(TAG, "显示通知失败", e);
+            Log.e(TAG, "Failed to show notification", e);
         }
     }
 

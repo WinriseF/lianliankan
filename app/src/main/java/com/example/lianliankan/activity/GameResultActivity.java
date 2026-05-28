@@ -1,7 +1,6 @@
 package com.example.lianliankan.activity;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -43,10 +42,10 @@ public class GameResultActivity extends AppCompatActivity {
     }
 
     private void displayDefaultResult() {
-        binding.tvResultTitle.setText("游戏结束");
+        binding.tvResultTitle.setText(R.string.game_over);
         binding.tvScore.setText("0");
         binding.tvTimeUsed.setText("00:00");
-        binding.tvDifficultyResult.setText("未知");
+        binding.tvDifficultyResult.setText(R.string.unknown);
         binding.tvResultDetail.setText("");
     }
 
@@ -56,35 +55,35 @@ public class GameResultActivity extends AppCompatActivity {
             binding.tvResultTitle.setText(R.string.game_success);
             binding.tvResultTitle.setTextColor(getResources().getColor(R.color.success_green));
             binding.tvScore.setText(String.valueOf(score));
-            binding.tvResultDetail.setText("共消除 " + pairsCleared + " 对动物");
+            binding.tvResultDetail.setText(getString(R.string.result_pairs_cleared_win, pairsCleared));
         } else if ("time_up".equals(result)) {
             binding.tvResultTitle.setText(R.string.time_up);
             binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));
             binding.tvScore.setText(String.valueOf(score));
-            binding.tvResultDetail.setText("时间耗尽！共消除 " + pairsCleared + " 对");
+            binding.tvResultDetail.setText(getString(R.string.result_pairs_cleared_timeup, pairsCleared));
         } else if ("deadlock".equals(result)) {
-            binding.tvResultTitle.setText("无可消除配对");
+            binding.tvResultTitle.setText(R.string.no_linkable_pairs_end);
             binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));
             binding.tvScore.setText(String.valueOf(score));
-            binding.tvResultDetail.setText("无可消除配对，游戏结束");
+            binding.tvResultDetail.setText(R.string.no_pairs_game_over);
         } else {
             binding.tvResultTitle.setText(R.string.game_fail);
             binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));
             binding.tvScore.setText(String.valueOf(score));
-            binding.tvResultDetail.setText("游戏失败");
+            binding.tvResultDetail.setText(R.string.game_fail);
         }
 
         int minutes = timeUsed / 60;
         int seconds = timeUsed % 60;
         binding.tvTimeUsed.setText(String.format("%02d:%02d", minutes, seconds));
 
-        String diffText;
+        int diffTextRes;
         switch (difficulty) {
-            case 0: diffText = "简单"; break;
-            case 1: diffText = "中等"; break;
-            case 2: diffText = "困难"; break;
-            default: diffText = "未知"; break;
+            case 0: diffTextRes = R.string.easy; break;
+            case 1: diffTextRes = R.string.medium; break;
+            case 2: diffTextRes = R.string.hard; break;
+            default: diffTextRes = R.string.unknown; break;
         }
-        binding.tvDifficultyResult.setText(diffText);
+        binding.tvDifficultyResult.setText(diffTextRes);
     }
 }
