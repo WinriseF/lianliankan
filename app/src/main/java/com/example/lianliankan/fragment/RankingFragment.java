@@ -143,7 +143,7 @@ public class RankingFragment extends Fragment {
                     @Override
                     public void onError(Exception error) {
                         if (binding == null) return;
-                        Toast.makeText(requireContext(), R.string.load_ranking_failed, Toast.LENGTH_SHORT).show();
+                        binding.tvSyncStatus.setText(R.string.ranking_local_cache);
                     }
                 });
     }

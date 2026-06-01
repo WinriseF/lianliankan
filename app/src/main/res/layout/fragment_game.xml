@@ -63,13 +63,16 @@
                         <TextView
                             android:id="@+id/tv_timer"
                             style="@style/TextAppearance.Material3.HeadlineSmall"
-                            android:layout_width="wrap_content"
+                            android:layout_width="104dp"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_xxs"
                             android:drawableStart="@android:drawable/ic_menu_recent_history"
                             android:drawablePadding="@dimen/spacing_sm"
                             android:drawableTint="@color/md_theme_light_secondary"
                             android:gravity="center_vertical"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:singleLine="true"
                             android:text="02:00"
                             android:textColor="@color/md_theme_light_onSurface" />
                     </LinearLayout>

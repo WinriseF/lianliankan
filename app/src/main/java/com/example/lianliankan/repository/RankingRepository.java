@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -105,13 +106,9 @@ public class RankingRepository {
         flushPendingRankings();
         Query query = firestore.collection("rankings")
                 .whereEqualTo("difficulty", difficulty)
-                .orderBy("score", Query.Direction.DESCENDING)
-                .orderBy("timeUsed", Query.Direction.ASCENDING)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
                 .limit(50);
         return query.addSnapshotListener((snapshot, error) -> {
             if (error != null) {
-                listener.onError(error);
                 loadLocalRankings(difficulty, listener);
                 return;
             }
@@ -126,6 +123,7 @@ public class RankingRepository {
                     }
                 }
             }
+            sortRankings(records);
             listener.onRankingsChanged(records, true);
         });
     }
@@ -159,8 +157,22 @@ public class RankingRepository {
             } finally {
                 if (cursor != null) cursor.close();
             }
+            sortRankings(records);
             AppExecutors.main(() -> listener.onRankingsChanged(records, false));
         });
+    }
+
+    private void sortRankings(List<RankRecord> records) {
+        Collections.sort(records, (a, b) -> {
+            int scoreCompare = Integer.compare(b.score, a.score);
+            if (scoreCompare != 0) return scoreCompare;
+            int timeCompare = Integer.compare(a.timeUsed, b.timeUsed);
+            if (timeCompare != 0) return timeCompare;
+            return Long.compare(b.createdAt, a.createdAt);
+        });
+        if (records.size() > 50) {
+            records.subList(50, records.size()).clear();
+        }
     }
 
     public void clearLocalRankings(RepositoryCallback<Void> callback) {
