@@ -10,11 +10,9 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.activity.GameResultActivity;
-import com.example.lianliankan.provider.RankContract;
+import com.example.lianliankan.repository.RankingRepository;
 import com.example.lianliankan.util.PreferenceUtil;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class GameResultReceiver extends BroadcastReceiver {
@@ -61,26 +59,22 @@ public class GameResultReceiver extends BroadcastReceiver {
     }
 
     public static void saveResultToDb(Context context, String result, int score,
-                                      int timeUsed, int difficulty) {
+                                       int timeUsed, int difficulty) {
         if (context == null) return;
-        try {
-            String playerName = PreferenceUtil.getPlayerName(context);
-            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    .format(new Date());
+        RankingRepository repository = new RankingRepository(context);
+        repository.submitResult(result, score, timeUsed, difficulty,
+                new com.example.lianliankan.repository.RepositoryCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void value) {
+                        Log.d(TAG, "Rank data saved: " + PreferenceUtil.getPlayerName(context)
+                                + ", score=" + score);
+                    }
 
-            android.content.ContentValues values = new android.content.ContentValues();
-            values.put(RankContract.RankEntry.COLUMN_PLAYER_NAME, playerName);
-            values.put(RankContract.RankEntry.COLUMN_SCORE, score);
-            values.put(RankContract.RankEntry.COLUMN_TIME_USED, timeUsed);
-            values.put(RankContract.RankEntry.COLUMN_DIFFICULTY, difficulty);
-            values.put(RankContract.RankEntry.COLUMN_TIMESTAMP, timestamp);
-
-            context.getContentResolver().insert(RankContract.RankEntry.CONTENT_URI, values);
-
-            Log.d(TAG, "Rank data saved: " + playerName + ", score=" + score);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to save rank", e);
-        }
+                    @Override
+                    public void onError(Exception error) {
+                        Log.e(TAG, "Failed to sync rank", error);
+                    }
+                });
     }
 
     private static void showCongratulationsNotification(Context context, int score, int timeUsed) {

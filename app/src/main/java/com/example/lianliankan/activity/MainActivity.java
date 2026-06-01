@@ -108,6 +108,12 @@ public class MainActivity extends AppCompatActivity {
                 binding.bottomNavigation.setSelectedItemId(R.id.settingsFragment);
             }
             return true;
+        } else if (id == R.id.menu_account) {
+            startActivity(new Intent(this, AuthActivity.class));
+            return true;
+        } else if (id == R.id.menu_battle) {
+            startActivity(new Intent(this, BattleActivity.class));
+            return true;
         } else if (id == R.id.menu_about) {
             showAboutDialog();
             return true;
@@ -128,8 +134,8 @@ public class MainActivity extends AppCompatActivity {
         if (navController.getCurrentDestination() != null
                 && navController.getCurrentDestination().getId() == R.id.gameFragment) {
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.confirm_exit_title)
-                    .setMessage(R.string.confirm_exit_message)
+                .setTitle(R.string.confirm_exit_title)
+                .setMessage(R.string.confirm_exit_message)
                     .setPositiveButton(R.string.ok, (dialog, which) -> exitGame())
                     .setNegativeButton(R.string.cancel, null)
                     .show();

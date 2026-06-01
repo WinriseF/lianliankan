@@ -1,17 +1,24 @@
 package com.example.lianliankan.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.ActivityGameResultBinding;
-import com.example.lianliankan.util.PreferenceUtil;
 import com.example.lianliankan.util.LocaleUtil;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class GameResultActivity extends AppCompatActivity {
 
@@ -32,12 +39,16 @@ public class GameResultActivity extends AppCompatActivity {
     }
 
     private ActivityGameResultBinding binding;
+    private String shareText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityGameResultBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.btnRestart.setOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnShareResult.setOnClickListener(v -> shareResult());
 
         Bundle extras = getIntent().getExtras();
         if (extras == null) {
@@ -52,12 +63,6 @@ public class GameResultActivity extends AppCompatActivity {
         int pairsCleared = extras.getInt("pairs_cleared", 0);
 
         displayResult(result, score, timeUsed, difficulty, pairsCleared);
-
-        binding.btnRestart.setOnClickListener(v -> {
-            finish();
-        });
-
-        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     private void displayDefaultResult() {
@@ -66,6 +71,7 @@ public class GameResultActivity extends AppCompatActivity {
         binding.tvTimeUsed.setText("00:00");
         binding.tvDifficultyResult.setText(R.string.unknown);
         binding.tvResultDetail.setText("");
+        shareText = getString(R.string.share_result_text, 0, "00:00", getString(R.string.unknown));
     }
 
     private void displayResult(String result, int score, int timeUsed,
@@ -104,5 +110,54 @@ public class GameResultActivity extends AppCompatActivity {
             default: diffTextRes = R.string.unknown; break;
         }
         binding.tvDifficultyResult.setText(diffTextRes);
+        shareText = getString(R.string.share_result_text,
+                score,
+                binding.tvTimeUsed.getText().toString(),
+                binding.tvDifficultyResult.getText().toString());
+    }
+
+    private void shareResult() {
+        try {
+            Bitmap bitmap = createBitmapFromView(binding.infoLayout);
+            File imageDir = new File(getCacheDir(), "images");
+            if (!imageDir.exists() && !imageDir.mkdirs()) {
+                shareTextOnly();
+                return;
+            }
+            File imageFile = new File(imageDir, "lianliankan_result.png");
+            try (FileOutputStream out = new FileOutputStream(imageFile)) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            }
+            Uri uri = FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".fileprovider",
+                    imageFile);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("image/png");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra(Intent.EXTRA_TEXT, shareText);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, getString(R.string.share_result)));
+        } catch (Exception e) {
+            shareTextOnly();
+        }
+    }
+
+    private Bitmap createBitmapFromView(View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
+    }
+
+    private void shareTextOnly() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, shareText);
+            startActivity(Intent.createChooser(intent, getString(R.string.share_result)));
+        } catch (Exception e) {
+            Toast.makeText(this, R.string.share_failed, Toast.LENGTH_SHORT).show();
+        }
     }
 }

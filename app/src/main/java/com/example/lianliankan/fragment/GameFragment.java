@@ -27,9 +27,17 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.activity.MainActivity;
-import com.example.lianliankan.adapter.BoardGridAdapter;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.lianliankan.adapter.BoardRecyclerAdapter;
 import com.example.lianliankan.databinding.FragmentGameBinding;
 import com.example.lianliankan.model.AnimalItem;
+import com.example.lianliankan.model.SavedGameState;
+import com.example.lianliankan.repository.AppExecutors;
+import com.example.lianliankan.repository.BattleRepository;
+import com.example.lianliankan.repository.GameStateRepository;
+import com.example.lianliankan.repository.RepositoryCallback;
 import com.example.lianliankan.receiver.GameResultReceiver;
 import com.example.lianliankan.util.GameEngine;
 import com.example.lianliankan.util.GameGenerator;
@@ -51,7 +59,7 @@ public class GameFragment extends Fragment {
 
     private FragmentGameBinding binding;
     private List<AnimalItem> board;
-    private BoardGridAdapter adapter;
+    private BoardRecyclerAdapter adapter;
     private GameEngine.Point firstSelected, secondSelected;
     private int difficulty;
     private int remainingPairs;
@@ -63,6 +71,8 @@ public class GameFragment extends Fragment {
     private boolean isResolvingSelection;
     private int hintGeneration;
     private SoundManager soundManager;
+    private GameStateRepository gameStateRepository;
+    private BattleRepository battleRepository;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private int lastKnownDifficulty;
@@ -80,6 +90,8 @@ public class GameFragment extends Fragment {
         difficulty = PreferenceUtil.getDifficulty(requireContext());
         lastKnownDifficulty = difficulty;
         soundManager = new SoundManager(requireContext());
+        gameStateRepository = new GameStateRepository(requireContext());
+        battleRepository = new BattleRepository(requireContext());
         if (savedInstanceState != null) {
             restoreState(savedInstanceState);
         }
@@ -96,33 +108,92 @@ public class GameFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (board == null) {
-            board = GameGenerator.generateBoard(
-                    GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty);
-            remainingPairs = GameEngine.PAIRS_COUNT;
-        }
-
-        setupGridView();
         if (binding != null) {
-            updateRemainingCount();
-            updateDifficultyLabel();
             binding.btnShuffle.setOnClickListener(v -> shuffleBoard());
             setupSelectionDismissTargets();
         }
+
+        if (board != null) {
+            bindBoardAndResume(savedInstanceState);
+        } else {
+            loadPersistedOrCreateGame();
+        }
+    }
+
+    private void loadPersistedOrCreateGame() {
+        gameStateRepository.load(new RepositoryCallback<SavedGameState>() {
+            @Override
+            public void onSuccess(SavedGameState state) {
+                if (binding == null) return;
+                if (state != null && state.getTimeRemaining() > 0
+                        && state.getRemainingPairs() > 0
+                        && state.getCells().size() == GameEngine.TOTAL_CELLS) {
+                    applySavedGameState(state);
+                    Toast.makeText(requireContext(), R.string.saved_game_restored, Toast.LENGTH_SHORT).show();
+                } else {
+                    createNewBoard();
+                }
+                bindBoardAndResume(null);
+            }
+
+            @Override
+            public void onError(Exception error) {
+                if (binding == null) return;
+                Toast.makeText(requireContext(), R.string.saved_game_tampered, Toast.LENGTH_LONG).show();
+                gameStateRepository.clear();
+                createNewBoard();
+                bindBoardAndResume(null);
+            }
+        });
+    }
+
+    private void bindBoardAndResume(@Nullable Bundle savedInstanceState) {
+        setupBoardRecycler();
+        updateRemainingCount();
+        updateDifficultyLabel();
+        updateTimerUI();
         if (isPaused) {
-            updateTimerUI();
-        } else if (isGameActive || savedInstanceState == null) {
+            return;
+        }
+        if (isGameActive || savedInstanceState == null) {
             startTimer();
         }
     }
 
-    private void setupGridView() {
-        adapter = new BoardGridAdapter(requireContext(), board, position -> {
+    private void applySavedGameState(SavedGameState state) {
+        difficulty = state.getDifficulty();
+        lastKnownDifficulty = difficulty;
+        score = state.getScore();
+        timeRemaining = state.getTimeRemaining();
+        remainingPairs = state.getRemainingPairs();
+        isPaused = state.isPaused();
+        isGameActive = !isPaused && timeRemaining > 0 && remainingPairs > 0;
+        board = state.toBoard();
+    }
+
+    private void createNewBoard() {
+        difficulty = getActiveDifficulty();
+        Long seed = getActiveBattleSeed();
+        board = GameGenerator.generateBoard(
+                GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty, seed);
+        remainingPairs = GameEngine.PAIRS_COUNT;
+        score = 0;
+        timeRemaining = TOTAL_TIME_SECONDS;
+        isGameActive = true;
+        isPaused = false;
+    }
+
+    private void setupBoardRecycler() {
+        adapter = new BoardRecyclerAdapter(requireContext(), board, position -> {
+            if (position < 0 || position >= board.size()) return;
             if (!isGameActive || isResolvingSelection) return;
             onAnimalClicked(position);
         });
         if (binding != null) {
+            binding.gridBoard.setLayoutManager(new GridLayoutManager(requireContext(), GameEngine.BOARD_COLS));
             binding.gridBoard.setAdapter(adapter);
+            binding.gridBoard.setHasFixedSize(false);
+            binding.gridBoard.setLongClickable(true);
             binding.gridBoard.post(this::fitGridBoardToContent);
             registerForContextMenu(binding.gridBoard);
         }
@@ -131,21 +202,23 @@ public class GameFragment extends Fragment {
     private void fitGridBoardToContent() {
         if (binding == null || adapter == null) return;
 
-        int rows = (int) Math.ceil(adapter.getCount() / (float) GameEngine.BOARD_COLS);
+        int rows = (int) Math.ceil(adapter.getItemCount() / (float) GameEngine.BOARD_COLS);
         if (rows <= 0) return;
 
-        int cellHeight = 0;
-        if (binding.gridBoard.getChildCount() > 0) {
-            cellHeight = binding.gridBoard.getChildAt(0).getMeasuredHeight();
+        int availableWidth = binding.gridBoard.getWidth()
+                - binding.gridBoard.getPaddingStart()
+                - binding.gridBoard.getPaddingEnd();
+        if (availableWidth <= 0) {
+            availableWidth = requireContext().getResources().getDisplayMetrics().widthPixels
+                    - binding.gridBoard.getPaddingStart()
+                    - binding.gridBoard.getPaddingEnd();
         }
-        if (cellHeight <= 0) {
-            cellHeight = requireContext().getResources().getDisplayMetrics().widthPixels / 10;
-        }
+        int cellHeight = Math.max(1, availableWidth / GameEngine.BOARD_COLS);
+        adapter.setCellSize(cellHeight);
 
         int height = binding.gridBoard.getPaddingTop()
                 + binding.gridBoard.getPaddingBottom()
-                + rows * cellHeight
-                + (rows - 1) * binding.gridBoard.getVerticalSpacing();
+                + rows * cellHeight;
 
         ViewGroup.LayoutParams params = binding.gridBoard.getLayoutParams();
         if (params.height != height) {
@@ -195,7 +268,7 @@ public class GameFragment extends Fragment {
             View child = binding.gridBoard.getChildAt(i);
             if (!getViewScreenBounds(child).contains(x, y)) continue;
 
-            int adapterPosition = binding.gridBoard.getFirstVisiblePosition() + i;
+            int adapterPosition = binding.gridBoard.getChildAdapterPosition(child);
             return adapterPosition >= 0
                     && adapterPosition < board.size()
                     && !board.get(adapterPosition).isMatched();
@@ -270,6 +343,8 @@ public class GameFragment extends Fragment {
                     firstSelected = null;
                     secondSelected = null;
                     isResolvingSelection = false;
+                    saveCurrentGameState();
+                    publishBattleProgress(null);
                     scheduleAutoHint();
                     checkGameState();
                 }, MATCH_RESOLVE_DELAY_MS);
@@ -297,9 +372,8 @@ public class GameFragment extends Fragment {
 
     private View getGridChildAtPosition(int adapterPosition) {
         if (binding == null) return null;
-        int childIndex = adapterPosition - binding.gridBoard.getFirstVisiblePosition();
-        if (childIndex < 0 || childIndex >= binding.gridBoard.getChildCount()) return null;
-        return binding.gridBoard.getChildAt(childIndex);
+        RecyclerView.ViewHolder holder = binding.gridBoard.findViewHolderForAdapterPosition(adapterPosition);
+        return holder == null ? null : holder.itemView;
     }
 
     private void animatePress(int position) {
@@ -404,7 +478,7 @@ public class GameFragment extends Fragment {
 
     private void checkDeadlockAsync(int expectedRemainingPairs) {
         List<AnimalItem> boardSnapshot = copyBoard(board);
-        new Thread(() -> {
+        AppExecutors.io().execute(() -> {
             boolean hasPair = GameEngine.hasAnyLinkablePair(boardSnapshot);
             handler.post(() -> {
                 if (!isGameActive || remainingPairs != expectedRemainingPairs) return;
@@ -412,7 +486,7 @@ public class GameFragment extends Fragment {
                     onGameDeadlock();
                 }
             });
-        }).start();
+        });
     }
 
     private void scheduleAutoHint() {
@@ -437,7 +511,7 @@ public class GameFragment extends Fragment {
 
     private void showAutoHintAsync(int generation, int expectedRemainingPairs) {
         List<AnimalItem> boardSnapshot = copyBoard(board);
-        new Thread(() -> {
+        AppExecutors.io().execute(() -> {
             int[] pair = GameEngine.findOneLinkablePair(boardSnapshot);
             handler.post(() -> {
                 if (generation != hintGeneration
@@ -452,7 +526,7 @@ public class GameFragment extends Fragment {
                 animateHintPair(pair[0], pair[1]);
                 scheduleAutoHint();
             });
-        }).start();
+        });
     }
 
     private List<AnimalItem> copyBoard(List<AnimalItem> source) {
@@ -479,6 +553,8 @@ public class GameFragment extends Fragment {
         int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
 
         soundManager.playWinSound();
+        gameStateRepository.clear();
+        publishBattleProgress("finished");
         sendGameResultBroadcast("win", score, timeUsed);
     }
 
@@ -491,6 +567,8 @@ public class GameFragment extends Fragment {
         int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
 
         soundManager.playLoseSound();
+        gameStateRepository.clear();
+        publishBattleProgress("failed");
         sendGameResultBroadcast(reason, score, timeUsed);
     }
 
@@ -504,9 +582,11 @@ public class GameFragment extends Fragment {
         firstSelected = null;
         secondSelected = null;
         if (binding != null) {
-            setupGridView();
+            setupBoardRecycler();
             updateRemainingCount();
         }
+        saveCurrentGameState();
+        publishBattleProgress(null);
         
         scheduleAutoHint();
     }
@@ -541,6 +621,9 @@ public class GameFragment extends Fragment {
                     updateTimerUI();
                     if (timeRemaining == 30) {
                         showTimeWarningNotification();
+                    }
+                    if (timeRemaining > 0 && timeRemaining % 5 == 0) {
+                        saveCurrentGameState();
                     }
                     if (timeRemaining <= 0) {
                         onGameFail("time_up");
@@ -604,10 +687,11 @@ public class GameFragment extends Fragment {
         firstSelected = null;
         secondSelected = null;
         if (binding != null) {
-            setupGridView();
+            setupBoardRecycler();
             updateRemainingCount();
         }
         Toast.makeText(requireContext(), R.string.board_shuffled, Toast.LENGTH_SHORT).show();
+        saveCurrentGameState();
         scheduleAutoHint();
     }
 
@@ -649,12 +733,14 @@ public class GameFragment extends Fragment {
             isGameActive = true;
             startTimer();
             scheduleAutoHint();
+            saveCurrentGameState();
             Toast.makeText(requireContext(), R.string.game_resumed, Toast.LENGTH_SHORT).show();
         } else {
             isPaused = true;
             isGameActive = false;
             cancelAutoHint();
             stopTimer();
+            saveCurrentGameState();
             Toast.makeText(requireContext(), R.string.game_paused, Toast.LENGTH_SHORT).show();
         }
     }
@@ -692,6 +778,42 @@ public class GameFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void saveCurrentGameState() {
+        if (gameStateRepository == null || board == null || remainingPairs <= 0 || timeRemaining <= 0) {
+            return;
+        }
+        SavedGameState state = SavedGameState.fromBoard(
+                gameStateRepository.currentUid(),
+                difficulty,
+                score,
+                timeRemaining,
+                remainingPairs,
+                isPaused,
+                board);
+        gameStateRepository.save(state);
+    }
+
+    private void publishBattleProgress(@Nullable String status) {
+        if (battleRepository != null && battleRepository.hasActiveBattle()) {
+            battleRepository.publishProgress(score, remainingPairs, status);
+        }
+    }
+
+    private int getActiveDifficulty() {
+        int preferred = PreferenceUtil.getDifficulty(requireContext());
+        if (battleRepository != null && battleRepository.hasActiveBattle()) {
+            return battleRepository.getActiveDifficulty(preferred);
+        }
+        return preferred;
+    }
+
+    @Nullable
+    private Long getActiveBattleSeed() {
+        if (battleRepository == null || !battleRepository.hasActiveBattle()) return null;
+        long seed = battleRepository.getActiveSeed();
+        return seed == 0L ? null : seed;
     }
 
     @Override
@@ -743,7 +865,14 @@ public class GameFragment extends Fragment {
     public void onPause() {
         super.onPause();
         cancelAutoHint();
+        saveCurrentGameState();
         stopTimer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        saveCurrentGameState();
     }
 
     @Override
@@ -753,7 +882,7 @@ public class GameFragment extends Fragment {
             soundManager = new SoundManager(requireContext());
         }
         
-        int currentDifficulty = PreferenceUtil.getDifficulty(requireContext());
+        int currentDifficulty = getActiveDifficulty();
         if (currentDifficulty != lastKnownDifficulty) {
             lastKnownDifficulty = currentDifficulty;
             resetGame();
@@ -773,9 +902,11 @@ public class GameFragment extends Fragment {
     private void resetGame() {
         stopTimer();
         cancelAutoHint();
-        difficulty = PreferenceUtil.getDifficulty(requireContext());
+        gameStateRepository.clear();
+        difficulty = getActiveDifficulty();
+        Long seed = getActiveBattleSeed();
         board = GameGenerator.generateBoard(
-                GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty);
+                GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty, seed);
         remainingPairs = GameEngine.PAIRS_COUNT;
         score = 0;
         timeRemaining = TOTAL_TIME_SECONDS;
@@ -785,12 +916,13 @@ public class GameFragment extends Fragment {
         firstSelected = null;
         secondSelected = null;
         if (binding != null) {
-            setupGridView();
+            setupBoardRecycler();
             updateRemainingCount();
             updateDifficultyLabel();
             updateTimerUI();
         }
         startTimer();
+        saveCurrentGameState();
     }
 
     @Override
@@ -798,9 +930,11 @@ public class GameFragment extends Fragment {
         super.onDestroyView();
         stopTimer();
         cancelAutoHint();
+        handler.removeCallbacksAndMessages(null);
         if (soundManager != null) {
             soundManager.release();
             soundManager = null;
         }
+        binding = null;
     }
 }

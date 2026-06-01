@@ -35,6 +35,8 @@
     <string name="game_restarted">已重新开始</string>
     <string name="game_resumed">游戏继续</string>
     <string name="game_paused">游戏已暂停</string>
+    <string name="saved_game_restored">已恢复上次进度</string>
+    <string name="saved_game_tampered">存档校验失败，已重置</string>
     <string name="board_shuffled">已打乱重排</string>
     <string name="board_operations">棋盘操作</string>
     <string name="no_pairs_auto_shuffle">无可消除配对，自动打乱重排</string>
@@ -51,6 +53,9 @@
     <string name="no_pairs_game_over">无可消除配对，游戏结束</string>
     <string name="btn_play_again">再来一局</string>
     <string name="btn_back_home">返回主页</string>
+    <string name="share_result">分享成绩</string>
+    <string name="share_failed">无法分享成绩</string>
+    <string name="share_result_text">我在连连看获得 %1$d 分，用时 %2$s，难度 %3$s。</string>
 
     <!-- Ranking -->
     <string name="ranking">排名</string>
@@ -64,6 +69,8 @@
     <string name="ranking_cleared">排行榜已清空</string>
     <string name="clear_failed">清空失败</string>
     <string name="load_ranking_failed">加载排行榜失败</string>
+    <string name="ranking_cloud_realtime">云端排行榜：实时同步</string>
+    <string name="ranking_local_cache">离线/本地排行榜缓存</string>
 
     <!-- Help -->
     <string name="help_title">游戏说明</string>
@@ -99,13 +106,42 @@
     <string name="language_en">English</string>
     <string name="language_zh">中文</string>
 
+    <!-- Account and battle -->
+    <string name="account">账号</string>
+    <string name="email">邮箱</string>
+    <string name="password">密码</string>
+    <string name="nickname">昵称</string>
+    <string name="login">登录</string>
+    <string name="register">注册</string>
+    <string name="logout">退出登录</string>
+    <string name="account_guest">当前未登录。可以本地游玩，但无法提交云排行榜或进入双人对战。</string>
+    <string name="account_logged_in">已登录：%s</string>
+    <string name="account_fields_required">邮箱和密码不能为空</string>
+    <string name="login_success">登录成功</string>
+    <string name="register_success">注册并登录成功</string>
+    <string name="logout_success">已退出登录</string>
+    <string name="account_error">账号错误：%s</string>
+    <string name="battle_mode">双人对战</string>
+    <string name="battle_requires_login">双人对战需要登录并保持网络连接。</string>
+    <string name="battle_ready">已准备。可以创建房间或输入房间码加入。</string>
+    <string name="battle_active_room">当前房间：%s。返回游戏页即可使用共享棋盘对战。</string>
+    <string name="battle_status">房间 %1$s\n状态：%2$s\n玩家1得分：%3$d\n玩家2得分：%4$d</string>
+    <string name="battle_error">对战错误：%s</string>
+    <string name="room_code">房间码</string>
+    <string name="room_code_required">请输入房间码</string>
+    <string name="create_room">创建房间</string>
+    <string name="join_room">加入房间</string>
+    <string name="leave_room">离开房间</string>
+    <string name="room_created">房间已创建</string>
+    <string name="room_joined">已加入房间</string>
+
     <!-- About -->
     <string name="about_title">关于连连看</string>
     <string name="about_message">连连看 v1.0\n\n移动应用开发技术课程作业\n\n游戏规则：\n• 点击两个相同图案消除\n• 路径最多2个拐点\n• 在2分钟内消除所有配对\n\n难度说明：\n• 简单：10种动物\n• 中等：15种动物\n• 困难：25种动物</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="confirm_exit_title">确认退出</string>
-    <string name="confirm_exit_message">确定要退出游戏吗？当前进度将丢失。</string>
+    <string name="confirm_exit_message">确定要退出游戏吗？当前进度会自动保存。</string>
 
     <!-- Version check -->
     <string name="version_check">版本检查</string>

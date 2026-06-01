@@ -23,6 +23,15 @@
         android:text="@string/ranking_subtitle"
         android:textColor="@color/md_theme_light_onSurfaceVariant" />
 
+    <TextView
+        android:id="@+id/tv_sync_status"
+        style="@style/TextAppearance.Material3.LabelMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:text="@string/ranking_local_cache"
+        android:textColor="@color/md_theme_light_secondary" />
+
     <!-- Empty State -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_no_data"

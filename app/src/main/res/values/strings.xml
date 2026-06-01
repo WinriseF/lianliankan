@@ -35,6 +35,8 @@
     <string name="game_restarted">Game restarted</string>
     <string name="game_resumed">Game resumed</string>
     <string name="game_paused">Game paused</string>
+    <string name="saved_game_restored">Saved progress restored</string>
+    <string name="saved_game_tampered">Saved progress is invalid and was reset</string>
     <string name="board_shuffled">Board shuffled</string>
     <string name="board_operations">Board Operations</string>
     <string name="no_pairs_auto_shuffle">No linkable pairs, auto-shuffling</string>
@@ -51,6 +53,9 @@
     <string name="no_pairs_game_over">No linkable pairs, game over</string>
     <string name="btn_play_again">Play Again</string>
     <string name="btn_back_home">Back to Home</string>
+    <string name="share_result">Share Result</string>
+    <string name="share_failed">Unable to share result</string>
+    <string name="share_result_text">I scored %1$d in LianLianKan, time %2$s, difficulty %3$s.</string>
 
     <!-- Ranking -->
     <string name="ranking">Ranking</string>
@@ -64,6 +69,8 @@
     <string name="ranking_cleared">Ranking cleared</string>
     <string name="clear_failed">Clear failed</string>
     <string name="load_ranking_failed">Failed to load ranking</string>
+    <string name="ranking_cloud_realtime">Cloud ranking: realtime sync</string>
+    <string name="ranking_local_cache">Offline/local ranking cache</string>
 
     <!-- Help -->
     <string name="help_title">How to Play</string>
@@ -99,13 +106,42 @@
     <string name="language_en">English</string>
     <string name="language_zh">Chinese</string>
 
+    <!-- Account and battle -->
+    <string name="account">Account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="nickname">Nickname</string>
+    <string name="login">Log In</string>
+    <string name="register">Register</string>
+    <string name="logout">Log Out</string>
+    <string name="account_guest">Not logged in. You can play locally, but cloud ranking and battle are disabled.</string>
+    <string name="account_logged_in">Logged in as %s</string>
+    <string name="account_fields_required">Email and password are required</string>
+    <string name="login_success">Logged in</string>
+    <string name="register_success">Registered and logged in</string>
+    <string name="logout_success">Logged out</string>
+    <string name="account_error">Account error: %s</string>
+    <string name="battle_mode">Battle Mode</string>
+    <string name="battle_requires_login">Login and network are required for online battle.</string>
+    <string name="battle_ready">Ready. Create a room or enter a room code.</string>
+    <string name="battle_active_room">Active room: %s. Return to Game to play with the shared board.</string>
+    <string name="battle_status">Room %1$s\nStatus: %2$s\nPlayer 1 score: %3$d\nPlayer 2 score: %4$d</string>
+    <string name="battle_error">Battle error: %s</string>
+    <string name="room_code">Room Code</string>
+    <string name="room_code_required">Room code is required</string>
+    <string name="create_room">Create Room</string>
+    <string name="join_room">Join Room</string>
+    <string name="leave_room">Leave Room</string>
+    <string name="room_created">Room created</string>
+    <string name="room_joined">Room joined</string>
+
     <!-- About -->
     <string name="about_title">About LianLianKan</string>
     <string name="about_message">LianLianKan v1.0\n\nMobile Application Development Course Project\n\nHow to Play:\n• Tap two identical animals to match\n• Path can have at most 2 turns\n• Clear all pairs within 2 minutes\n\nDifficulty:\n• Easy: 10 animal types\n• Medium: 15 animal types\n• Hard: 25 animal types</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="confirm_exit_title">Confirm Exit</string>
-    <string name="confirm_exit_message">Are you sure you want to exit? Current progress will be lost.</string>
+    <string name="confirm_exit_message">Are you sure you want to exit? Current progress will be saved automatically.</string>
 
     <!-- Version check -->
     <string name="version_check">Version Check</string>

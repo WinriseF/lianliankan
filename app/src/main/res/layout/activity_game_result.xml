@@ -190,5 +190,15 @@
                 android:textAllCaps="false"
                 app:cornerRadius="@dimen/shape_corner_large" />
         </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_share_result"
+            style="@style/Widget.LianLianKan.Button.Tonal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/component_height_large"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/share_result"
+            android:textAllCaps="false"
+            app:icon="@android:drawable/ic_menu_share" />
     </LinearLayout>
 </ScrollView>

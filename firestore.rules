@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read, write: if owns(uid);
+    }
+
+    match /rankings/{rankId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /saves/{uid}/current/{saveId} {
+      allow read, write: if owns(uid);
+    }
+
+    match /battles/{roomId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.player1Uid == request.auth.uid;
+      allow update: if signedIn()
+        && (resource.data.player1Uid == request.auth.uid
+          || resource.data.player2Uid == request.auth.uid
+          || request.resource.data.player2Uid == request.auth.uid);
+      allow delete: if false;
+    }
+  }
+}

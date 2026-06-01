@@ -139,18 +139,13 @@
                 app:strokeWidth="1dp"
                 app:strokeColor="@color/md_theme_light_outlineVariant">
 
-                <GridView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/grid_board"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
-                    android:gravity="center"
-                    android:horizontalSpacing="@dimen/grid_spacing"
-                    android:numColumns="8"
                     android:padding="@dimen/spacing_md"
-                    android:scrollbars="none"
-                    android:stretchMode="columnWidth"
-                    android:verticalSpacing="@dimen/grid_spacing" />
+                    android:scrollbars="none" />
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Shuffle Button -->

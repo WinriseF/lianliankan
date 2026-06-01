@@ -20,5 +20,8 @@ public final class RankContract {
         public static final String COLUMN_TIME_USED = "time_used";
         public static final String COLUMN_DIFFICULTY = "difficulty";
         public static final String COLUMN_TIMESTAMP = "timestamp";
+        public static final String COLUMN_UID = "uid";
+        public static final String COLUMN_SYNCED = "synced";
+        public static final String COLUMN_SIGNATURE = "signature";
     }
 }

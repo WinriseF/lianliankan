@@ -1,7 +1,7 @@
 package com.example.lianliankan.fragment;
 
-import android.content.ContentResolver;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,12 +21,20 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.databinding.FragmentRankingBinding;
+import com.example.lianliankan.model.RankRecord;
 import com.example.lianliankan.provider.RankContract;
+import com.example.lianliankan.repository.RankingRepository;
+import com.example.lianliankan.repository.RepositoryCallback;
+import com.google.firebase.firestore.ListenerRegistration;
+
+import java.util.List;
 
 public class RankingFragment extends Fragment {
 
     private FragmentRankingBinding binding;
     private RankingCursorAdapter adapter;
+    private RankingRepository rankingRepository;
+    private ListenerRegistration cloudRegistration;
 
     public RankingFragment() {
     }
@@ -47,6 +55,7 @@ public class RankingFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
+        rankingRepository = new RankingRepository(requireContext());
         setupListView();
         setupClearButton();
         loadRankingData();
@@ -76,19 +85,18 @@ public class RankingFragment extends Fragment {
                 .setTitle(R.string.confirm_clear_title)
                 .setMessage(R.string.confirm_clear_message)
                 .setPositiveButton(R.string.clear, (dialog, which) -> {
-                    new Thread(() -> {
-                        try {
-                            ContentResolver resolver = requireContext().getContentResolver();
-                            resolver.delete(RankContract.RankEntry.CONTENT_URI, null, null);
-                            requireActivity().runOnUiThread(() -> {
-                                loadRankingData();
-                                Toast.makeText(requireContext(), R.string.ranking_cleared, Toast.LENGTH_SHORT).show();
-                            });
-                        } catch (Exception e) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), R.string.clear_failed, Toast.LENGTH_SHORT).show());
+                    rankingRepository.clearLocalRankings(new RepositoryCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void value) {
+                            loadRankingData();
+                            Toast.makeText(requireContext(), R.string.ranking_cleared, Toast.LENGTH_SHORT).show();
                         }
-                    }).start();
+
+                        @Override
+                        public void onError(Exception error) {
+                            Toast.makeText(requireContext(), R.string.clear_failed, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
@@ -100,39 +108,89 @@ public class RankingFragment extends Fragment {
     }
 
     private void loadRankingData() {
-        new Thread(() -> {
-            try {
-                ContentResolver resolver = requireContext().getContentResolver();
-                final Cursor cursor = resolver.query(
-                        RankContract.RankEntry.CONTENT_URI,
-                        null, null, null,
-                        RankContract.RankEntry.COLUMN_SCORE + " DESC, " +
-                                RankContract.RankEntry.COLUMN_TIME_USED + " ASC, " +
-                                RankContract.RankEntry.COLUMN_TIMESTAMP + " DESC"
-                );
+        if (cloudRegistration != null) {
+            cloudRegistration.remove();
+            cloudRegistration = null;
+        }
+        int difficulty = com.example.lianliankan.util.PreferenceUtil.getDifficulty(requireContext());
+        cloudRegistration = rankingRepository.listenTopRankings(difficulty,
+                new RankingRepository.RankingListener() {
+                    @Override
+                    public void onRankingsChanged(List<RankRecord> records, boolean fromCloud) {
+                        if (binding == null) return;
+                        binding.tvSyncStatus.setText(fromCloud
+                                ? R.string.ranking_cloud_realtime
+                                : R.string.ranking_local_cache);
+                        Cursor cursor = toCursor(records);
+                        showCursor(cursor);
+                    }
 
-                requireActivity().runOnUiThread(() -> {
-                    if (cursor != null && cursor.getCount() > 0) {
-                        adapter.changeCursor(cursor);
-                        binding.cardNoData.setVisibility(View.GONE);
-                        binding.listRanking.setVisibility(View.VISIBLE);
-                    } else {
-                        binding.cardNoData.setVisibility(View.VISIBLE);
-                        binding.listRanking.setVisibility(View.GONE);
-                        if (cursor != null) cursor.close();
+                    @Override
+                    public void onError(Exception error) {
+                        if (binding == null) return;
+                        Toast.makeText(requireContext(), R.string.load_ranking_failed, Toast.LENGTH_SHORT).show();
                     }
                 });
-            } catch (Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), R.string.load_ranking_failed, Toast.LENGTH_SHORT).show());
-            }
-        }).start();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         loadRankingData();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (cloudRegistration != null) {
+            cloudRegistration.remove();
+            cloudRegistration = null;
+        }
+        if (adapter != null) {
+            adapter.changeCursor(null);
+        }
+        binding = null;
+    }
+
+    private Cursor toCursor(List<RankRecord> records) {
+        MatrixCursor cursor = new MatrixCursor(new String[]{
+                RankContract.RankEntry._ID,
+                RankContract.RankEntry.COLUMN_UID,
+                RankContract.RankEntry.COLUMN_PLAYER_NAME,
+                RankContract.RankEntry.COLUMN_SCORE,
+                RankContract.RankEntry.COLUMN_TIME_USED,
+                RankContract.RankEntry.COLUMN_DIFFICULTY,
+                RankContract.RankEntry.COLUMN_TIMESTAMP,
+                RankContract.RankEntry.COLUMN_SYNCED,
+                RankContract.RankEntry.COLUMN_SIGNATURE
+        });
+        int id = 1;
+        for (RankRecord record : records) {
+            cursor.addRow(new Object[]{
+                    id++,
+                    record.uid == null ? "guest" : record.uid,
+                    record.playerName == null ? getString(R.string.player_name) : record.playerName,
+                    record.score,
+                    record.timeUsed,
+                    record.difficulty,
+                    String.valueOf(record.createdAt),
+                    record.synced ? 1 : 0,
+                    ""
+            });
+        }
+        return cursor;
+    }
+
+    private void showCursor(Cursor cursor) {
+        if (cursor != null && cursor.getCount() > 0) {
+            adapter.changeCursor(cursor);
+            binding.cardNoData.setVisibility(View.GONE);
+            binding.listRanking.setVisibility(View.VISIBLE);
+        } else {
+            binding.cardNoData.setVisibility(View.VISIBLE);
+            binding.listRanking.setVisibility(View.GONE);
+            if (cursor != null) cursor.close();
+        }
     }
 
     private static class RankingCursorAdapter extends android.widget.CursorAdapter {

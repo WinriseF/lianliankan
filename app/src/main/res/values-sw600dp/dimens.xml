@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="component_height_large">56dp</dimen>
+    <dimen name="grid_spacing">8dp</dimen>
+</resources>

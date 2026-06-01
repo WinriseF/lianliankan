@@ -5,6 +5,7 @@ import com.example.lianliankan.model.AnimalItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class GameGenerator {
 
@@ -12,6 +13,10 @@ public class GameGenerator {
     public static final int BOARD_COLS = GameEngine.BOARD_COLS;
 
     public static List<AnimalItem> generateBoard(int rows, int cols, int difficulty) {
+        return generateBoard(rows, cols, difficulty, null);
+    }
+
+    public static List<AnimalItem> generateBoard(int rows, int cols, int difficulty, Long seed) {
         difficulty = clampDifficulty(difficulty);
         int totalCells = rows * cols;
         int pairsNeeded = totalCells / 2;
@@ -26,9 +31,14 @@ public class GameGenerator {
 
         List<Integer> idList = new ArrayList<>();
         for (int id : idArray) idList.add(id);
+        Random seededRandom = seed == null ? null : new Random(seed);
 
         for (int attempt = 0; attempt < 200; attempt++) {
-            Collections.shuffle(idList);
+            if (seededRandom == null) {
+                Collections.shuffle(idList);
+            } else {
+                Collections.shuffle(idList, seededRandom);
+            }
             List<AnimalItem> tempBoard = new ArrayList<>();
             for (int r = 0; r < rows; r++) {
                 for (int c = 0; c < cols; c++) {

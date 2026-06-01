@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/md_theme_light_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_xl">
+
+        <TextView
+            style="@style/TextAppearance.Material3.HeadlineMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/battle_mode"
+            android:textColor="@color/md_theme_light_onBackground" />
+
+        <TextView
+            android:id="@+id/tv_battle_status"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/battle_requires_login"
+            android:textColor="@color/md_theme_light_onSurfaceVariant" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:hint="@string/room_code">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_room_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create_room"
+            style="@style/Widget.LianLianKan.Button.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/component_height_large"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:text="@string/create_room"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_join_room"
+            style="@style/Widget.LianLianKan.Button.Tonal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/component_height_large"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/join_room"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_leave_room"
+            style="@style/Widget.LianLianKan.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/component_height_large"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/leave_room"
+            android:textAllCaps="false" />
+    </LinearLayout>
+</ScrollView>

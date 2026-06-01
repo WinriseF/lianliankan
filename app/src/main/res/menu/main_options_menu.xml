@@ -6,6 +6,16 @@
         android:icon="@android:drawable/ic_menu_preferences"
         android:showAsAction="ifRoom" />
     <item
+        android:id="@+id/menu_account"
+        android:title="@string/account"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/menu_battle"
+        android:title="@string/battle_mode"
+        android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="never" />
+    <item
         android:id="@+id/menu_about"
         android:title="@string/about_title"
         android:showAsAction="never" />
