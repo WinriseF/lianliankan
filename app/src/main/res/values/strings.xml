@@ -71,6 +71,8 @@
     <string name="load_ranking_failed">Failed to load ranking</string>
     <string name="ranking_cloud_realtime">Cloud ranking: realtime sync</string>
     <string name="ranking_local_cache">Offline/local ranking cache</string>
+    <string name="ranking_login_required">Not logged in. Showing local records only; log in to sync cloud ranking.</string>
+    <string name="login_to_sync_ranking">Log in to sync cloud ranking</string>
 
     <!-- Help -->
     <string name="help_title">How to Play</string>

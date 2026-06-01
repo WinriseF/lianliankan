@@ -2,6 +2,7 @@ package com.example.lianliankan.fragment;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,9 +21,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.example.lianliankan.R;
+import com.example.lianliankan.activity.AuthActivity;
 import com.example.lianliankan.databinding.FragmentRankingBinding;
 import com.example.lianliankan.model.RankRecord;
 import com.example.lianliankan.provider.RankContract;
+import com.example.lianliankan.repository.AuthRepository;
 import com.example.lianliankan.repository.RankingRepository;
 import com.example.lianliankan.repository.RepositoryCallback;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -34,6 +37,7 @@ public class RankingFragment extends Fragment {
     private FragmentRankingBinding binding;
     private RankingCursorAdapter adapter;
     private RankingRepository rankingRepository;
+    private AuthRepository authRepository;
     private ListenerRegistration cloudRegistration;
 
     public RankingFragment() {
@@ -56,8 +60,10 @@ public class RankingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
         rankingRepository = new RankingRepository(requireContext());
+        authRepository = new AuthRepository(requireContext());
         setupListView();
         setupClearButton();
+        setupLoginButton();
         loadRankingData();
     }
 
@@ -78,6 +84,11 @@ public class RankingFragment extends Fragment {
 
     private void setupClearButton() {
         binding.btnClearRanking.setOnClickListener(v -> clearRanking());
+    }
+
+    private void setupLoginButton() {
+        binding.btnLoginRanking.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AuthActivity.class)));
     }
 
     private void clearRanking() {
@@ -112,15 +123,19 @@ public class RankingFragment extends Fragment {
             cloudRegistration.remove();
             cloudRegistration = null;
         }
+        updateLoginPrompt();
         int difficulty = com.example.lianliankan.util.PreferenceUtil.getDifficulty(requireContext());
         cloudRegistration = rankingRepository.listenTopRankings(difficulty,
                 new RankingRepository.RankingListener() {
                     @Override
                     public void onRankingsChanged(List<RankRecord> records, boolean fromCloud) {
                         if (binding == null) return;
-                        binding.tvSyncStatus.setText(fromCloud
-                                ? R.string.ranking_cloud_realtime
-                                : R.string.ranking_local_cache);
+                        updateLoginPrompt();
+                        if (isLoggedIn()) {
+                            binding.tvSyncStatus.setText(fromCloud
+                                    ? R.string.ranking_cloud_realtime
+                                    : R.string.ranking_local_cache);
+                        }
                         Cursor cursor = toCursor(records);
                         showCursor(cursor);
                     }
@@ -137,6 +152,19 @@ public class RankingFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadRankingData();
+    }
+
+    private void updateLoginPrompt() {
+        if (binding == null) return;
+        boolean loggedIn = isLoggedIn();
+        binding.btnLoginRanking.setVisibility(loggedIn ? View.GONE : View.VISIBLE);
+        if (!loggedIn) {
+            binding.tvSyncStatus.setText(R.string.ranking_login_required);
+        }
+    }
+
+    private boolean isLoggedIn() {
+        return authRepository != null && authRepository.isLoggedIn();
     }
 
     @Override

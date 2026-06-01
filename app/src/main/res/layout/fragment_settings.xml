@@ -48,25 +48,37 @@
                     android:text="@string/language_setting"
                     android:textColor="@color/md_theme_light_onSurface" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/language_toggle_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_sm"
-                    android:hint="@string/language_setting"
-                    app:boxCornerRadiusBottomEnd="@dimen/shape_corner_medium"
-                    app:boxCornerRadiusBottomStart="@dimen/shape_corner_medium"
-                    app:boxCornerRadiusTopEnd="@dimen/shape_corner_medium"
-                    app:boxCornerRadiusTopStart="@dimen/shape_corner_medium"
-                    app:startIconDrawable="@android:drawable/ic_menu_mapmode">
+                    app:checkedButton="@id/btn_language_en"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/spinner_language"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none"
-                        android:text="@string/language_en" />
-                </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_language_en"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/component_height_large"
+                        android:layout_weight="1"
+                        android:text="@string/language_en"
+                        android:textAllCaps="false"
+                        app:cornerRadius="@dimen/shape_corner_medium"
+                        app:icon="@android:drawable/ic_menu_sort_alphabetically" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_language_zh"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/component_height_large"
+                        android:layout_weight="1"
+                        android:text="@string/language_zh"
+                        android:textAllCaps="false"
+                        app:cornerRadius="@dimen/shape_corner_medium"
+                        app:icon="@android:drawable/ic_menu_edit" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

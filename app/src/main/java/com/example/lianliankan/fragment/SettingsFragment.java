@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -65,7 +64,7 @@ public class SettingsFragment extends Fragment {
         binding.seekMusicVolume.setValue(currentVolume);
         updateMusicVolumeText(currentVolume);
 
-        setupLanguageDropdown();
+        setupLanguageToggle();
 
         binding.radioGroupDifficulty.setOnCheckedChangeListener((group, checkedId) -> {
             int difficulty;
@@ -118,6 +117,7 @@ public class SettingsFragment extends Fragment {
             binding.switchSoundEffects.setChecked(true);
             binding.switchBackgroundMusic.setChecked(true);
             binding.seekMusicVolume.setValue(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
+            binding.languageToggleGroup.check(R.id.btn_language_en);
             updateMusicVolumeText(PreferenceUtil.DEFAULT_MUSIC_VOLUME);
             startMusicService(MusicService.ACTION_PLAY);
             Toast.makeText(requireContext(), R.string.settings_reset, Toast.LENGTH_SHORT).show();
@@ -125,36 +125,20 @@ public class SettingsFragment extends Fragment {
         });
     }
 
-    private void setupLanguageDropdown() {
-        String[] langLabels = getResources().getStringArray(R.array.language_entries);
-        String[] langValues = getResources().getStringArray(R.array.language_values);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                langLabels);
-        binding.spinnerLanguage.setAdapter(adapter);
-
+    private void setupLanguageToggle() {
         String currentLang = PreferenceUtil.getLanguage(requireContext());
-        int langIndex = 0;
-        for (int i = 0; i < langValues.length; i++) {
-            if (currentLang.equals(langValues[i])) {
-                langIndex = i;
-                break;
-            }
-        }
-        binding.spinnerLanguage.setText(langLabels[langIndex], false);
-        binding.spinnerLanguage.dismissDropDown();
+        binding.languageToggleGroup.check(LocaleUtil.LANGUAGE_ZH.equals(currentLang)
+                ? R.id.btn_language_zh
+                : R.id.btn_language_en);
 
-        binding.spinnerLanguage.setOnItemClickListener((parent, view, position, id) -> {
-            if (position < 0 || position >= langValues.length) return;
-            String selectedLang = LocaleUtil.normalizeLanguage(langValues[position]);
-            String savedLang = PreferenceUtil.getLanguage(requireContext());
-            if (!selectedLang.equals(savedLang)) {
+        binding.languageToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            String selectedLang = checkedId == R.id.btn_language_zh
+                    ? LocaleUtil.LANGUAGE_ZH
+                    : LocaleUtil.LANGUAGE_EN;
+            if (!selectedLang.equals(PreferenceUtil.getLanguage(requireContext()))) {
                 PreferenceUtil.saveLanguage(requireContext(), selectedLang);
                 requireActivity().recreate();
-            } else {
-                binding.spinnerLanguage.setText(langLabels[position], false);
             }
         });
     }

@@ -115,6 +115,12 @@ public class BoardRecyclerAdapter extends RecyclerView.Adapter<BoardRecyclerAdap
         for (Integer position : pathPositions) notifyPosition(position);
     }
 
+    public void notifyCellsChanged(int... positions) {
+        for (int position : positions) {
+            notifyPosition(position);
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -126,6 +132,7 @@ public class BoardRecyclerAdapter extends RecyclerView.Adapter<BoardRecyclerAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.imageView.animate().cancel();
         int size = cellSize > 0
                 ? cellSize
                 : context.getResources().getDisplayMetrics().widthPixels / 10;
@@ -138,11 +145,13 @@ public class BoardRecyclerAdapter extends RecyclerView.Adapter<BoardRecyclerAdap
         holder.imageView.setTranslationX(0f);
         holder.imageView.setTranslationY(0f);
         holder.imageView.setRotation(0f);
+        holder.imageView.setClickable(!item.isMatched());
+        holder.imageView.setEnabled(!item.isMatched());
 
         if (item.isMatched()) {
             holder.imageView.setBackground(null);
-            holder.imageView.setImageResource(android.R.color.transparent);
-            holder.imageView.setAlpha(0.18f);
+            holder.imageView.setImageDrawable(null);
+            holder.imageView.setAlpha(0.0f);
         } else if (pathPositions.contains(position)) {
             setCellBackground(holder.imageView, Color.parseColor("#E8F5E9"),
                     Color.parseColor("#43A047"), 2);
@@ -165,12 +174,16 @@ public class BoardRecyclerAdapter extends RecyclerView.Adapter<BoardRecyclerAdap
             holder.imageView.setAlpha(1.0f);
         }
 
-        holder.imageView.setOnClickListener(v -> {
-            int adapterPosition = holder.getBindingAdapterPosition();
-            if (listener != null && adapterPosition != RecyclerView.NO_POSITION) {
-                listener.onItemClick(adapterPosition);
-            }
-        });
+        if (item.isMatched()) {
+            holder.imageView.setOnClickListener(null);
+        } else {
+            holder.imageView.setOnClickListener(v -> {
+                int adapterPosition = holder.getBindingAdapterPosition();
+                if (listener != null && adapterPosition != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(adapterPosition);
+                }
+            });
+        }
     }
 
     @Override

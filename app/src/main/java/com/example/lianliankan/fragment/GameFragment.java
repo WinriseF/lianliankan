@@ -193,6 +193,7 @@ public class GameFragment extends Fragment {
             binding.gridBoard.setLayoutManager(new GridLayoutManager(requireContext(), GameEngine.BOARD_COLS));
             binding.gridBoard.setAdapter(adapter);
             binding.gridBoard.setHasFixedSize(false);
+            binding.gridBoard.setItemAnimator(null);
             binding.gridBoard.setLongClickable(true);
             binding.gridBoard.post(this::fitGridBoardToContent);
             registerForContextMenu(binding.gridBoard);
@@ -328,6 +329,7 @@ public class GameFragment extends Fragment {
                 if (path != null && path.size() > 1) {
                     adapter.setPathPositions(path);
                 }
+                adapter.setSecondSelectedPosition(position);
 
                 score += 10 * (difficulty + 1);
                 remainingPairs--;
@@ -340,6 +342,7 @@ public class GameFragment extends Fragment {
                     firstItem.setMatched(true);
                     secondItem.setMatched(true);
                     adapter.clearSelection();
+                    adapter.notifyCellsChanged(firstPos, position);
                     firstSelected = null;
                     secondSelected = null;
                     isResolvingSelection = false;
@@ -426,7 +429,7 @@ public class GameFragment extends Fragment {
         if (view == null) return;
         animators.add(ObjectAnimator.ofFloat(view, View.SCALE_X, 1.0f, 1.18f, 0.05f));
         animators.add(ObjectAnimator.ofFloat(view, View.SCALE_Y, 1.0f, 1.18f, 0.05f));
-        animators.add(ObjectAnimator.ofFloat(view, View.ALPHA, 1.0f, 0.42f, 1.0f, 0.0f));
+        animators.add(ObjectAnimator.ofFloat(view, View.ALPHA, 1.0f, 0.0f));
     }
 
     private void animateMismatchPair(int firstPosition, int secondPosition) {

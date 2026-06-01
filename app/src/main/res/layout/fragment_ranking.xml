@@ -32,6 +32,17 @@
         android:text="@string/ranking_local_cache"
         android:textColor="@color/md_theme_light_secondary" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_login_ranking"
+        style="@style/Widget.LianLianKan.Button.Tonal"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/component_height_large"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:text="@string/login_to_sync_ranking"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:icon="@android:drawable/ic_menu_myplaces" />
+
     <!-- Empty State -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_no_data"
