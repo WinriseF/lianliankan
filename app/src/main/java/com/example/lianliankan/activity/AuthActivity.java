@@ -3,7 +3,11 @@ package com.example.lianliankan.activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,9 +22,14 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class AuthActivity extends AppCompatActivity {
 
+    private static final String TAG = "AuthActivity";
+    private static final long AUTH_TIMEOUT_MS = 20000L;
+
     private ActivityAuthBinding binding;
     private AuthRepository authRepository;
     private Context localeContext;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private int authOperationToken;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -61,7 +70,9 @@ public class AuthActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.account_fields_required, Toast.LENGTH_SHORT).show();
             return;
         }
-        authRepository.login(email, password, accountCallback(R.string.login_success));
+        int token = beginAuthOperation(R.string.login_in_progress);
+        Log.d(TAG, "Login requested for " + email);
+        authRepository.login(email, password, accountCallback(R.string.login_success, token));
     }
 
     private void register() {
@@ -73,24 +84,67 @@ public class AuthActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.account_fields_required, Toast.LENGTH_SHORT).show();
             return;
         }
-        authRepository.register(email, password, nickname, accountCallback(R.string.register_success));
+        int token = beginAuthOperation(R.string.register_in_progress);
+        Log.d(TAG, "Register requested for " + email);
+        authRepository.register(email, password, nickname, accountCallback(R.string.register_success, token));
     }
 
-    private RepositoryCallback<FirebaseUser> accountCallback(int successMessage) {
+    private RepositoryCallback<FirebaseUser> accountCallback(int successMessage, int token) {
         return new RepositoryCallback<FirebaseUser>() {
             @Override
             public void onSuccess(FirebaseUser value) {
+                if (!isCurrentOperation(token)) return;
+                finishAuthOperation();
                 updateAccountState();
                 Toast.makeText(AuthActivity.this, successMessage, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Auth operation succeeded");
             }
 
             @Override
             public void onError(Exception error) {
+                if (!isCurrentOperation(token)) return;
+                finishAuthOperation();
+                String message = error.getMessage() == null
+                        ? error.getClass().getSimpleName()
+                        : error.getMessage();
                 Toast.makeText(AuthActivity.this,
-                        getString(R.string.account_error, error.getMessage()),
+                        getString(R.string.account_error, message),
                         Toast.LENGTH_LONG).show();
+                binding.tvAccountStatus.setText(getString(R.string.account_error, message));
+                Log.e(TAG, "Auth operation failed", error);
             }
         };
+    }
+
+    private int beginAuthOperation(int statusRes) {
+        int token = ++authOperationToken;
+        setBusy(true);
+        binding.tvAccountStatus.setText(statusRes);
+        handler.postDelayed(() -> {
+            if (!isCurrentOperation(token)) return;
+            authOperationToken++;
+            setBusy(false);
+            binding.tvAccountStatus.setText(R.string.account_timeout);
+            Toast.makeText(this, R.string.account_timeout, Toast.LENGTH_LONG).show();
+            Log.w(TAG, "Auth operation timed out");
+        }, AUTH_TIMEOUT_MS);
+        return token;
+    }
+
+    private boolean isCurrentOperation(int token) {
+        return token == authOperationToken && !isFinishing();
+    }
+
+    private void finishAuthOperation() {
+        setBusy(false);
+        authOperationToken++;
+    }
+
+    private void setBusy(boolean busy) {
+        binding.progressAuth.setVisibility(busy ? View.VISIBLE : View.GONE);
+        binding.btnLogin.setEnabled(!busy);
+        binding.btnRegister.setEnabled(!busy);
+        binding.btnLogout.setEnabled(!busy);
     }
 
     private boolean ensureNetwork() {
@@ -113,5 +167,11 @@ public class AuthActivity extends AppCompatActivity {
 
     private String text(android.widget.TextView view) {
         return view.getText() == null ? "" : view.getText().toString().trim();
+    }
+
+    @Override
+    protected void onDestroy() {
+        handler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 }

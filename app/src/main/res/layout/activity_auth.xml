@@ -27,6 +27,16 @@
             android:text="@string/account_guest"
             android:textColor="@color/md_theme_light_onSurfaceVariant" />
 
+        <ProgressBar
+            android:id="@+id/progress_auth"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"

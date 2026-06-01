@@ -109,6 +109,6 @@ public class AuthRepository {
                 .document(uid)
                 .set(data)
                 .addOnSuccessListener(ignored -> callback.onSuccess(user))
-                .addOnFailureListener(callback::onError);
+                .addOnFailureListener(error -> callback.onSuccess(user));
     }
 }

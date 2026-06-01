@@ -119,10 +119,13 @@
     <string name="account_guest">Not logged in. You can play locally, but cloud ranking and battle are disabled.</string>
     <string name="account_logged_in">Logged in as %s</string>
     <string name="account_fields_required">Email and password are required</string>
+    <string name="login_in_progress">Signing in...</string>
+    <string name="register_in_progress">Registering account...</string>
     <string name="login_success">Logged in</string>
     <string name="register_success">Registered and logged in</string>
     <string name="logout_success">Logged out</string>
     <string name="account_error">Account error: %s</string>
+    <string name="account_timeout">No Firebase response. Check Email/Password Auth, Firestore, and network access.</string>
     <string name="battle_mode">Battle Mode</string>
     <string name="battle_requires_login">Login and network are required for online battle.</string>
     <string name="battle_ready">Ready. Create a room or enter a room code.</string>

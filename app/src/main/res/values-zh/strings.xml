@@ -119,10 +119,13 @@
     <string name="account_guest">当前未登录。可以本地游玩，但无法提交云排行榜或进入双人对战。</string>
     <string name="account_logged_in">已登录：%s</string>
     <string name="account_fields_required">邮箱和密码不能为空</string>
+    <string name="login_in_progress">正在登录...</string>
+    <string name="register_in_progress">正在注册账号...</string>
     <string name="login_success">登录成功</string>
     <string name="register_success">注册并登录成功</string>
     <string name="logout_success">已退出登录</string>
     <string name="account_error">账号错误：%s</string>
+    <string name="account_timeout">Firebase 暂无响应，请检查邮箱密码登录、Firestore 和网络访问。</string>
     <string name="battle_mode">双人对战</string>
     <string name="battle_requires_login">双人对战需要登录并保持网络连接。</string>
     <string name="battle_ready">已准备。可以创建房间或输入房间码加入。</string>
