@@ -236,18 +236,15 @@ public class RankProvider extends ContentProvider {
     }
 
     private int getInt(Cursor cursor, String key) {
-        int index = cursor.getColumnIndex(key);
-        return index >= 0 ? cursor.getInt(index) : 0;
+        return cursor.getInt(cursor.getColumnIndexOrThrow(key));
     }
 
     private long getLong(Cursor cursor, String key) {
-        int index = cursor.getColumnIndex(key);
-        return index >= 0 ? cursor.getLong(index) : 0;
+        return cursor.getLong(cursor.getColumnIndexOrThrow(key));
     }
 
     private String getString(Cursor cursor, String key) {
-        int index = cursor.getColumnIndex(key);
-        return index >= 0 ? cursor.getString(index) : "";
+        return cursor.getString(cursor.getColumnIndexOrThrow(key));
     }
 
     private void notifyChange(Uri uri) {

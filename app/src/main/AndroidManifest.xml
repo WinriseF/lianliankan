@@ -75,8 +75,6 @@
             <intent-filter>
                 <action android:name="com.example.lianliankan.ACTION_GAME_WIN" />
                 <action android:name="com.example.lianliankan.ACTION_GAME_RESULT" />
-                <action android:name="com.example.lianliankan.ACTION_START_MUSIC" />
-                <action android:name="com.example.lianliankan.ACTION_PAUSE_MUSIC" />
             </intent-filter>
         </receiver>
 

@@ -166,7 +166,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private String text(android.widget.TextView view) {
-        return view.getText() == null ? "" : view.getText().toString().trim();
+        return view.getText().toString().trim();
     }
 
     @Override

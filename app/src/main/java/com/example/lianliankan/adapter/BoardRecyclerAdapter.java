@@ -60,8 +60,8 @@ public class BoardRecyclerAdapter extends RecyclerView.Adapter<BoardRecyclerAdap
         void onItemClick(int position);
     }
 
-    public BoardRecyclerAdapter(Context context, List<AnimalItem> board,
-                                OnItemClickListener listener) {
+    public BoardRecyclerAdapter(@NonNull Context context, @NonNull List<AnimalItem> board,
+                                @NonNull OnItemClickListener listener) {
         this.context = context.getApplicationContext();
         this.board = board;
         this.listener = listener;
@@ -179,7 +179,7 @@ public class BoardRecyclerAdapter extends RecyclerView.Adapter<BoardRecyclerAdap
         } else {
             holder.imageView.setOnClickListener(v -> {
                 int adapterPosition = holder.getBindingAdapterPosition();
-                if (listener != null && adapterPosition != RecyclerView.NO_POSITION) {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
                     listener.onItemClick(adapterPosition);
                 }
             });
@@ -218,7 +218,7 @@ public class BoardRecyclerAdapter extends RecyclerView.Adapter<BoardRecyclerAdap
         if (animalId >= 0 && animalId < ANIMAL_DRAWABLES.length) {
             return ANIMAL_DRAWABLES[animalId];
         }
-        return ANIMAL_DRAWABLES[0];
+        throw new IllegalArgumentException("Unknown animalId: " + animalId);
     }
 
     private int dp(int value) {

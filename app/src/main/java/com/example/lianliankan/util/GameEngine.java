@@ -30,6 +30,14 @@ public class GameEngine {
         return row * BOARD_COLS + col;
     }
 
+    private static boolean isValidBoard(List<AnimalItem> board) {
+        if (board == null || board.size() != TOTAL_CELLS) return false;
+        for (AnimalItem item : board) {
+            if (item == null) return false;
+        }
+        return true;
+    }
+
     /**
      * 判断指定位置是否为空。
      *
@@ -37,13 +45,10 @@ public class GameEngine {
      * 也视为空格。真实棋盘内的格子只有已经消除后才算空。
      */
     private static boolean isEmpty(int row, int col, List<AnimalItem> board) {
-        if (board == null) return false;
         if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS) {
             return true;
         }
-        int index = indexOf(row, col);
-        if (index < 0 || index >= board.size() || board.get(index) == null) return false;
-        return board.get(index).isMatched();
+        return board.get(indexOf(row, col)).isMatched();
     }
 
     /**
@@ -72,9 +77,8 @@ public class GameEngine {
         return a.getRow() == b.getRow() && a.getCol() == b.getCol();
     }
 
-    private static boolean canTryLink(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
+    private static boolean canTryLink(AnimalItem a, AnimalItem b) {
         if (a == null || b == null) return false;
-        if (board == null || board.isEmpty()) return false;
         if (a.getAnimalId() != b.getAnimalId()) return false;
         if (a.isMatched() || b.isMatched()) return false;
         return !isSameTile(a, b);
@@ -94,7 +98,7 @@ public class GameEngine {
      */
     public static LinkedList<Point> findPath(AnimalItem a, AnimalItem b, List<AnimalItem> board) {
         LinkedList<Point> path = new LinkedList<>();
-        if (!canTryLink(a, b, board)) return path;
+        if (!isValidBoard(board) || !canTryLink(a, b)) return path;
 
         int ra = a.getRow(), ca = a.getCol();
         int rb = b.getRow(), cb = b.getCol();
@@ -166,9 +170,8 @@ public class GameEngine {
      * 判断游戏是否胜利（所有格子均已匹配）。
      */
     public static boolean isGameWon(List<AnimalItem> board) {
-        if (board == null || board.isEmpty()) return false;
+        if (!isValidBoard(board)) return false;
         for (AnimalItem item : board) {
-            if (item == null) return false;
             if (!item.isMatched()) return false;
         }
         return true;
@@ -178,13 +181,13 @@ public class GameEngine {
      * 检测是否存在至少一对可消除的动物。
      */
     public static boolean hasAnyLinkablePair(List<AnimalItem> board) {
-        if (board == null || board.isEmpty()) return false;
+        if (!isValidBoard(board)) return false;
         for (int i = 0; i < board.size(); i++) {
             AnimalItem a = board.get(i);
-            if (a == null || a.isMatched()) continue;
+            if (a.isMatched()) continue;
             for (int j = i + 1; j < board.size(); j++) {
                 AnimalItem b = board.get(j);
-                if (b == null || b.isMatched()) continue;
+                if (b.isMatched()) continue;
                 if (a.getAnimalId() == b.getAnimalId() && isLinkable(a, b, board)) {
                     return true;
                 }
@@ -197,13 +200,13 @@ public class GameEngine {
      * 寻找一对可消除的配对（下标）。
      */
     public static int[] findOneLinkablePair(List<AnimalItem> board) {
-        if (board == null || board.isEmpty()) return null;
+        if (!isValidBoard(board)) return null;
         for (int i = 0; i < board.size(); i++) {
             AnimalItem a = board.get(i);
-            if (a == null || a.isMatched()) continue;
+            if (a.isMatched()) continue;
             for (int j = i + 1; j < board.size(); j++) {
                 AnimalItem b = board.get(j);
-                if (b == null || b.isMatched()) continue;
+                if (b.isMatched()) continue;
                 if (a.getAnimalId() == b.getAnimalId() && isLinkable(a, b, board)) {
                     return new int[]{i, j};
                 }

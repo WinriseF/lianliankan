@@ -47,6 +47,7 @@ import com.example.lianliankan.util.SoundManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -108,10 +109,8 @@ public class GameFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (binding != null) {
-            binding.btnShuffle.setOnClickListener(v -> shuffleBoard());
-            setupSelectionDismissTargets();
-        }
+        binding.btnShuffle.setOnClickListener(v -> shuffleBoard());
+        setupSelectionDismissTargets();
 
         if (board != null) {
             bindBoardAndResume(savedInstanceState);
@@ -185,26 +184,22 @@ public class GameFragment extends Fragment {
 
     private void setupBoardRecycler() {
         adapter = new BoardRecyclerAdapter(requireContext(), board, position -> {
-            if (position < 0 || position >= board.size()) return;
             if (!isGameActive || isResolvingSelection) return;
             onAnimalClicked(position);
         });
-        if (binding != null) {
-            binding.gridBoard.setLayoutManager(new GridLayoutManager(requireContext(), GameEngine.BOARD_COLS));
-            binding.gridBoard.setAdapter(adapter);
-            binding.gridBoard.setHasFixedSize(false);
-            binding.gridBoard.setItemAnimator(null);
-            binding.gridBoard.setLongClickable(true);
-            binding.gridBoard.post(this::fitGridBoardToContent);
-            registerForContextMenu(binding.gridBoard);
-        }
+        binding.gridBoard.setLayoutManager(new GridLayoutManager(requireContext(), GameEngine.BOARD_COLS));
+        binding.gridBoard.setAdapter(adapter);
+        binding.gridBoard.setHasFixedSize(false);
+        binding.gridBoard.setItemAnimator(null);
+        binding.gridBoard.setLongClickable(true);
+        binding.gridBoard.post(this::fitGridBoardToContent);
+        registerForContextMenu(binding.gridBoard);
     }
 
     private void fitGridBoardToContent() {
         if (binding == null || adapter == null) return;
 
         int rows = (int) Math.ceil(adapter.getItemCount() / (float) GameEngine.BOARD_COLS);
-        if (rows <= 0) return;
 
         int availableWidth = binding.gridBoard.getWidth()
                 - binding.gridBoard.getPaddingStart()
@@ -248,7 +243,7 @@ public class GameFragment extends Fragment {
     }
 
     private void clearSelectionIfTouchOutsideActiveItem(MotionEvent event) {
-        if (binding == null || adapter == null || firstSelected == null || isResolvingSelection) {
+        if (adapter == null || firstSelected == null || isResolvingSelection) {
             return;
         }
         if (isTouchOnActiveBoardItem(event.getRawX(), event.getRawY())) {
@@ -258,8 +253,6 @@ public class GameFragment extends Fragment {
     }
 
     private boolean isTouchOnActiveBoardItem(float rawX, float rawY) {
-        if (binding == null || board == null) return false;
-
         Rect gridBounds = getViewScreenBounds(binding.gridBoard);
         int x = (int) rawX;
         int y = (int) rawY;
@@ -270,8 +263,7 @@ public class GameFragment extends Fragment {
             if (!getViewScreenBounds(child).contains(x, y)) continue;
 
             int adapterPosition = binding.gridBoard.getChildAdapterPosition(child);
-            return adapterPosition >= 0
-                    && adapterPosition < board.size()
+            return adapterPosition != RecyclerView.NO_POSITION
                     && !board.get(adapterPosition).isMatched();
         }
         return false;
@@ -323,10 +315,10 @@ public class GameFragment extends Fragment {
             List<GameEngine.Point> path =
                     GameEngine.findPath(firstItem, secondItem, board);
 
-            if (path != null && !path.isEmpty()) {
+            if (!path.isEmpty()) {
                 isResolvingSelection = true;
 
-                if (path != null && path.size() > 1) {
+                if (path.size() > 1) {
                     adapter.setPathPositions(path);
                 }
                 adapter.setSecondSelectedPosition(position);
@@ -533,10 +525,9 @@ public class GameFragment extends Fragment {
     }
 
     private List<AnimalItem> copyBoard(List<AnimalItem> source) {
-        if (source == null) return new ArrayList<>();
+        Objects.requireNonNull(source, "board");
         List<AnimalItem> snapshot = new ArrayList<>(source.size());
         for (AnimalItem item : source) {
-            if (item == null) continue;
             AnimalItem copy = new AnimalItem(
                     item.getAnimalId(),
                     item.getImageResId(),
@@ -682,7 +673,6 @@ public class GameFragment extends Fragment {
 
     private void shuffleBoard() {
         if (!isGameActive) return;
-        if (remainingPairs <= 0) return;
         scheduleAutoHint();
         cancelAutoHint();
 
@@ -730,7 +720,7 @@ public class GameFragment extends Fragment {
     }
 
     private void togglePause() {
-        if (remainingPairs <= 0 || timeRemaining <= 0) return;
+        if (!isGameActive && !isPaused) return;
         if (isPaused) {
             isPaused = false;
             isGameActive = true;
@@ -784,7 +774,7 @@ public class GameFragment extends Fragment {
     }
 
     private void saveCurrentGameState() {
-        if (gameStateRepository == null || board == null || remainingPairs <= 0 || timeRemaining <= 0) {
+        if (board == null || remainingPairs <= 0 || timeRemaining <= 0) {
             return;
         }
         SavedGameState state = SavedGameState.fromBoard(
@@ -799,14 +789,14 @@ public class GameFragment extends Fragment {
     }
 
     private void publishBattleProgress(@Nullable String status) {
-        if (battleRepository != null && battleRepository.hasActiveBattle()) {
+        if (battleRepository.hasActiveBattle()) {
             battleRepository.publishProgress(score, remainingPairs, status);
         }
     }
 
     private int getActiveDifficulty() {
         int preferred = PreferenceUtil.getDifficulty(requireContext());
-        if (battleRepository != null && battleRepository.hasActiveBattle()) {
+        if (battleRepository.hasActiveBattle()) {
             return battleRepository.getActiveDifficulty(preferred);
         }
         return preferred;
@@ -814,7 +804,7 @@ public class GameFragment extends Fragment {
 
     @Nullable
     private Long getActiveBattleSeed() {
-        if (battleRepository == null || !battleRepository.hasActiveBattle()) return null;
+        if (!battleRepository.hasActiveBattle()) return null;
         long seed = battleRepository.getActiveSeed();
         return seed == 0L ? null : seed;
     }

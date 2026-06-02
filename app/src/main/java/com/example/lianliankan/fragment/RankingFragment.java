@@ -10,10 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lianliankan.R;
 import com.example.lianliankan.activity.AuthActivity;
+import com.example.lianliankan.adapter.RankingCursorAdapter;
 import com.example.lianliankan.databinding.FragmentRankingBinding;
 import com.example.lianliankan.model.RankRecord;
 import com.example.lianliankan.provider.RankContract;
@@ -218,54 +216,6 @@ public class RankingFragment extends Fragment {
             binding.cardNoData.setVisibility(View.VISIBLE);
             binding.listRanking.setVisibility(View.GONE);
             if (cursor != null) cursor.close();
-        }
-    }
-
-    private static class RankingCursorAdapter extends android.widget.CursorAdapter {
-
-        public RankingCursorAdapter(Context context, Cursor c) {
-            super(context, c, 0);
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return LayoutInflater.from(context).inflate(R.layout.item_ranking, parent, false);
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            int rankPos = cursor.getPosition() + 1;
-
-            int nameIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_PLAYER_NAME);
-            int scoreIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_SCORE);
-            int timeIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_TIME_USED);
-            int diffIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_DIFFICULTY);
-
-            TextView tvRank = view.findViewById(R.id.tv_rank_num);
-            TextView tvName = view.findViewById(R.id.tv_rank_name);
-            TextView tvScore = view.findViewById(R.id.tv_rank_score);
-            TextView tvTime = view.findViewById(R.id.tv_rank_time);
-            TextView tvDiff = view.findViewById(R.id.tv_rank_difficulty);
-
-            tvRank.setText(String.valueOf(rankPos));
-
-            if (nameIndex >= 0) tvName.setText(cursor.getString(nameIndex));
-            if (scoreIndex >= 0) tvScore.setText(String.valueOf(cursor.getInt(scoreIndex)));
-            if (timeIndex >= 0) {
-                int secs = cursor.getInt(timeIndex);
-                tvTime.setText(String.format("%02d:%02d", secs / 60, secs % 60));
-            }
-            if (diffIndex >= 0) {
-                int d = cursor.getInt(diffIndex);
-                int diffTextRes;
-                switch (d) {
-                    case 0: diffTextRes = R.string.easy; break;
-                    case 1: diffTextRes = R.string.medium; break;
-                    case 2: diffTextRes = R.string.hard; break;
-                    default: diffTextRes = R.string.unknown; break;
-                }
-                tvDiff.setText(diffTextRes);
-            }
         }
     }
 }

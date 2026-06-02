@@ -35,32 +35,26 @@ public class SoundManager {
     }
 
     public void playClickSound() {
-        if (!PreferenceUtil.isSoundEnabled(context)) return;
         play(clickSound);
     }
 
     public void playMatchSound() {
-        if (!PreferenceUtil.isSoundEnabled(context)) return;
         play(matchSound);
     }
 
     public void playFailSound() {
-        if (!PreferenceUtil.isSoundEnabled(context)) return;
         play(failSound);
     }
 
     public void playWinSound() {
-        if (!PreferenceUtil.isSoundEnabled(context)) return;
         play(winSound);
     }
 
     public void playLoseSound() {
-        if (!PreferenceUtil.isSoundEnabled(context)) return;
         play(loseSound);
     }
 
     public void playDefaultSound() {
-        if (!PreferenceUtil.isSoundEnabled(context)) return;
         play(clickSound);
     }
 
@@ -71,7 +65,7 @@ public class SoundManager {
     }
 
     private void play(int soundId) {
-        if (released || soundId == 0) return;
+        if (released || soundId == 0 || !PreferenceUtil.isSoundEnabled(context)) return;
         try {
             soundPool.play(soundId, 1f, 1f, 1, 0, 1f);
         } catch (Exception e) {

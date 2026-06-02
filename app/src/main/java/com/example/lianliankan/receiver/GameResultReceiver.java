@@ -24,9 +24,6 @@ public class GameResultReceiver extends BroadcastReceiver {
     public GameResultReceiver() {
     }
 
-    public GameResultReceiver(Context context) {
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -121,9 +118,4 @@ public class GameResultReceiver extends BroadcastReceiver {
         }
     }
 
-    private static String formatTime(int seconds) {
-        int m = seconds / 60;
-        int s = seconds % 60;
-        return String.format(Locale.getDefault(), "%02d:%02d", m, s);
-    }
 }

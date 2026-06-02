@@ -215,14 +215,14 @@ public class RankDatabaseHelper extends SQLiteOpenHelper {
 
     public boolean isRankSignatureValid(Cursor cursor) {
         ContentValues values = new ContentValues();
-        values.put(RankEntry.COLUMN_UID, getString(cursor, RankEntry.COLUMN_UID, "guest"));
-        values.put(RankEntry.COLUMN_PLAYER_NAME, getString(cursor, RankEntry.COLUMN_PLAYER_NAME, "Player"));
-        values.put(RankEntry.COLUMN_SCORE, getInt(cursor, RankEntry.COLUMN_SCORE, 0));
-        values.put(RankEntry.COLUMN_TIME_USED, getInt(cursor, RankEntry.COLUMN_TIME_USED, 0));
-        values.put(RankEntry.COLUMN_DIFFICULTY, getInt(cursor, RankEntry.COLUMN_DIFFICULTY, 0));
-        values.put(RankEntry.COLUMN_TIMESTAMP, getString(cursor, RankEntry.COLUMN_TIMESTAMP, ""));
-        values.put(RankEntry.COLUMN_SYNCED, getInt(cursor, RankEntry.COLUMN_SYNCED, 0));
-        String signature = getString(cursor, RankEntry.COLUMN_SIGNATURE, "");
+        values.put(RankEntry.COLUMN_UID, getString(cursor, RankEntry.COLUMN_UID));
+        values.put(RankEntry.COLUMN_PLAYER_NAME, getString(cursor, RankEntry.COLUMN_PLAYER_NAME));
+        values.put(RankEntry.COLUMN_SCORE, getInt(cursor, RankEntry.COLUMN_SCORE));
+        values.put(RankEntry.COLUMN_TIME_USED, getInt(cursor, RankEntry.COLUMN_TIME_USED));
+        values.put(RankEntry.COLUMN_DIFFICULTY, getInt(cursor, RankEntry.COLUMN_DIFFICULTY));
+        values.put(RankEntry.COLUMN_TIMESTAMP, getString(cursor, RankEntry.COLUMN_TIMESTAMP));
+        values.put(RankEntry.COLUMN_SYNCED, getInt(cursor, RankEntry.COLUMN_SYNCED));
+        String signature = getString(cursor, RankEntry.COLUMN_SIGNATURE);
         return HmacUtil.matches(rankPayload(values), signature, passphrase);
     }
 
@@ -236,13 +236,11 @@ public class RankDatabaseHelper extends SQLiteOpenHelper {
                 values.getAsInteger(RankEntry.COLUMN_SYNCED);
     }
 
-    private String getString(Cursor cursor, String column, String fallback) {
-        int index = cursor.getColumnIndex(column);
-        return index >= 0 ? cursor.getString(index) : fallback;
+    private String getString(Cursor cursor, String column) {
+        return cursor.getString(cursor.getColumnIndexOrThrow(column));
     }
 
-    private int getInt(Cursor cursor, String column, int fallback) {
-        int index = cursor.getColumnIndex(column);
-        return index >= 0 ? cursor.getInt(index) : fallback;
+    private int getInt(Cursor cursor, String column) {
+        return cursor.getInt(cursor.getColumnIndexOrThrow(column));
     }
 }

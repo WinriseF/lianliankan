@@ -24,10 +24,10 @@ public class RankingCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        int nameIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_PLAYER_NAME);
-        int scoreIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_SCORE);
-        int timeIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_TIME_USED);
-        int diffIndex = cursor.getColumnIndex(RankContract.RankEntry.COLUMN_DIFFICULTY);
+        int nameIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_PLAYER_NAME);
+        int scoreIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_SCORE);
+        int timeIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_TIME_USED);
+        int diffIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_DIFFICULTY);
 
         TextView tvRank = view.findViewById(R.id.tv_rank_num);
         TextView tvName = view.findViewById(R.id.tv_rank_name);
@@ -38,22 +38,20 @@ public class RankingCursorAdapter extends CursorAdapter {
         int position = cursor.getPosition() + 1;
         tvRank.setText(String.valueOf(position));
 
-        if (nameIndex >= 0) tvName.setText(cursor.getString(nameIndex));
-        if (scoreIndex >= 0) tvScore.setText(String.valueOf(cursor.getInt(scoreIndex)));
-        if (timeIndex >= 0) {
-            int secs = cursor.getInt(timeIndex);
-            tvTime.setText(String.format("%02d:%02d", secs / 60, secs % 60));
+        tvName.setText(cursor.getString(nameIndex));
+        tvScore.setText(String.valueOf(cursor.getInt(scoreIndex)));
+
+        int secs = cursor.getInt(timeIndex);
+        tvTime.setText(String.format("%02d:%02d", secs / 60, secs % 60));
+
+        int d = cursor.getInt(diffIndex);
+        int diffTextRes;
+        switch (d) {
+            case 0: diffTextRes = R.string.easy; break;
+            case 1: diffTextRes = R.string.medium; break;
+            case 2: diffTextRes = R.string.hard; break;
+            default: diffTextRes = R.string.unknown; break;
         }
-        if (diffIndex >= 0) {
-            int d = cursor.getInt(diffIndex);
-            int diffTextRes;
-            switch (d) {
-                case 0: diffTextRes = R.string.easy; break;
-                case 1: diffTextRes = R.string.medium; break;
-                case 2: diffTextRes = R.string.hard; break;
-                default: diffTextRes = R.string.unknown; break;
-            }
-            tvDiff.setText(diffTextRes);
-        }
+        tvDiff.setText(diffTextRes);
     }
 }
