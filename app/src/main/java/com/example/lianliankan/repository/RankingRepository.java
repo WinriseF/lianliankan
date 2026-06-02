@@ -99,7 +99,7 @@ public class RankingRepository {
     }
 
     public ListenerRegistration listenTopRankings(int difficulty, RankingListener listener) {
-        if (firestore == null || !authRepository.isLoggedIn() || !NetworkUtil.isNetworkAvailable(appContext)) {
+        if (firestore == null || !NetworkUtil.isNetworkAvailable(appContext)) {
             loadLocalRankings(difficulty, listener);
             return null;
         }
@@ -150,7 +150,7 @@ public class RankingRepository {
                         record.score = getInt(cursor, RankEntry.COLUMN_SCORE);
                         record.timeUsed = getInt(cursor, RankEntry.COLUMN_TIME_USED);
                         record.difficulty = getInt(cursor, RankEntry.COLUMN_DIFFICULTY);
-                        record.synced = getInt(cursor, RankEntry.COLUMN_SYNCED) == 1;
+                        record.synced = false;
                         records.add(record);
                     }
                 }

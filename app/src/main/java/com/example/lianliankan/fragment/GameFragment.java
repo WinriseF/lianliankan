@@ -668,7 +668,7 @@ public class GameFragment extends Fragment {
             case 2: diffTextRes = R.string.hard; break;
             default: diffTextRes = R.string.unknown; break;
         }
-        binding.tvDifficultyLabel.setText(getString(R.string.difficulty_label, getString(diffTextRes)));
+        binding.tvDifficultyLabel.setText(diffTextRes);
     }
 
     private void shuffleBoard() {

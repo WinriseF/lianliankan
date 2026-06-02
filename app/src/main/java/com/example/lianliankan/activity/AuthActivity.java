@@ -98,6 +98,7 @@ public class AuthActivity extends AppCompatActivity {
                 updateAccountState();
                 Toast.makeText(AuthActivity.this, successMessage, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Auth operation succeeded");
+                finish();
             }
 
             @Override

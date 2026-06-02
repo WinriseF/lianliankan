@@ -28,12 +28,14 @@ public class RankingCursorAdapter extends CursorAdapter {
         int scoreIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_SCORE);
         int timeIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_TIME_USED);
         int diffIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_DIFFICULTY);
+        int syncedIndex = cursor.getColumnIndexOrThrow(RankContract.RankEntry.COLUMN_SYNCED);
 
         TextView tvRank = view.findViewById(R.id.tv_rank_num);
         TextView tvName = view.findViewById(R.id.tv_rank_name);
         TextView tvScore = view.findViewById(R.id.tv_rank_score);
         TextView tvTime = view.findViewById(R.id.tv_rank_time);
         TextView tvDiff = view.findViewById(R.id.tv_rank_difficulty);
+        TextView tvSource = view.findViewById(R.id.tv_rank_source);
 
         int position = cursor.getPosition() + 1;
         tvRank.setText(String.valueOf(position));
@@ -53,5 +55,8 @@ public class RankingCursorAdapter extends CursorAdapter {
             default: diffTextRes = R.string.unknown; break;
         }
         tvDiff.setText(diffTextRes);
+        tvSource.setText(cursor.getInt(syncedIndex) == 1
+                ? R.string.ranking_source_cloud
+                : R.string.ranking_source_local);
     }
 }

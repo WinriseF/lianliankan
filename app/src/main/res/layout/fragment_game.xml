@@ -50,7 +50,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.35"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
@@ -66,9 +66,6 @@
                             android:layout_width="104dp"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_xxs"
-                            android:drawableStart="@android:drawable/ic_menu_recent_history"
-                            android:drawablePadding="@dimen/spacing_sm"
-                            android:drawableTint="@color/md_theme_light_secondary"
                             android:gravity="center_vertical"
                             android:includeFontPadding="false"
                             android:maxLines="1"
@@ -83,6 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="@dimen/spacing_sm"
+                        android:gravity="center"
                         android:text="@string/difficulty_label"
                         android:textColor="@color/md_theme_light_onPrimaryContainer"
                         app:chipBackgroundColor="@color/md_theme_light_primaryContainer"
