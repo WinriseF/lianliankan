@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 
 import com.example.lianliankan.model.RankRecord;
 import com.example.lianliankan.dao.RankDatabaseHelper;
@@ -57,10 +58,12 @@ public class RankingRepository {
         String playerName = authRepository.getDisplayName();
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 .format(new Date());
-        boolean canSync = firestore != null
-                && authRepository.isLoggedIn()
+        boolean isWin = "win".equals(result);
+        boolean isLoggedIn = authRepository.isLoggedIn();
+        boolean canSyncNow = firestore != null
+                && isLoggedIn
                 && NetworkUtil.isNetworkAvailable(appContext);
-        if (canSync) {
+        if (canSyncNow) {
             flushPendingRankings();
         }
 
@@ -71,15 +74,20 @@ public class RankingRepository {
         values.put(RankEntry.COLUMN_TIME_USED, timeUsed);
         values.put(RankEntry.COLUMN_DIFFICULTY, difficulty);
         values.put(RankEntry.COLUMN_TIMESTAMP, timestamp);
-        values.put(RankEntry.COLUMN_SYNCED, canSync && "win".equals(result) ? 1 : 0);
-        appContext.getContentResolver().insert(RankContract.RankEntry.CONTENT_URI, values);
+        values.put(RankEntry.COLUMN_SYNCED, 0);
+        Uri localRankUri = appContext.getContentResolver().insert(RankContract.RankEntry.CONTENT_URI, values);
 
-        if (!"win".equals(result)) {
+        if (!isWin) {
             notifySuccess(callback);
             return;
         }
 
-        if (!canSync) {
+        if (!isLoggedIn) {
+            notifySuccess(callback);
+            return;
+        }
+
+        if (!canSyncNow) {
             enqueuePendingRank(uid, playerName, score, timeUsed, difficulty, timestamp);
             notifySuccess(callback);
             return;
@@ -90,6 +98,7 @@ public class RankingRepository {
         firestore.collection("rankings")
                 .add(record.toCloudMap())
                 .addOnSuccessListener(doc -> {
+                    markLocalRankSynced(localRankUri, values);
                     notifySuccess(callback);
                 })
                 .addOnFailureListener(e -> {
@@ -99,7 +108,8 @@ public class RankingRepository {
     }
 
     public ListenerRegistration listenTopRankings(int difficulty, RankingListener listener) {
-        if (firestore == null || !NetworkUtil.isNetworkAvailable(appContext)) {
+        if (firestore == null || !authRepository.isLoggedIn()
+                || !NetworkUtil.isNetworkAvailable(appContext)) {
             loadLocalRankings(difficulty, listener);
             return null;
         }
@@ -150,7 +160,8 @@ public class RankingRepository {
                         record.score = getInt(cursor, RankEntry.COLUMN_SCORE);
                         record.timeUsed = getInt(cursor, RankEntry.COLUMN_TIME_USED);
                         record.difficulty = getInt(cursor, RankEntry.COLUMN_DIFFICULTY);
-                        record.synced = false;
+                        record.createdAt = parseTimestamp(getString(cursor, RankEntry.COLUMN_TIMESTAMP));
+                        record.synced = getInt(cursor, RankEntry.COLUMN_SYNCED) == 1;
                         records.add(record);
                     }
                 }
@@ -179,11 +190,19 @@ public class RankingRepository {
         AppExecutors.io().execute(() -> {
             try {
                 appContext.getContentResolver().delete(RankContract.RankEntry.CONTENT_URI, null, null);
+                dbHelper.clearSyncQueue("ranking");
                 AppExecutors.main(() -> callback.onSuccess(null));
             } catch (Exception e) {
                 AppExecutors.main(() -> callback.onError(e));
             }
         });
+    }
+
+    private void markLocalRankSynced(Uri localRankUri, ContentValues originalValues) {
+        if (localRankUri == null) return;
+        ContentValues syncedValues = new ContentValues(originalValues);
+        syncedValues.put(RankEntry.COLUMN_SYNCED, 1);
+        appContext.getContentResolver().update(localRankUri, syncedValues, null, null);
     }
 
     private void enqueuePendingRank(String uid, String playerName, int score,
@@ -213,9 +232,17 @@ public class RankingRepository {
                     long id = cursor.getLong(cursor.getColumnIndexOrThrow(RankDatabaseHelper.COLUMN_QUEUE_ID));
                     String payload = cursor.getString(cursor.getColumnIndexOrThrow(RankDatabaseHelper.COLUMN_QUEUE_PAYLOAD));
                     JSONObject json = new JSONObject(payload);
+                    String queuedUid = json.optString("uid", "").trim();
+                    if (queuedUid.isEmpty() || "guest".equals(queuedUid)) {
+                        dbHelper.deleteSyncItem(id);
+                        continue;
+                    }
+                    if (!authRepository.getCurrentUid().equals(queuedUid)) {
+                        continue;
+                    }
                     RankRecord record = new RankRecord(
                             null,
-                            json.optString("uid", authRepository.getCurrentUid()),
+                            queuedUid,
                             json.optString("playerName", PreferenceUtil.getPlayerName(appContext)),
                             json.optInt("score", 0),
                             json.optInt("timeUsed", 0),
@@ -231,6 +258,23 @@ public class RankingRepository {
                 if (cursor != null) cursor.close();
             }
         });
+    }
+
+    private long parseTimestamp(String timestamp) {
+        if (timestamp == null || timestamp.trim().isEmpty()) {
+            return 0L;
+        }
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    .parse(timestamp)
+                    .getTime();
+        } catch (Exception ignored) {
+            try {
+                return Long.parseLong(timestamp);
+            } catch (NumberFormatException ignoredAgain) {
+                return 0L;
+            }
+        }
     }
 
     private int getInt(Cursor cursor, String key) {

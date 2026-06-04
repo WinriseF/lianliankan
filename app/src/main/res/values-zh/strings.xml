@@ -71,7 +71,7 @@
     <string name="load_ranking_failed">加载排行榜失败</string>
     <string name="ranking_cloud_realtime">云端排行榜：实时同步</string>
     <string name="ranking_local_cache">离线/本地排行榜缓存</string>
-    <string name="ranking_login_required">当前未登录；有网络时显示云端排行榜，本地记录会标记为本地。</string>
+    <string name="ranking_login_required">当前未登录，显示本地排行榜；登录后可同步云排行榜。</string>
     <string name="ranking_source_cloud">云端</string>
     <string name="ranking_source_local">本地</string>
     <string name="login_to_sync_ranking">登录以同步云排行榜</string>
