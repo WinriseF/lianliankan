@@ -14,7 +14,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/app_name" />
+        app:title="@string/app_name">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_toolbar_battle"
+            style="@style/Widget.LianLianKan.Button.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/component_height_medium"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:minWidth="0dp"
+            android:paddingStart="@dimen/spacing_md"
+            android:paddingEnd="@dimen/spacing_md"
+            android:text="@string/battle_mode"
+            android:textAllCaps="false" />
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/game_content"
@@ -130,6 +144,52 @@
                     app:trackCornerRadius="@dimen/shape_corner_full"
                     app:trackThickness="@dimen/spacing_sm" />
 
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_battle_status"
+                    style="@style/Widget.LianLianKan.CardView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_battle_room"
+                            style="@style/TextAppearance.Material3.LabelMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/md_theme_light_onSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/tv_battle_state"
+                            style="@style/TextAppearance.Material3.TitleMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:textColor="@color/md_theme_light_onSurface" />
+
+                        <TextView
+                            android:id="@+id/tv_battle_mine"
+                            style="@style/TextAppearance.Material3.BodyMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_sm"
+                            android:textColor="@color/md_theme_light_primary" />
+
+                        <TextView
+                            android:id="@+id/tv_battle_opponent"
+                            style="@style/TextAppearance.Material3.BodyMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:textColor="@color/md_theme_light_secondary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_shuffle"
                     style="@style/Widget.LianLianKan.Button.Tonal"
@@ -138,6 +198,7 @@
                     android:layout_marginTop="@dimen/spacing_md"
                     android:text="@string/shuffle"
                     android:textAllCaps="false" />
+
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

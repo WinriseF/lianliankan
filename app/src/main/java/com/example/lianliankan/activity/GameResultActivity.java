@@ -81,6 +81,21 @@ public class GameResultActivity extends AppCompatActivity {
             binding.tvResultTitle.setTextColor(getResources().getColor(R.color.success_green));
             binding.tvScore.setText(String.valueOf(score));
             binding.tvResultDetail.setText(getString(R.string.result_pairs_cleared_win, pairsCleared));
+        } else if ("battle_win".equals(result)) {
+            binding.tvResultTitle.setText(R.string.battle_result_win);
+            binding.tvResultTitle.setTextColor(getResources().getColor(R.color.success_green));
+            binding.tvScore.setText(String.valueOf(score));
+            binding.tvResultDetail.setText(R.string.battle_result_win_detail);
+        } else if ("battle_lost".equals(result)) {
+            binding.tvResultTitle.setText(R.string.battle_result_lost);
+            binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));
+            binding.tvScore.setText(String.valueOf(score));
+            binding.tvResultDetail.setText(R.string.battle_result_lost_detail);
+        } else if ("battle_draw".equals(result)) {
+            binding.tvResultTitle.setText(R.string.battle_result_draw);
+            binding.tvResultTitle.setTextColor(getResources().getColor(R.color.warning_amber));
+            binding.tvScore.setText(String.valueOf(score));
+            binding.tvResultDetail.setText(R.string.battle_result_draw_detail);
         } else if ("time_up".equals(result)) {
             binding.tvResultTitle.setText(R.string.time_up);
             binding.tvResultTitle.setTextColor(getResources().getColor(R.color.fail_red));

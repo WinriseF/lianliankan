@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.lianliankan.R;
+import com.example.lianliankan.activity.BattleActivity;
 import com.example.lianliankan.activity.MainActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +44,8 @@ import com.example.lianliankan.util.GameEngine;
 import com.example.lianliankan.util.GameGenerator;
 import com.example.lianliankan.util.PreferenceUtil;
 import com.example.lianliankan.util.SoundManager;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +60,7 @@ public class GameFragment extends Fragment {
     private static final int MATCH_RESOLVE_DELAY_MS = 300;
     private static final int MISMATCH_RESOLVE_DELAY_MS = 260;
     private static final int AUTO_HINT_DELAY_MS = 5000;
+    private static final long BATTLE_COUNTDOWN_REFRESH_MS = 250L;
 
     private FragmentGameBinding binding;
     private List<AnimalItem> board;
@@ -74,6 +78,14 @@ public class GameFragment extends Fragment {
     private SoundManager soundManager;
     private GameStateRepository gameStateRepository;
     private BattleRepository battleRepository;
+    private ListenerRegistration battleRegistration;
+    private boolean battleIsPlaying;
+    private boolean battleResultHandled;
+    private boolean boardCreatedForBattle;
+    private String boardBattleRoomId;
+    private long boardBattleSeed;
+    private long battleStartedAt;
+    private Runnable battleCountdownRunnable;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private int lastKnownDifficulty;
@@ -110,9 +122,15 @@ public class GameFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.btnShuffle.setOnClickListener(v -> shuffleBoard());
+        binding.btnToolbarBattle.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), BattleActivity.class)));
         setupSelectionDismissTargets();
+        setupBattleUi();
+        listenActiveBattle();
 
-        if (board != null) {
+        if (board != null && isBattleMode() && !isCurrentBoardForActiveBattle()) {
+            resetGame();
+        } else if (board != null) {
             bindBoardAndResume(savedInstanceState);
         } else {
             loadPersistedOrCreateGame();
@@ -120,6 +138,12 @@ public class GameFragment extends Fragment {
     }
 
     private void loadPersistedOrCreateGame() {
+        if (isBattleMode()) {
+            gameStateRepository.clear();
+            createNewBoard();
+            bindBoardAndResume(null);
+            return;
+        }
         gameStateRepository.load(new RepositoryCallback<SavedGameState>() {
             @Override
             public void onSuccess(SavedGameState state) {
@@ -151,7 +175,11 @@ public class GameFragment extends Fragment {
         updateRemainingCount();
         updateDifficultyLabel();
         updateTimerUI();
+        updateBattleControls();
         if (isPaused) {
+            return;
+        }
+        if (isBattleMode() && !battleIsPlaying) {
             return;
         }
         if (isGameActive || savedInstanceState == null) {
@@ -168,18 +196,24 @@ public class GameFragment extends Fragment {
         isPaused = state.isPaused();
         isGameActive = !isPaused && timeRemaining > 0 && remainingPairs > 0;
         board = state.toBoard();
+        boardCreatedForBattle = false;
+        boardBattleRoomId = null;
+        boardBattleSeed = 0L;
     }
 
     private void createNewBoard() {
         difficulty = getActiveDifficulty();
+        lastKnownDifficulty = difficulty;
         Long seed = getActiveBattleSeed();
         board = GameGenerator.generateBoard(
                 GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty, seed);
         remainingPairs = GameEngine.PAIRS_COUNT;
         score = 0;
         timeRemaining = TOTAL_TIME_SECONDS;
-        isGameActive = true;
+        isGameActive = !isBattleMode();
         isPaused = false;
+        battleResultHandled = false;
+        markBoardBattleIdentity();
     }
 
     private void setupBoardRecycler() {
@@ -240,6 +274,175 @@ public class GameFragment extends Fragment {
         binding.tvDifficultyLabel.setOnTouchListener(dismissSelectionOnTouch);
         binding.tvRemaining.setOnTouchListener(dismissSelectionOnTouch);
         binding.btnShuffle.setOnTouchListener(dismissSelectionOnTouch);
+        binding.btnToolbarBattle.setOnTouchListener(dismissSelectionOnTouch);
+    }
+
+    private void setupBattleUi() {
+        if (binding == null) return;
+        if (isBattleMode()) {
+            binding.cardBattleStatus.setVisibility(View.VISIBLE);
+            binding.tvBattleRoom.setText(getString(
+                    R.string.battle_hud_room,
+                    battleRepository.getActiveRoomId()));
+            binding.tvBattleState.setText(R.string.battle_status_waiting);
+        } else {
+            binding.cardBattleStatus.setVisibility(View.GONE);
+        }
+        updateBattleControls();
+    }
+
+    private void listenActiveBattle() {
+        if (!isBattleMode()) return;
+        if (battleRegistration != null) {
+            battleRegistration.remove();
+        }
+        battleRegistration = battleRepository.listenActiveBattle(new BattleRepository.BattleListener() {
+            @Override
+            public void onBattleChanged(DocumentSnapshot snapshot) {
+                handleBattleSnapshot(snapshot);
+            }
+
+            @Override
+            public void onError(Exception error) {
+                if (binding == null) return;
+                Toast.makeText(requireContext(),
+                        getString(R.string.battle_error, error.getMessage()),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void handleBattleSnapshot(DocumentSnapshot snapshot) {
+        if (binding == null) return;
+        updateBattleHud(snapshot);
+        String status = snapshot.getString("status");
+        battleIsPlaying = BattleRepository.STATUS_PLAYING.equals(status);
+        battleStartedAt = getLong(snapshot, "startedAt");
+        if (battleIsPlaying) {
+            if (board != null && !isGameActive && !isPaused
+                    && timeRemaining > 0 && remainingPairs > 0 && !battleResultHandled) {
+                startBattleAfterCountdown(battleStartedAt);
+            }
+            return;
+        }
+        if (BattleRepository.STATUS_FINISHED.equals(status)
+                || BattleRepository.STATUS_ABANDONED.equals(status)) {
+            handleRemoteBattleEnd(snapshot);
+        } else if (isGameActive) {
+            isGameActive = false;
+            stopTimer();
+            cancelAutoHint();
+            cancelBattleCountdown();
+        }
+    }
+
+    private void updateBattleHud(DocumentSnapshot snapshot) {
+        if (binding == null || !isBattleMode()) return;
+        String currentUid = battleRepository.getCurrentUid();
+        String player1Uid = snapshot.getString("player1Uid");
+        String mine = currentUid.equals(player1Uid) ? "player1" : "player2";
+        String opponent = "player1".equals(mine) ? "player2" : "player1";
+        String status = snapshot.getString("status");
+        String winnerUid = snapshot.getString("winnerUid");
+
+        binding.cardBattleStatus.setVisibility(View.VISIBLE);
+        binding.tvBattleRoom.setText(getString(R.string.battle_hud_room, snapshot.getId()));
+        if (winnerUid != null && !winnerUid.trim().isEmpty()) {
+            binding.tvBattleState.setText(getString(R.string.battle_winner,
+                    winnerName(snapshot, winnerUid)));
+        } else {
+            binding.tvBattleState.setText(battleStatusLabel(status));
+        }
+        binding.tvBattleMine.setText(getString(
+                R.string.battle_hud_player,
+                getString(R.string.battle_me),
+                getInt(snapshot, mine + "Score"),
+                getInt(snapshot, mine + "RemainingPairs"),
+                playerStatusLabel(snapshot.getString(mine + "Status"))));
+        binding.tvBattleOpponent.setText(getString(
+                R.string.battle_hud_player,
+                playerName(snapshot.getString(opponent + "Name")),
+                getInt(snapshot, opponent + "Score"),
+                getInt(snapshot, opponent + "RemainingPairs"),
+                playerStatusLabel(snapshot.getString(opponent + "Status"))));
+    }
+
+    private void handleRemoteBattleEnd(DocumentSnapshot snapshot) {
+        if (battleResultHandled || !isGameActive) return;
+        String winnerUid = snapshot.getString("winnerUid");
+        String result;
+        if (BattleRepository.WINNER_DRAW.equals(winnerUid)) {
+            result = "battle_draw";
+        } else if (battleRepository.getCurrentUid().equals(winnerUid)) {
+            result = "battle_win";
+        } else {
+            result = "battle_lost";
+        }
+        finishLocalBattleFromRemote(result);
+    }
+
+    private void finishLocalBattleFromRemote(String result) {
+        battleResultHandled = true;
+        isGameActive = false;
+        isPaused = false;
+        cancelAutoHint();
+        stopTimer();
+        int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
+        if ("battle_win".equals(result)) {
+            soundManager.playWinSound();
+        } else {
+            soundManager.playLoseSound();
+        }
+        gameStateRepository.clear();
+        battleRepository.clearActiveBattle();
+        Toast.makeText(requireContext(), battleResultMessage(result), Toast.LENGTH_SHORT).show();
+        sendGameResultBroadcast(result, score, timeUsed);
+    }
+
+    private void updateBattleControls() {
+        if (binding == null) return;
+        boolean battleMode = isBattleMode();
+        binding.btnShuffle.setEnabled(!battleMode);
+        binding.btnShuffle.setAlpha(battleMode ? 0.55f : 1.0f);
+        binding.btnToolbarBattle.setText(battleMode
+                ? R.string.continue_battle
+                : R.string.battle_mode);
+    }
+
+    private void startBattleAfterCountdown(long startedAt) {
+        if (binding == null || !isBattleMode() || battleResultHandled
+                || remainingPairs <= 0 || timeRemaining <= 0) {
+            return;
+        }
+        long safeStartedAt = startedAt <= 0 ? System.currentTimeMillis() : startedAt;
+        long remainingMs = safeStartedAt - System.currentTimeMillis();
+        if (remainingMs <= 0) {
+            cancelBattleCountdown();
+            binding.tvBattleState.setText(R.string.battle_countdown_go);
+            if (!isGameActive && !isPaused) {
+                startTimer();
+                publishBattleProgress(BattleRepository.PLAYER_PLAYING);
+            }
+            return;
+        }
+
+        isGameActive = false;
+        stopTimer();
+        cancelAutoHint();
+        int seconds = Math.max(1, (int) Math.ceil(remainingMs / 1000.0));
+        binding.tvBattleState.setText(getString(R.string.battle_countdown, seconds));
+        cancelBattleCountdown();
+        battleCountdownRunnable = () -> startBattleAfterCountdown(safeStartedAt);
+        handler.postDelayed(
+                battleCountdownRunnable,
+                Math.min(BATTLE_COUNTDOWN_REFRESH_MS, remainingMs));
+    }
+
+    private void cancelBattleCountdown() {
+        if (battleCountdownRunnable != null) {
+            handler.removeCallbacks(battleCountdownRunnable);
+            battleCountdownRunnable = null;
+        }
     }
 
     private void clearSelectionIfTouchOutsideActiveItem(MotionEvent event) {
@@ -548,7 +751,11 @@ public class GameFragment extends Fragment {
 
         soundManager.playWinSound();
         gameStateRepository.clear();
-        publishBattleProgress("finished");
+        if (isBattleMode()) {
+            battleResultHandled = true;
+            battleRepository.finishBattle(score, remainingPairs, timeUsed, "win");
+            battleRepository.clearActiveBattle();
+        }
         sendGameResultBroadcast("win", score, timeUsed);
     }
 
@@ -562,7 +769,11 @@ public class GameFragment extends Fragment {
 
         soundManager.playLoseSound();
         gameStateRepository.clear();
-        publishBattleProgress("failed");
+        if (isBattleMode()) {
+            battleResultHandled = true;
+            battleRepository.finishBattle(score, remainingPairs, timeUsed, reason);
+            battleRepository.clearActiveBattle();
+        }
         sendGameResultBroadcast(reason, score, timeUsed);
     }
 
@@ -618,6 +829,7 @@ public class GameFragment extends Fragment {
                     }
                     if (timeRemaining > 0 && timeRemaining % 5 == 0) {
                         saveCurrentGameState();
+                        publishBattleProgress(BattleRepository.PLAYER_PLAYING);
                     }
                     if (timeRemaining <= 0) {
                         onGameFail("time_up");
@@ -672,6 +884,10 @@ public class GameFragment extends Fragment {
     }
 
     private void shuffleBoard() {
+        if (isBattleMode()) {
+            Toast.makeText(requireContext(), R.string.battle_controls_locked, Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!isGameActive) return;
         scheduleAutoHint();
         cancelAutoHint();
@@ -699,12 +915,26 @@ public class GameFragment extends Fragment {
             if (pauseItem != null) {
                 pauseItem.setTitle(isPaused ? R.string.continue_game : R.string.pause_game);
             }
+            if (isBattleMode()) {
+                MenuItem shuffleItem = menu.findItem(R.id.menu_shuffle);
+                MenuItem restartItem = menu.findItem(R.id.menu_restart);
+                if (shuffleItem != null) shuffleItem.setEnabled(false);
+                if (restartItem != null) restartItem.setEnabled(false);
+                if (pauseItem != null) pauseItem.setEnabled(false);
+            }
         }
     }
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
+        if (isBattleMode()
+                && (itemId == R.id.menu_shuffle
+                || itemId == R.id.menu_restart
+                || itemId == R.id.menu_pause)) {
+            Toast.makeText(requireContext(), R.string.battle_controls_locked, Toast.LENGTH_SHORT).show();
+            return true;
+        }
         if (itemId == R.id.menu_shuffle) {
             shuffleBoard();
             return true;
@@ -774,6 +1004,9 @@ public class GameFragment extends Fragment {
     }
 
     private void saveCurrentGameState() {
+        if (isBattleMode()) {
+            return;
+        }
         if (board == null || remainingPairs <= 0 || timeRemaining <= 0) {
             return;
         }
@@ -790,8 +1023,82 @@ public class GameFragment extends Fragment {
 
     private void publishBattleProgress(@Nullable String status) {
         if (battleRepository.hasActiveBattle()) {
-            battleRepository.publishProgress(score, remainingPairs, status);
+            int timeUsed = TOTAL_TIME_SECONDS - timeRemaining;
+            battleRepository.publishProgress(score, remainingPairs, timeUsed, status);
         }
+    }
+
+    private boolean isBattleMode() {
+        return battleRepository != null && battleRepository.hasActiveBattle();
+    }
+
+    private boolean isCurrentBoardForActiveBattle() {
+        if (!isBattleMode()) return false;
+        String roomId = battleRepository.getActiveRoomId();
+        return boardCreatedForBattle
+                && roomId != null
+                && roomId.equals(boardBattleRoomId)
+                && boardBattleSeed == battleRepository.getActiveSeed();
+    }
+
+    private void markBoardBattleIdentity() {
+        boardCreatedForBattle = isBattleMode();
+        boardBattleRoomId = boardCreatedForBattle ? battleRepository.getActiveRoomId() : null;
+        boardBattleSeed = boardCreatedForBattle ? battleRepository.getActiveSeed() : 0L;
+    }
+
+    private String battleStatusLabel(String status) {
+        if (BattleRepository.STATUS_WAITING.equals(status)) return getString(R.string.battle_status_waiting);
+        if (BattleRepository.STATUS_READY.equals(status)) return getString(R.string.battle_status_ready);
+        if (BattleRepository.STATUS_PLAYING.equals(status)) return getString(R.string.battle_status_playing);
+        if (BattleRepository.STATUS_FINISHED.equals(status)) return getString(R.string.battle_status_finished);
+        if (BattleRepository.STATUS_ABANDONED.equals(status)) return getString(R.string.battle_status_abandoned);
+        return getString(R.string.unknown);
+    }
+
+    private String playerStatusLabel(String status) {
+        if (BattleRepository.PLAYER_WAITING.equals(status)) return getString(R.string.player_status_waiting);
+        if (BattleRepository.PLAYER_PLAYING.equals(status)) return getString(R.string.player_status_playing);
+        if (BattleRepository.PLAYER_FINISHED.equals(status)) return getString(R.string.player_status_finished);
+        if (BattleRepository.PLAYER_TIME_UP.equals(status)) return getString(R.string.player_status_time_up);
+        if (BattleRepository.PLAYER_FAILED.equals(status)) return getString(R.string.player_status_failed);
+        if (BattleRepository.PLAYER_LEFT.equals(status)) return getString(R.string.player_status_left);
+        return getString(R.string.player_status_empty);
+    }
+
+    private String playerName(String name) {
+        return name == null || name.trim().isEmpty()
+                ? getString(R.string.battle_waiting_player)
+                : name;
+    }
+
+    private String winnerName(DocumentSnapshot snapshot, String winnerUid) {
+        if (BattleRepository.WINNER_DRAW.equals(winnerUid)) {
+            return getString(R.string.battle_draw);
+        }
+        if (winnerUid.equals(snapshot.getString("player1Uid"))) {
+            return playerName(snapshot.getString("player1Name"));
+        }
+        if (winnerUid.equals(snapshot.getString("player2Uid"))) {
+            return playerName(snapshot.getString("player2Name"));
+        }
+        return getString(R.string.unknown);
+    }
+
+    private int getInt(DocumentSnapshot snapshot, String key) {
+        Long value = snapshot.getLong(key);
+        return value == null ? 0 : value.intValue();
+    }
+
+    private long getLong(DocumentSnapshot snapshot, String key) {
+        Long value = snapshot.getLong(key);
+        return value == null ? 0L : value;
+    }
+
+    private int battleResultMessage(String result) {
+        if ("battle_win".equals(result)) return R.string.battle_result_win;
+        if ("battle_draw".equals(result)) return R.string.battle_result_draw;
+        return R.string.battle_result_lost;
     }
 
     private int getActiveDifficulty() {
@@ -818,6 +1125,10 @@ public class GameFragment extends Fragment {
         outState.putInt("time_remaining", timeRemaining);
         outState.putBoolean("is_game_active", isGameActive);
         outState.putBoolean("is_paused", isPaused);
+        outState.putBoolean("board_created_for_battle", boardCreatedForBattle);
+        outState.putString("board_battle_room_id", boardBattleRoomId);
+        outState.putLong("board_battle_seed", boardBattleSeed);
+        outState.putLong("battle_started_at", battleStartedAt);
         if (board == null) return;
 
         int[] animalIds = new int[board.size()];
@@ -833,11 +1144,16 @@ public class GameFragment extends Fragment {
 
     private void restoreState(Bundle savedInstanceState) {
         difficulty = savedInstanceState.getInt("difficulty", 0);
+        lastKnownDifficulty = difficulty;
         remainingPairs = savedInstanceState.getInt("remaining_pairs", GameEngine.PAIRS_COUNT);
         score = savedInstanceState.getInt("score", 0);
         timeRemaining = savedInstanceState.getInt("time_remaining", TOTAL_TIME_SECONDS);
         isGameActive = savedInstanceState.getBoolean("is_game_active", true);
         isPaused = savedInstanceState.getBoolean("is_paused", false);
+        boardCreatedForBattle = savedInstanceState.getBoolean("board_created_for_battle", false);
+        boardBattleRoomId = savedInstanceState.getString("board_battle_room_id", null);
+        boardBattleSeed = savedInstanceState.getLong("board_battle_seed", 0L);
+        battleStartedAt = savedInstanceState.getLong("battle_started_at", 0L);
 
         int[] animalIds = savedInstanceState.getIntArray("animal_ids");
         boolean[] matchedStates = savedInstanceState.getBooleanArray("matched_states");
@@ -858,6 +1174,7 @@ public class GameFragment extends Fragment {
     public void onPause() {
         super.onPause();
         cancelAutoHint();
+        cancelBattleCountdown();
         saveCurrentGameState();
         stopTimer();
     }
@@ -879,10 +1196,30 @@ public class GameFragment extends Fragment {
         if (currentDifficulty != lastKnownDifficulty) {
             lastKnownDifficulty = currentDifficulty;
             resetGame();
-            Toast.makeText(requireContext(), R.string.difficulty_changed_restart, Toast.LENGTH_SHORT).show();
+            if (!isBattleMode()) {
+                Toast.makeText(requireContext(), R.string.difficulty_changed_restart, Toast.LENGTH_SHORT).show();
+            }
             return;
         }
-        
+
+        if (isBattleMode()) {
+            setupBattleUi();
+            listenActiveBattle();
+            if (!isCurrentBoardForActiveBattle()) {
+                resetGame();
+                return;
+            }
+            if (isPaused) {
+                updateTimerUI();
+            } else if (battleIsPlaying && !isGameActive && !battleResultHandled
+                    && timeRemaining > 0 && remainingPairs > 0) {
+                startBattleAfterCountdown(battleStartedAt);
+            } else if (isGameActive && timer == null) {
+                startTimer();
+            }
+            return;
+        }
+
         if (isPaused) {
             updateTimerUI();
         } else if (!isGameActive) {
@@ -897,6 +1234,7 @@ public class GameFragment extends Fragment {
         cancelAutoHint();
         gameStateRepository.clear();
         difficulty = getActiveDifficulty();
+        lastKnownDifficulty = difficulty;
         Long seed = getActiveBattleSeed();
         board = GameGenerator.generateBoard(
                 GameEngine.BOARD_ROWS, GameEngine.BOARD_COLS, difficulty, seed);
@@ -908,13 +1246,20 @@ public class GameFragment extends Fragment {
         isResolvingSelection = false;
         firstSelected = null;
         secondSelected = null;
+        battleResultHandled = false;
+        markBoardBattleIdentity();
         if (binding != null) {
             setupBoardRecycler();
             updateRemainingCount();
             updateDifficultyLabel();
             updateTimerUI();
+            setupBattleUi();
         }
-        startTimer();
+        if (!isBattleMode()) {
+            startTimer();
+        } else if (battleIsPlaying) {
+            startBattleAfterCountdown(battleStartedAt);
+        }
         saveCurrentGameState();
     }
 
@@ -923,6 +1268,11 @@ public class GameFragment extends Fragment {
         super.onDestroyView();
         stopTimer();
         cancelAutoHint();
+        cancelBattleCountdown();
+        if (battleRegistration != null) {
+            battleRegistration.remove();
+            battleRegistration = null;
+        }
         handler.removeCallbacksAndMessages(null);
         if (soundManager != null) {
             soundManager.release();

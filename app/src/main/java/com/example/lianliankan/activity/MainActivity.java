@@ -30,6 +30,7 @@ import com.example.lianliankan.util.PreferenceUtil;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String EXTRA_OPEN_GAME = "open_game";
     private static final int REQUEST_POST_NOTIFICATIONS = 1001;
 
     private ActivityMainBinding binding;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         setupBottomNavigation();
         gameResultReceiver = new GameResultReceiver();
         requestNotificationPermissionIfNeeded();
+        handleNavigationIntent(getIntent());
     }
 
     private void setupBottomNavigation() {
@@ -85,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(GameResultReceiver.ACTION_GAME_WIN);
         filter.addAction(GameResultReceiver.ACTION_GAME_RESULT);
         LocalBroadcastManager.getInstance(this).registerReceiver(gameResultReceiver, filter);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNavigationIntent(intent);
     }
 
     @Override
@@ -127,6 +136,12 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(R.string.about_message)
                 .setPositiveButton(R.string.ok, null)
                 .show();
+    }
+
+    private void handleNavigationIntent(Intent intent) {
+        if (intent != null && intent.getBooleanExtra(EXTRA_OPEN_GAME, false)) {
+            binding.bottomNavigation.setSelectedItemId(R.id.gameFragment);
+        }
     }
 
     @Override

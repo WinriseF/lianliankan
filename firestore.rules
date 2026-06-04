@@ -27,12 +27,77 @@ service cloud.firestore {
     match /battles/{roomId} {
       allow read: if signedIn();
       allow create: if signedIn()
-        && request.resource.data.player1Uid == request.auth.uid;
+        && request.resource.data.player1Uid == request.auth.uid
+        && request.resource.data.status == "waiting";
       allow update: if signedIn()
-        && (resource.data.player1Uid == request.auth.uid
-          || resource.data.player2Uid == request.auth.uid
-          || request.resource.data.player2Uid == request.auth.uid);
+        && (isJoiningBattle()
+          || canUpdatePlayer1Battle()
+          || canUpdatePlayer2Battle());
       allow delete: if false;
+    }
+
+    function battleChangedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    function battleCommonKeysAreValid() {
+      return (!battleChangedKeys().hasAny(["status"])
+          || request.resource.data.status in ["ready", "playing", "finished", "abandoned"])
+        && (!battleChangedKeys().hasAny(["winnerUid"])
+          || request.resource.data.winnerUid in [
+            "",
+            "draw",
+            resource.data.player1Uid,
+            resource.data.player2Uid
+          ]);
+    }
+
+    function isJoiningBattle() {
+      return resource.data.player2Uid == ""
+        && request.resource.data.player2Uid == request.auth.uid
+        && request.resource.data.status == "ready"
+        && battleChangedKeys().hasOnly([
+          "player2Uid",
+          "player2Name",
+          "player2Score",
+          "player2RemainingPairs",
+          "player2TimeUsed",
+          "player2Status",
+          "player2UpdatedAt",
+          "status"
+        ]);
+    }
+
+    function canUpdatePlayer1Battle() {
+      return resource.data.player1Uid == request.auth.uid
+        && battleCommonKeysAreValid()
+        && battleChangedKeys().hasOnly([
+          "player1Score",
+          "player1RemainingPairs",
+          "player1TimeUsed",
+          "player1Status",
+          "player1UpdatedAt",
+          "status",
+          "startedAt",
+          "winnerUid",
+          "finishedAt"
+        ]);
+    }
+
+    function canUpdatePlayer2Battle() {
+      return resource.data.player2Uid == request.auth.uid
+        && battleCommonKeysAreValid()
+        && battleChangedKeys().hasOnly([
+          "player2Score",
+          "player2RemainingPairs",
+          "player2TimeUsed",
+          "player2Status",
+          "player2UpdatedAt",
+          "status",
+          "startedAt",
+          "winnerUid",
+          "finishedAt"
+        ]);
     }
   }
 }

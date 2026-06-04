@@ -26,6 +26,24 @@
             android:text="@string/battle_requires_login"
             android:textColor="@color/md_theme_light_onSurfaceVariant" />
 
+        <TextView
+            android:id="@+id/tv_battle_hint"
+            style="@style/TextAppearance.Material3.BodySmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/battle_hint"
+            android:textColor="@color/md_theme_light_onSurfaceVariant" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_battle_login"
+            style="@style/Widget.LianLianKan.Button.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/component_height_large"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/login"
+            android:textAllCaps="false" />
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -56,6 +74,15 @@
             android:layout_height="@dimen/component_height_large"
             android:layout_marginTop="@dimen/spacing_md"
             android:text="@string/join_room"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start_battle"
+            style="@style/Widget.LianLianKan.Button.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/component_height_large"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/start_battle"
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
